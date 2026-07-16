@@ -1143,7 +1143,7 @@ function tabOverview(d){
               <div><div class="li-t">Channels · ${sf}</div><div class="li-s">${sf.split(' · ').length} sales channel${sf.split(' · ').length>1?'s':''} connected</div></div></div>
             ${linkedFor(d).map(l=>`<a class="linkitem flag" href="#" onclick="toast('Opening linked org (demo)');return false;">
               <span class="li-ic" style="background:var(--warning-bg);color:var(--warning);font-weight:800">${l[0][0]}</span>
-              <div><div class="li-t">${l[0]}</div><div class="li-s">Linked — ${l[1].toLowerCase()} · possible group exposure</div></div><span class="li-open">Open ↗</span></a>`).join('')}
+              <div><div class="li-t">${l[0]}</div><div class="li-s">Linked · ${l[1].toLowerCase()}</div></div><span class="li-open">Open ↗</span></a>`).join('')}
           </div>
           <div class="gcol">
             <div class="collbl">Top products</div>
