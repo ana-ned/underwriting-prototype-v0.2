@@ -257,11 +257,26 @@ tr.clickable:hover .goarrow{background:var(--brand-600);color:#fff;border-color:
 .conf{display:inline-block;min-width:38px;text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
 .conf.lo{color:var(--red-t)} .conf.mid{color:var(--amber-t)} .conf.hi{color:var(--text-3)}
 table.grid tr.flagged td{background:var(--warning-bg)}
-.recur{font-size:15px;line-height:1;color:var(--success)} .recur.off{color:var(--border-2,#cfd8dc)}
-.matched{font-size:15px;line-height:1} .matched.yes{color:var(--warning)} .matched.no{color:var(--border-2,#cfd8dc)}
-.txbar{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-.txbar .spacer{flex:1}
-.txbar .selinfo{font-size:12px;color:var(--text-3)}
+/* Transactions header + toggle + compact grid */
+.txhead{display:flex;align-items:flex-start;gap:14px;padding:14px 16px;border-bottom:1px solid var(--border)}
+.txhead .txtitle{font-weight:800;font-size:15px;color:var(--ink)}
+.txhead .txcount{font-weight:600;color:var(--text-3);font-size:13px}
+.txhead .txsub{font-size:12px;color:var(--text-3);margin-top:2px}
+.txactions{margin-left:auto;display:flex;align-items:center;gap:14px;flex-shrink:0}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-2);cursor:pointer;user-select:none;white-space:nowrap}
+.toggle input{position:absolute;opacity:0;width:0;height:0}
+.toggle .sw{width:34px;height:19px;border-radius:19px;background:#cfd8dc;position:relative;transition:background .15s;flex:0 0 34px}
+.toggle .sw::after{content:'';position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#fff;transition:transform .15s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.toggle input:checked + .sw{background:var(--brand-600)}
+.toggle input:checked + .sw::after{transform:translateX(15px)}
+table.grid.compact th{padding:8px 12px}
+table.grid.compact td{padding:5px 12px}
+table.grid td.nowrap,table.grid th.nowrap{white-space:nowrap}
+.txsel{max-width:190px}
+.autosave{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--text-3);white-space:nowrap}
+.autosave svg{width:13px;height:13px;color:var(--success)}
+.autosave.saving{color:var(--brand-700)}
+.autosave.saving svg{color:var(--brand-600)}
 /* Monthly cash-based P&L (Ravi structure) */
 .pl-head{display:flex;align-items:center;gap:9px;font-weight:800;font-size:14px;color:var(--ink);padding:14px 16px;border-bottom:1px solid var(--border)}
 .pl-ic{width:26px;height:26px;border-radius:6px;background:var(--grey-1);display:flex;align-items:center;justify-content:center;color:var(--text-2);flex:0 0 26px}
@@ -1415,7 +1430,7 @@ function openModel(id){const d=byId(id);
 
 /* ---------- CATEGORISATION TAB ---------- */
 const CATG={};
-const CAT_OPTS=['Revenue','Variable costs','Fixed costs','Taxes','Debt repayment','Owners inflow','Unreconciled intra-company','Special inflow','Uncategorised'];
+const CAT_OPTS=['Revenue','Variable costs','Fixed costs','Taxes','Debt repayment','Owners inflow','Intra-company transfer','Special inflow','Uncategorised'];
 function txnData(d){
   // [date, desc, amt, cat, conf, flag, merchant, recurring, acctMask, matched]
   const rows=[
@@ -1424,65 +1439,64 @@ function txnData(d){
     ['2026-06-25','Inventory — supplier co.',-21540,'Variable costs',95,false,'Ningbo Supply Co.',true,'4021',false],
     ['2026-06-24','Meta ads',-6260,'Variable costs',96,false,'Meta Platforms',true,'4021',false],
     ['2026-06-22','Payroll run',-14100,'Fixed costs',98,false,'Gusto',true,'4021',false],
-    ['2026-06-20','WIRE IN — ref 8841',60000,'Uncategorised',38,true,'—',false,'4021',false],
-    ['2026-06-18','ATM deposit',5000,'Uncategorised',44,true,'—',false,'4021',false],
-    ['2026-06-15','Transfer to ••••4231',-18000,'Unreconciled intra-company',52,true,'—',false,'4021',true],
+    ['2026-06-20','WIRE IN — ref 8841',60000,'Uncategorised',38,true,'Wire — unidentified',false,'4021',false],
+    ['2026-06-18','ATM deposit',5000,'Uncategorised',44,true,'ATM / cash',false,'4021',false],
+    ['2026-06-15','Transfer to ••••4231',-18000,'Intra-company transfer',52,true,'Northwind Trading Ltd',false,'4021',true],
     ['2026-06-12','Card processor fee',-980,'Variable costs',93,false,'Stripe',true,'4021',false],
     ['2026-06-10','Loan repayment — lender',-9500,'Debt repayment',90,false,'Kabbage',true,'4021',false],
     ['2026-06-08','Tax payment — HMRC',-12400,'Taxes',97,false,'HMRC',false,'4021',false],
-    ['2026-06-05','Remote deposit',3200,'Uncategorised',49,true,'—',false,'4021',false],
+    ['2026-06-05','Remote deposit',3200,'Uncategorised',49,true,'Mobile deposit',false,'4021',false],
   ];
   return rows.map(r=>({date:r[0],desc:r[1],amt:r[2],cat:r[3],conf:r[4],flag:r[5],merch:r[6],recur:r[7],acct:r[8],matched:r[9]}));
 }
 function tabCateg(d){CATG[d.id]=CATG[d.id]||{sub:'pl',filter:'all',txns:txnData(d)};renderCateg(d.id);}
+function fmtDate(s){const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];const p=s.split('-');return (+p[2])+' '+M[+p[1]-1]+' '+p[0].slice(2);}
+function catStatus(t){return t.flag?'<span class="chip c-warning">Review</span>':t.resolved?'<span class="chip c-success">Resolved</span>':'<span class="chip c-neutral">Auto</span>';}
 function renderCateg(id){
   const d=byId(id),st=CATG[id],tx=st.txns;
-  const flagged=tx.filter(t=>t.flag),toReview=flagged.length,absVal=flagged.reduce((s,t)=>s+Math.abs(t.amt),0);
+  const flagged=tx.filter(t=>t.flag),toReview=flagged.length;
   const conf=Math.round(tx.reduce((s,t)=>s+t.conf,0)/tx.length);
   const issues=d.hygiene.filter(h=>h[1]!=='g').length;
+  const bookTotal=(1400+Math.round(d.preoffer/220)).toLocaleString('en-GB');
   const rows=(st.filter==='flagged'?flagged:tx);
-  const txTable= `
-    <div class="txbar">
-      <span class="selinfo">${rows.length} transaction${rows.length!=1?'s':''}${st.filter==='flagged'?' needing review':''} · ${d.source} · GBP</span>
-      <span class="spacer"></span>
-      <button class="btn btn-outline btn-sm" onclick="toast('Bulk re-categorise (demo)')">Change category ▾</button>
-      <button class="btn btn-outline btn-sm" onclick="toast('Categorisation saved (demo)')">Confirm &amp; save</button>
-      <button class="btn btn-primary btn-sm" onclick="toast('Banking scorecards re-run (demo)')">Rerun banking scorecards</button>
-    </div>
-    <div class="card"><div style="overflow:auto">
-    <table class="grid flat"><thead><tr><th>Timestamp</th><th>Description</th><th>Merchant</th><th class="num">Amount</th><th>Category</th><th class="num">Conf.</th><th style="text-align:center">Recurring</th><th>Account</th><th style="text-align:center">Matched</th></tr></thead>
-    <tbody>${rows.map(t=>{const gi=tx.indexOf(t),cc=t.conf<60?'lo':t.conf<85?'mid':'hi';
-      return `<tr class="${t.flag?'flagged':''}"><td class="mono">${t.date}</td><td>${t.desc}</td><td class="${t.merch==='—'?'muted':''}">${t.merch}</td><td class="num mono">${money(t.amt)}</td>
-      <td><select class="txsel" onchange="recat('${id}',${gi},this.value)">${CAT_OPTS.map(o=>`<option ${o===t.cat?'selected':''}>${o}</option>`).join('')}</select></td>
-      <td class="num"><span class="conf ${cc}">${t.conf}%</span></td>
-      <td style="text-align:center"><span class="recur ${t.recur?'':'off'}" title="${t.recur?'Recurring':'One-off'}">${t.recur?'↻':'·'}</span></td>
-      <td class="mono muted">••••${t.acct}</td>
-      <td style="text-align:center"><span class="matched ${t.matched?'yes':'no'}" title="${t.matched?'Has matching transaction (intra-company)':'No match'}">${t.matched?'⇄':'·'}</span></td></tr>`}).join('')}
-    ${rows.length?'':'<tr><td colspan="9" class="muted" style="text-align:center;padding:20px">Nothing left to review — all clear ✓</td></tr>'}</tbody></table></div></div>`;
-  const body= st.sub==='tx' ? txTable : `<div class="card">${monthlyPL(d)}</div>`;
+  const txPane= `
+    <div class="card">
+      <div class="txhead">
+        <div>
+          <div class="txtitle">Transactions <span class="txcount">· ${toReview} to review</span></div>
+          <div class="txsub">${bookTotal} categorised automatically · ${conf}% mean confidence${issues?` · ${issues} data issue${issues!=1?'s':''}`:' · all flags cleared'}</div>
+        </div>
+        <div class="txactions">
+          <span class="autosave" id="autosave-${id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Autosaved</span>
+          <label class="toggle"><input type="checkbox" ${st.filter==='flagged'?'checked':''} onchange="catFilter('${id}')"><span class="sw"></span>Show only flagged</label>
+          <button class="btn btn-primary btn-sm" onclick="acceptAll('${id}')" ${toReview?'':'disabled'}>Accept all suggestions</button>
+        </div>
+      </div>
+      <div style="overflow:auto">
+      <table class="grid flat compact"><thead><tr><th class="nowrap">Date</th><th>Description</th><th>Counterparty</th><th class="num">Amount</th><th class="nowrap">Account</th><th>Category</th><th class="num">Conf.</th><th>Status</th></tr></thead>
+      <tbody>${rows.map(t=>{const gi=tx.indexOf(t),cc=t.conf<60?'lo':t.conf<85?'mid':'hi';
+        return `<tr class="${t.flag?'flagged':''}"><td class="mono nowrap">${fmtDate(t.date)}</td><td>${t.desc}</td><td class="${t.merch==='—'?'muted':''}">${t.merch}</td><td class="num mono">${money(t.amt)}</td>
+        <td class="mono muted nowrap">••••${t.acct}</td>
+        <td><select class="txsel" onchange="recat('${id}',${gi},this.value)">${CAT_OPTS.map(o=>`<option ${o===t.cat?'selected':''}>${o}</option>`).join('')}</select></td>
+        <td class="num"><span class="conf ${cc}">${t.conf}%</span></td>
+        <td>${catStatus(t)}</td></tr>`}).join('')}
+      ${rows.length?'':'<tr><td colspan="8" class="muted" style="text-align:center;padding:24px">Nothing left to review — all flags cleared ✓</td></tr>'}</tbody></table></div>
+    </div>`;
   document.getElementById('pane').innerHTML=`
-    <div class="catbtns">
-      <button class="catbtn ${st.filter==='flagged'?'on':''}" onclick="catFilter('${id}')">
-        <div class="k">Transactions to review</div><div class="v" style="color:${toReview?'var(--warning)':'var(--success)'}">${toReview}</div>
-        <div class="s">${money0(absVal)} absolute · click to ${st.filter==='flagged'?'show all':'triage'}</div></button>
-      <div class="catbtn" style="cursor:default">
-        <div class="k">Categorisation confidence</div>
-        <div class="v" style="color:${conf>=85?'var(--success)':conf>=70?'var(--amber-t)':'var(--red-t)'}">${conf}%</div>
-        <div class="s">mean across ${tx.length} transactions</div></div>
-      <div class="catbtn" style="cursor:default">
-        <div class="k">Data issues found</div><div class="v" style="color:${issues?'var(--warning)':'var(--success)'}">${issues}</div>
-        <div class="s">from data-hygiene checks</div></div>
-    </div>
     <div class="subtabs">
       <div class="st ${st.sub==='pl'?'on':''}" onclick="catSub('${id}','pl')">Monthly P&amp;L</div>
       <div class="st ${st.sub==='tx'?'on':''}" onclick="catSub('${id}','tx')">Transactions</div></div>
-    ${body}`;
+    ${st.sub==='tx'?txPane:`<div class="card">${monthlyPL(d)}</div>`}`;
 }
+function acceptAll(id){CATG[id].txns.forEach(t=>{if(t.flag){t.flag=false;t.resolved=true;t.conf=Math.max(t.conf,88);}});CATG[id].filter='all';renderCateg(id);flashSaved(id);toast('All suggestions accepted');}
 function catFilter(id){CATG[id].filter=CATG[id].filter==='flagged'?'all':'flagged';renderCateg(id);}
 function catSub(id,s){CATG[id].sub=s;renderCateg(id);}
+function flashSaved(id){const el=document.getElementById('autosave-'+id);if(!el)return;
+  el.classList.add('saving');el.lastChild.textContent='Saving…';
+  setTimeout(()=>{el.classList.remove('saving');el.lastChild.textContent='Saved';},550);}
 function recat(id,i,val){const t=CATG[id].txns[i];t.cat=val;
-  if(val!=='Uncategorised'&&val!=='Unreconciled intra-company'){t.conf=100;t.flag=false;}
-  renderCateg(id);toast('Re-categorised → '+val);}
+  if(val!=='Uncategorised'){t.conf=100;t.flag=false;t.resolved=true;}
+  renderCateg(id);flashSaved(id);}
 function recentMonths(n){const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];let y=2026,m=6;const out=[];for(let i=0;i<n;i++){out.unshift(M[m]+' '+String(y).slice(2));m--;if(m<0){m=11;y--;}}return out;}
 function monthlyPL(d){
   const n=6, labels=recentMonths(n);
