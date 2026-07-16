@@ -272,7 +272,10 @@ table.grid tr.flagged td{background:var(--warning-bg)}
 table.grid.compact th{padding:8px 12px}
 table.grid.compact td{padding:5px 12px}
 table.grid td.nowrap,table.grid th.nowrap{white-space:nowrap}
-.txsel{max-width:190px}
+/* fixed column widths so nothing shifts when the flagged toggle filters rows */
+table.txgrid{table-layout:fixed;min-width:840px}
+table.txgrid td,table.txgrid th{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.txsel{width:100%;max-width:100%}
 .autosave{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--text-3);white-space:nowrap}
 .autosave svg{width:13px;height:13px;color:var(--success)}
 .autosave.saving{color:var(--brand-700)}
@@ -361,8 +364,8 @@ table.grid td.nowrap,table.grid th.nowrap{white-space:nowrap}
 .sstep .sic{display:flex;align-items:center;justify-content:center;color:currentColor}
 .sstep .sic svg{width:18px;height:18px;stroke-linecap:round;stroke-linejoin:round}
 .sstep .slabel{font-size:14px;font-weight:600;letter-spacing:-.01em}
+.sstep .sdot-slot{display:inline-flex;align-items:center;justify-content:center;width:6px;flex:0 0 6px}
 .sstep.cur{color:var(--brand-700)}
-.sstep.cur .slabel{font-weight:700}
 .sstep.cur::after{background:var(--brand-600)}
 .sdot{width:6px;height:6px;border-radius:50%;flex:0 0 6px}
 .sdot.amber{background:var(--warning)} .sdot.red{background:var(--error)}
@@ -438,7 +441,7 @@ table.grid td.nowrap,table.grid th.nowrap{white-space:nowrap}
 .linked-item:last-child{border-bottom:none}
 .linked-item .lg{width:26px;height:26px;flex:0 0 26px;border-radius:6px;background:var(--warning-bg);color:var(--warning);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px}
 /* About: 3-column layout */
-.about-groups{display:grid;grid-template-columns:1.15fr 1fr;gap:0;margin:15px -15px -15px;padding:16px;background:var(--grey-1);border-top:1px solid var(--border)}
+.about-groups{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:15px -15px -15px;padding:16px;background:var(--grey-1);border-top:1px solid var(--border)}
 @media(max-width:1050px){.about-groups{grid-template-columns:1fr;gap:18px}}
 .about-groups .gcol{padding:0 22px;border-right:1px solid var(--border)}
 .about-groups .gcol:first-child{padding-left:0}
@@ -947,10 +950,11 @@ function stepFlags(d){
 function renderSpine(d,current){const F=stepFlags(d);
   return `<nav class="spine">${STEPS.map(s=>{
     const f=F[s.id]||{n:0}, cur=s.id===current;
-    const dot=(!cur&&f.n>0)?`<span class="sdot ${f.red?'red':'amber'}"></span>`:'';
+    // dot depends only on the deal (not the active step) + a reserved slot, so tabs never shift when switching
+    const dot=f.n>0?`<span class="sdot ${f.red?'red':'amber'}"></span>`:'';
     return `<button class="sstep ${cur?'cur':''}" onclick="go('#/deal/${d.id}/${s.id}')">
       <span class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${stepIcons[s.ic]}</svg></span>
-      <span class="slabel">${s.t}</span>${dot}</button>`;}).join('')}</nav>`;
+      <span class="slabel">${s.t}</span><span class="sdot-slot">${dot}</span></button>`;}).join('')}</nav>`;
 }
 function railTab(k){CUR.rail=k;
   document.querySelectorAll('.rail-tabs .rt').forEach(b=>b.classList.toggle('on',b.dataset.rt===k));
@@ -1473,7 +1477,7 @@ function renderCateg(id){
         </div>
       </div>
       <div style="overflow:auto">
-      <table class="grid flat compact"><thead><tr><th class="nowrap">Date</th><th>Description</th><th>Counterparty</th><th class="num">Amount</th><th class="nowrap">Account</th><th>Category</th><th class="num">Conf.</th><th>Status</th></tr></thead>
+      <table class="grid flat compact txgrid"><colgroup><col style="width:80px"><col><col style="width:150px"><col style="width:92px"><col style="width:92px"><col style="width:184px"><col style="width:56px"><col style="width:80px"></colgroup><thead><tr><th class="nowrap">Date</th><th>Description</th><th>Counterparty</th><th class="num">Amount</th><th class="nowrap">Account</th><th>Category</th><th class="num">Conf.</th><th>Status</th></tr></thead>
       <tbody>${rows.map(t=>{const gi=tx.indexOf(t),cc=t.conf<60?'lo':t.conf<85?'mid':'hi';
         return `<tr class="${t.flag?'flagged':''}"><td class="mono nowrap">${fmtDate(t.date)}</td><td>${t.desc}</td><td class="${t.merch==='—'?'muted':''}">${t.merch}</td><td class="num mono">${money(t.amt)}</td>
         <td class="mono muted nowrap">••••${t.acct}</td>
