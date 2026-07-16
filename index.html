@@ -327,7 +327,7 @@ table.grid tr.flagged td{background:var(--warning-bg)}
 /* work grid + right rail (tabbed) */
 .work{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;align-items:start}
 .step-host{min-width:0}
-.rail{position:sticky;top:112px;height:calc(100vh - 128px);display:flex;flex-direction:column}
+.rail{position:sticky;top:112px;max-height:calc(100vh - 128px);display:flex;flex-direction:column}
 .rail-tabs{flex:0 0 auto;display:flex;background:#fff;border:1px solid var(--border);border-radius:var(--r) var(--r) 0 0;overflow:hidden}
 .rail-tabs .rt{flex:1;border:none;background:#fff;padding:9px 6px;font-family:inherit;font-weight:600;font-size:12px;color:var(--text-2);cursor:pointer;border-bottom:2px solid transparent;display:flex;align-items:center;justify-content:center;gap:5px}
 .rail-tabs .rt:hover{background:var(--grey-1)}
@@ -412,6 +412,9 @@ table.grid tr.flagged td{background:var(--warning-bg)}
 .linkitem .li-t{font-weight:700;font-size:13px;line-height:1.25}
 .linkitem .li-s{font-size:11.5px;color:var(--text-3);margin-top:1px}
 .linkitem .li-open{margin-left:auto;color:var(--link);font-weight:600;font-size:12px;white-space:nowrap;flex:0 0 auto}
+.linkitem .li-img{width:40px;height:40px;flex:0 0 40px;border-radius:8px;object-fit:cover;border:1px solid var(--border);background:var(--grey-1)}
+.linkitem .li-t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.linkitem.flag .li-t{white-space:normal}
 .pitem{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--cell)}
 .pitem:last-child{border-bottom:none}
 .pitem .pimg2{width:46px;height:46px;flex:0 0 46px;border-radius:8px;border:1px solid var(--border);object-fit:cover;background:var(--grey-1)}
@@ -978,9 +981,9 @@ function planter(p){const[bg,pc,pd,lc,ld]=PLANT_PAL[p]||PLANT_PAL[0];
     `<path d='M34 48 L36 79 Q36 83 40 83 L60 83 Q64 83 64 79 L66 48 Z' fill='${pc}'/><ellipse cx='50' cy='48' rx='16' ry='3.2' fill='${pd}'/><ellipse cx='50' cy='86' rx='15' ry='2.6' fill='${pc}'/></svg>`;
   return 'data:image/svg+xml,'+encodeURIComponent(s);}
 function productsFor(d){return {
-  'ORG-4821':[['Ceramic Planter Set','£28.00',0],['Mint Plant Pot Trio','£24.00',1],['Cobalt Planter Set','£34.00',2]],
-  'ORG-5573':[['Charcoal Planter Set','£26.00',0],['Terracotta Plant Pot','£19.00',3],['Mint Ceramic Planter','£30.00',1]],
-  'ORG-6109':[['Cobalt Plant Pot Trio','£29.00',2],['Charcoal Planter Duo','£24.00',0],['Terracotta Planter Set','£22.00',3]]
+  'ORG-4821':[['Ceramic Planter Set · 3pc','£28.00',0,'4.6','3,401','1485955900006-10f4d324d411'],['Mint Plant Pot Trio','£24.00',1,'4.4','1,204','1459411552884-841db9b3cc2a'],['Cobalt Planter Set','£34.00',2,'4.7','842','1524594152303-9fd13543fe6e']],
+  'ORG-5573':[['Charcoal Planter Set · 3pc','£26.00',0,'4.5','2,110','1463320726281-696a485928c7'],['Terracotta Plant Pot','£19.00',3,'4.3','560','1485955900006-10f4d324d411'],['Mint Ceramic Planter','£30.00',1,'4.6','3,401','1459411552884-841db9b3cc2a']],
+  'ORG-6109':[['Cobalt Plant Pot Trio','£29.00',2,'4.6','3,401','1524594152303-9fd13543fe6e'],['Charcoal Planter Duo','£24.00',0,'4.4','1,988','1463320726281-696a485928c7'],['Terracotta Planter Set','£22.00',3,'4.2','430','1485955900006-10f4d324d411']]
 }[d.id]||[];}
 function prodThumbs(d){
   const P={'ORG-4821':[['Garden Kneeler Pro','£34.99'],['Cedar Planter XL','£58.00'],['Hose Reel 30m','£42.50']],
@@ -1073,7 +1076,10 @@ function tabOverview(d){
           </div>
           <div class="gcol">
             <div class="collbl">Top products</div>
-            ${productsFor(d).map(p=>`<div class="pitem"><img class="pimg2" src="${planter(p[2])}" alt=""><div><div class="p-n">${p[0]}</div><div class="p-p">${p[1]}</div></div></div>`).join('')}
+            ${productsFor(d).map(p=>`<a class="linkitem" href="#" onclick="toast('Opening listing (demo)');return false;">
+              <img class="li-img" src="https://images.unsplash.com/photo-${p[5]}?auto=format&fit=crop&w=120&h=120&q=70" onerror="this.onerror=null;this.src='${planter(p[2])}'" alt="" loading="lazy">
+              <div style="min-width:0"><div class="li-t">${p[0]}</div><div class="li-s"><span style="color:#e8a13a;font-weight:700">★ ${p[3]}</span> · ${p[4]} reviews</div></div>
+              <span class="li-open" style="color:var(--ink);font-weight:800">${p[1]}</span></a>`).join('')}
           </div>
         </div>
       </div></div>
