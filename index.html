@@ -257,6 +257,34 @@ tr.clickable:hover .goarrow{background:var(--brand-600);color:#fff;border-color:
 .conf{display:inline-block;min-width:38px;text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
 .conf.lo{color:var(--red-t)} .conf.mid{color:var(--amber-t)} .conf.hi{color:var(--text-3)}
 table.grid tr.flagged td{background:var(--warning-bg)}
+.recur{font-size:15px;line-height:1;color:var(--success)} .recur.off{color:var(--border-2,#cfd8dc)}
+.matched{font-size:15px;line-height:1} .matched.yes{color:var(--warning)} .matched.no{color:var(--border-2,#cfd8dc)}
+.txbar{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.txbar .spacer{flex:1}
+.txbar .selinfo{font-size:12px;color:var(--text-3)}
+/* Monthly cash-based P&L (Ravi structure) */
+.pl-head{display:flex;align-items:center;gap:9px;font-weight:800;font-size:14px;color:var(--ink);padding:14px 16px;border-bottom:1px solid var(--border)}
+.pl-ic{width:26px;height:26px;border-radius:6px;background:var(--grey-1);display:flex;align-items:center;justify-content:center;color:var(--text-2);flex:0 0 26px}
+.pl-ic svg{width:15px;height:15px}
+.plt{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+.plt th{text-align:right;font-weight:700;font-size:11px;color:var(--text-2);padding:11px 16px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+.plt th:first-child{text-align:left;color:var(--text-3);font-weight:600;text-transform:none}
+.plt td{padding:6.5px 16px;border-bottom:1px solid var(--cell);color:var(--ink);white-space:nowrap}
+.plt td.n{text-align:right}
+.plt td.neg{color:var(--red-t)}
+.plt tbody tr:not(.sec):not(.pct):hover td{background:var(--brand-100)}
+.plt tr.sec td{background:var(--grey-1);font-weight:800;font-size:12px;color:var(--ink);border-bottom:none;padding:8px 16px}
+.plt tr.tot td{font-weight:700;border-top:1px solid var(--border)}
+.plt tr.net td{border-top:2px solid var(--border);font-weight:800;font-size:13px}
+.plt tr.pct td{font-style:italic;color:var(--text-3);font-size:11.5px;padding-top:1px;padding-bottom:7px}
+/* Background / due-diligence */
+.linkrow{display:grid;grid-template-columns:1.4fr 1fr auto;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--cell)}
+.linkrow:last-child{border-bottom:none}
+.linkrow .lo-n{font-weight:700;font-size:13px}
+.linkrow .lo-id{font-size:11px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.linkrow .lo-rel{font-size:12px;color:var(--text-2)}
+.linkrow .lo-exp{font-size:12px;text-align:right}
+.bg-clean{display:flex;align-items:center;gap:9px;padding:16px;color:var(--text-2);font-size:13px}
 
 /* crisp, consistent icon rendering (chrome only — not charts) */
 .side svg,.topbar svg,.crumbs svg,.btn svg,.goarrow svg,.notes svg,.warnlab svg,.proto svg,.accaret{
@@ -1004,24 +1032,47 @@ function hygStep(name){
   if(/bank|connect|account/i.test(name))return 'categorisation';
   return 'overview';}
 
-function tabBackground(d){
+function bgIdentity(d){
   const own=d.hygiene.find(h=>h[0]==='Amazon store owner')||['','g','Matches applicant'];
-  const linked=d.hygiene.find(h=>h[0]==='Inter-client match')||['','g','No matches'];
-  const chip=s=>`<span class="chip ${s=='g'?'c-success':s=='a'?'c-warning':'c-error'}"><span class="dot"></span>${s=='g'?'OK':s=='a'?'Check':'Fail'}</span>`;
+  const bank=d.id==='ORG-5573'?['a','Primary matches; 2nd a/c ••••4231 unverified']:['g','Matches applicant entity'];
+  const dir=d.rating==='E'?['a','1 of 2 directors ID-verified']:['g','ID-verified · Companies House'];
+  return [
+    ['Applicant legal entity','g',d.org+' — active, filings current'],
+    ['Amazon storefront owner',own[1],own[2]],
+    ['Primary bank account holder',bank[0],bank[1]],
+    ['Directors / UBO verified',dir[0],dir[1]],
+  ];
+}
+function bgLinked(d){
+  if(d.id==='ORG-4821')return [];
+  if(d.id==='ORG-5573')return [['Coastline Supply LLC','ORG-5188','Shares bank account ••••4231','a','£38k live exposure']];
+  return [
+    ['Summit Trading Group','ORG-4402','Shared director (A. Vance)','r','£310k debt drawn here · last 60d'],
+    ['Ridgeway Retail LLC','ORG-3971','Shared registered address','a','£54k live exposure'],
+  ];
+}
+function bgScreen(d){
+  if(d.rating==='B')return [['Sanctions / PEP','g','No matches'],['Adverse media','g','No relevant results'],['Director disqualification','g','None on record'],['CCJs / insolvency','g','None']];
+  if(d.rating==='C')return [['Sanctions / PEP','g','No matches'],['Adverse media','g','No relevant results'],['Director disqualification','g','None on record'],['CCJs / insolvency','a','1 satisfied CCJ · 2023 · £4.2k']];
+  return [['Sanctions / PEP','g','No matches'],['Adverse media','a','2 marketplace-suspension reports'],['Director disqualification','a','Director on 2 dissolved companies'],['CCJs / insolvency','r','£310k undisclosed facility (linked entity)']];
+}
+function tabBackground(d){
+  const chip=s=>`<span class="chip ${s=='g'?'c-success':s=='a'?'c-warning':'c-error'}"><span class="dot"></span>${s=='g'?'Verified':s=='a'?'Check':'Fail'}</span>`;
+  const rows=list=>list.map(r=>`<div class="checkrow"><span class="st">${chip(r[1])}</span><span class="nm">${r[0]}</span><span class="dt">${r[2]}</span></div>`).join('');
+  const linked=bgLinked(d);
+  const expchip=(sev,t)=>`<span class="chip ${sev=='r'?'c-error':sev=='a'?'c-warning':'c-success'}">${t}</span>`;
+  const linkedCard = linked.length
+    ? `<div>${linked.map(l=>`<div class="linkrow"><div><div class="lo-n">${l[0]}</div><div class="lo-id mono">${l[1]}</div></div><div class="lo-rel">${l[2]}</div><div class="lo-exp">${expchip(l[3],l[4])}</div></div>`).join('')}</div>`
+    : `<div class="bg-clean"><span class="chip c-success"><span class="dot"></span>Clear</span> No linked entities or shared-director exposure on file.</div>`;
   document.getElementById('pane').innerHTML=`
    <div class="grid2">
-     <div class="card"><div class="card-h"><h3>Storefront &amp; ownership</h3></div><div class="card-b">
-       <div class="checkrow"><span class="st">${chip(own[1])}</span><span class="nm">Amazon store owner</span><span class="dt">${own[2]}</span></div>
-       <div class="checkrow"><span class="st">${chip('g')}</span><span class="nm">TrustPilot</span><span class="dt">4.5 ★ · 1,204 reviews</span></div>
-       <div class="checkrow"><span class="st">${chip('g')}</span><span class="nm">Storefront active</span><span class="dt">Amazon's Choice · in stock</span></div>
-       <div style="margin-top:12px;display:flex;gap:8px"><a class="btn btn-outline btn-sm" href="#" onclick="return false">Open storefront ↗</a><a class="btn btn-outline btn-sm" href="#" onclick="return false">Open reviews ↗</a></div>
-     </div></div>
-     <div class="card"><div class="card-h"><h3>Linked companies &amp; history</h3></div><div class="card-b">
-       <div class="checkrow"><span class="st">${chip(linked[1])}</span><span class="nm">Inter-client match</span><span class="dt">${linked[2]}</span></div>
-       <div class="checkrow"><span class="st">${chip('g')}</span><span class="nm">Bank account owner</span><span class="dt">Matches applicant</span></div>
-       <p class="muted small" style="margin:12px 0 0">${d.story}</p>
-     </div></div>
-   </div>`;
+     <div class="card"><div class="card-h"><h3>Identity &amp; ownership verification</h3><span class="sub">who they say they are — triangulated</span></div>
+       <div class="card-b">${rows(bgIdentity(d))}</div></div>
+     <div class="card"><div class="card-h"><h3>Adverse media &amp; compliance screening</h3><span class="sub">KYC · sanctions · registry</span></div>
+       <div class="card-b">${rows(bgScreen(d))}</div></div>
+   </div>
+   <div class="card" style="margin-top:14px"><div class="card-h"><h3>Linked entities &amp; inter-client exposure</h3><span class="sub">${linked.length?linked.length+' related org'+(linked.length!=1?'s':''):'none found'}</span></div>
+     <div class="card-b">${linkedCard}</div></div>`;
 }
 function tabDecision(d){
   document.getElementById('pane').innerHTML=`
@@ -1366,37 +1417,49 @@ function openModel(id){const d=byId(id);
 const CATG={};
 const CAT_OPTS=['Revenue','Variable costs','Fixed costs','Taxes','Debt repayment','Owners inflow','Unreconciled intra-company','Special inflow','Uncategorised'];
 function txnData(d){
+  // [date, desc, amt, cat, conf, flag, merchant, recurring, acctMask, matched]
   const rows=[
-    ['2026-06-28','AMAZON PAYMENTS INC — payout',42180,'Revenue',99,false],
-    ['2026-06-27','SHOPIFY transfer',8110,'Revenue',97,false],
-    ['2026-06-25','Inventory — supplier co.',-21540,'Variable costs',95,false],
-    ['2026-06-24','Meta ads',-6260,'Variable costs',96,false],
-    ['2026-06-22','Payroll run',-14100,'Fixed costs',98,false],
-    ['2026-06-20','WIRE IN — ref 8841',60000,'Uncategorised',38,true],
-    ['2026-06-18','ATM deposit',5000,'Uncategorised',44,true],
-    ['2026-06-15','Transfer to ••••4231',-18000,'Unreconciled intra-company',52,true],
-    ['2026-06-12','Card processor fee',-980,'Variable costs',93,false],
-    ['2026-06-10','Loan repayment — lender',-9500,'Debt repayment',90,false],
-    ['2026-06-08','Tax payment — HMRC',-12400,'Taxes',97,false],
-    ['2026-06-05','Remote deposit',3200,'Uncategorised',49,true],
+    ['2026-06-28','AMAZON PAYMENTS INC — payout',42180,'Revenue',99,false,'Amazon',true,'4021',true],
+    ['2026-06-27','SHOPIFY transfer',8110,'Revenue',97,false,'Shopify',true,'4021',true],
+    ['2026-06-25','Inventory — supplier co.',-21540,'Variable costs',95,false,'Ningbo Supply Co.',true,'4021',false],
+    ['2026-06-24','Meta ads',-6260,'Variable costs',96,false,'Meta Platforms',true,'4021',false],
+    ['2026-06-22','Payroll run',-14100,'Fixed costs',98,false,'Gusto',true,'4021',false],
+    ['2026-06-20','WIRE IN — ref 8841',60000,'Uncategorised',38,true,'—',false,'4021',false],
+    ['2026-06-18','ATM deposit',5000,'Uncategorised',44,true,'—',false,'4021',false],
+    ['2026-06-15','Transfer to ••••4231',-18000,'Unreconciled intra-company',52,true,'—',false,'4021',true],
+    ['2026-06-12','Card processor fee',-980,'Variable costs',93,false,'Stripe',true,'4021',false],
+    ['2026-06-10','Loan repayment — lender',-9500,'Debt repayment',90,false,'Kabbage',true,'4021',false],
+    ['2026-06-08','Tax payment — HMRC',-12400,'Taxes',97,false,'HMRC',false,'4021',false],
+    ['2026-06-05','Remote deposit',3200,'Uncategorised',49,true,'—',false,'4021',false],
   ];
-  return rows.map(r=>({date:r[0],desc:r[1],amt:r[2],cat:r[3],conf:r[4],flag:r[5]}));
+  return rows.map(r=>({date:r[0],desc:r[1],amt:r[2],cat:r[3],conf:r[4],flag:r[5],merch:r[6],recur:r[7],acct:r[8],matched:r[9]}));
 }
-function tabCateg(d){CATG[d.id]=CATG[d.id]||{sub:'tx',filter:'all',txns:txnData(d)};renderCateg(d.id);}
+function tabCateg(d){CATG[d.id]=CATG[d.id]||{sub:'pl',filter:'all',txns:txnData(d)};renderCateg(d.id);}
 function renderCateg(id){
   const d=byId(id),st=CATG[id],tx=st.txns;
   const flagged=tx.filter(t=>t.flag),toReview=flagged.length,absVal=flagged.reduce((s,t)=>s+Math.abs(t.amt),0);
   const conf=Math.round(tx.reduce((s,t)=>s+t.conf,0)/tx.length);
   const issues=d.hygiene.filter(h=>h[1]!=='g').length;
   const rows=(st.filter==='flagged'?flagged:tx);
-  const body= st.sub==='tx' ? `
-    <table class="grid flat"><thead><tr><th>Date</th><th>Description</th><th class="num">Amount</th><th>Category</th><th class="num">Confidence</th></tr></thead>
+  const txTable= `
+    <div class="txbar">
+      <span class="selinfo">${rows.length} transaction${rows.length!=1?'s':''}${st.filter==='flagged'?' needing review':''} · ${d.source} · GBP</span>
+      <span class="spacer"></span>
+      <button class="btn btn-outline btn-sm" onclick="toast('Bulk re-categorise (demo)')">Change category ▾</button>
+      <button class="btn btn-outline btn-sm" onclick="toast('Categorisation saved (demo)')">Confirm &amp; save</button>
+      <button class="btn btn-primary btn-sm" onclick="toast('Banking scorecards re-run (demo)')">Rerun banking scorecards</button>
+    </div>
+    <div class="card"><div style="overflow:auto">
+    <table class="grid flat"><thead><tr><th>Timestamp</th><th>Description</th><th>Merchant</th><th class="num">Amount</th><th>Category</th><th class="num">Conf.</th><th style="text-align:center">Recurring</th><th>Account</th><th style="text-align:center">Matched</th></tr></thead>
     <tbody>${rows.map(t=>{const gi=tx.indexOf(t),cc=t.conf<60?'lo':t.conf<85?'mid':'hi';
-      return `<tr class="${t.flag?'flagged':''}"><td class="mono">${t.date}</td><td>${t.desc}</td><td class="num mono">${money(t.amt)}</td>
+      return `<tr class="${t.flag?'flagged':''}"><td class="mono">${t.date}</td><td>${t.desc}</td><td class="${t.merch==='—'?'muted':''}">${t.merch}</td><td class="num mono">${money(t.amt)}</td>
       <td><select class="txsel" onchange="recat('${id}',${gi},this.value)">${CAT_OPTS.map(o=>`<option ${o===t.cat?'selected':''}>${o}</option>`).join('')}</select></td>
-      <td class="num"><span class="conf ${cc}">${t.conf}%</span></td></tr>`}).join('')}
-    ${rows.length?'':'<tr><td colspan="5" class="muted" style="text-align:center;padding:20px">Nothing left to review — all clear ✓</td></tr>'}</tbody></table>`
-    : monthlyPL(d);
+      <td class="num"><span class="conf ${cc}">${t.conf}%</span></td>
+      <td style="text-align:center"><span class="recur ${t.recur?'':'off'}" title="${t.recur?'Recurring':'One-off'}">${t.recur?'↻':'·'}</span></td>
+      <td class="mono muted">••••${t.acct}</td>
+      <td style="text-align:center"><span class="matched ${t.matched?'yes':'no'}" title="${t.matched?'Has matching transaction (intra-company)':'No match'}">${t.matched?'⇄':'·'}</span></td></tr>`}).join('')}
+    ${rows.length?'':'<tr><td colspan="9" class="muted" style="text-align:center;padding:20px">Nothing left to review — all clear ✓</td></tr>'}</tbody></table></div></div>`;
+  const body= st.sub==='tx' ? txTable : `<div class="card">${monthlyPL(d)}</div>`;
   document.getElementById('pane').innerHTML=`
     <div class="catbtns">
       <button class="catbtn ${st.filter==='flagged'?'on':''}" onclick="catFilter('${id}')">
@@ -1411,21 +1474,70 @@ function renderCateg(id){
         <div class="s">from data-hygiene checks</div></div>
     </div>
     <div class="subtabs">
-      <div class="st ${st.sub==='tx'?'on':''}" onclick="catSub('${id}','tx')">Transactions</div>
-      <div class="st ${st.sub==='pl'?'on':''}" onclick="catSub('${id}','pl')">Monthly P&amp;L</div></div>
-    <div class="card"><div style="overflow:auto">${body}</div></div>`;
+      <div class="st ${st.sub==='pl'?'on':''}" onclick="catSub('${id}','pl')">Monthly P&amp;L</div>
+      <div class="st ${st.sub==='tx'?'on':''}" onclick="catSub('${id}','tx')">Transactions</div></div>
+    ${body}`;
 }
 function catFilter(id){CATG[id].filter=CATG[id].filter==='flagged'?'all':'flagged';renderCateg(id);}
 function catSub(id,s){CATG[id].sub=s;renderCateg(id);}
 function recat(id,i,val){const t=CATG[id].txns[i];t.cat=val;
   if(val!=='Uncategorised'&&val!=='Unreconciled intra-company'){t.conf=100;t.flag=false;}
   renderCateg(id);toast('Re-categorised → '+val);}
+function recentMonths(n){const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];let y=2026,m=6;const out=[];for(let i=0;i<n;i++){out.unshift(M[m]+' '+String(y).slice(2));m--;if(m<0){m=11;y--;}}return out;}
 function monthlyPL(d){
-  const cats=['Revenue','Variable costs','Fixed costs','Taxes','Debt repayment','Uncategorised'];
-  const months=['2026-06','2026-05','2026-04','2026-03','2026-02','2026-01','2025-12','2025-11'];
-  return `<table class="grid flat" style="font-size:12px"><thead><tr><th>Category</th>${months.map(m=>`<th class="num">${m}</th>`).join('')}</tr></thead>
-   <tbody>${cats.map((c,ci)=>{const sign=(ci>=1&&c!=='Uncategorised')?-1:1;const ser=seededSeries(ci*17+3,months.length,d.preoffer/12*(ci===0?1:.18),d.preoffer/24,0);
-     return `<tr><td style="font-weight:600">${c}</td>${ser.map(v=>`<td class="num rocell">${money(Math.round(sign*v))}</td>`).join('')}</tr>`}).join('')}</tbody></table>`;
+  const n=6, labels=recentMonths(n);
+  let s=(d.preoffer%97)+13; const rnd=()=>{s=(s*9301+49297)%233280;return s/233280;};
+  const scale=d.preoffer*5/12;                                   // monthly revenue scale
+  const dip=d.revTrend==='down'?-0.10:d.revTrend==='up'?0.06:0.01;
+  const rev=[]; for(let i=0;i<n;i++){rev.push(Math.round(scale*(0.9+0.2*rnd())*(1+dip*i/n)));}
+  const line=(f,amp)=>rev.map(r=>-Math.round(r*f*(1-amp/2+amp*rnd())));
+  const fixed=f=>rev.map(()=>-Math.round(scale*f));
+  const adv=line(.15,.18), post=line(.025,.2), inv=line(.45,.12);
+  const cogs=rev.map((_,i)=>adv[i]+post[i]+inv[i]);
+  const gp=rev.map((r,i)=>r+cogs[i]);
+  const pay=line(.16,.05), ins=fixed(.013), util=line(.05,.12), soft=fixed(.011), gen=line(.03,.28);
+  const opex=rev.map((_,i)=>pay[i]+ins[i]+util[i]+soft[i]+gen[i]);
+  const tax=line(.08,.15), debt=fixed(.05);
+  const net=rev.map((_,i)=>gp[i]+opex[i]+tax[i]+debt[i]);
+  const fmt=v=>(v<0?'−':'')+Math.abs(v).toLocaleString('en-GB');
+  const pctf=v=>v==null?'—':(v<0?'−':'')+Math.abs(v).toFixed(1)+'%';
+  const cells=vals=>vals.map(v=>`<td class="n${v<0?' neg':''}">${fmt(v)}</td>`).join('');
+  const pcell=vals=>vals.map(v=>`<td class="n">${pctf(v)}</td>`).join('');
+  const L=(label,vals,cls='')=>`<tr class="${cls}"><td>${label}</td>${cells(vals)}</tr>`;
+  const P=(label,vals)=>`<tr class="pct"><td>${label}</td>${pcell(vals)}</tr>`;
+  const S=label=>`<tr class="sec"><td colspan="${n+1}">${label}</td></tr>`;
+  const growth=rev.map((r,i)=>i===0?null:(r-rev[i-1])/rev[i-1]*100);
+  const gm=gp.map((g,i)=>g/rev[i]*100), nm=net.map((v,i)=>v/rev[i]*100);
+  return `
+   <div class="pl-head"><span class="pl-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>Monthly cash-based P&amp;L</div>
+   <div style="overflow-x:auto"><table class="plt">
+     <thead><tr><th>£ · cash-based</th>${labels.map(l=>`<th>${l}</th>`).join('')}</tr></thead>
+     <tbody>
+       ${S('Revenue')}
+       ${L('Revenue',rev)}
+       ${L('Total revenue',rev,'tot')}
+       ${P('Revenue growth %',growth)}
+       ${S('Cost of goods sold')}
+       ${L('Advertising',adv)}
+       ${L('Postage',post)}
+       ${L('Inventory',inv)}
+       ${L('Total cost of goods sold',cogs,'tot')}
+       ${L('Gross profit',gp,'tot')}
+       ${P('Gross margin',gm)}
+       ${S('Operational expenses')}
+       ${L('Payroll and consultants',pay)}
+       ${L('Insurance',ins)}
+       ${L('Utilities',util)}
+       ${L('Software',soft)}
+       ${L('General payment',gen)}
+       ${L('Total operational expenses',opex,'tot')}
+       ${S('Taxes & financing')}
+       ${L('Taxes',tax)}
+       ${L('Debt repayment',debt)}
+       ${L('Net cash profit',net,'net')}
+       ${P('Net margin',nm)}
+     </tbody>
+   </table></div>`;
 }
 
 /* ---------- MAKE DECISION + shared UI ---------- */
