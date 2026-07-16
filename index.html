@@ -632,7 +632,8 @@ function seededSeries(seed,n,base,vol,trend){let x=seed;const out=[];for(let i=0
 /* ===== proper axed charts (dated X, valued Y, gridlines) ===== */
 const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function monthSeq(n){const out=[];let y=2024,m=6;for(let i=0;i<n;i++){out.push(MONTHS[m-1]+" '"+String(y).slice(2));m++;if(m>12){m=1;y++;}}return out;}
-function fmtK(v){const a=Math.abs(v);return (v<0?'-':'')+(a>=1000?'£'+(a/1000).toFixed(a>=10000?0:1)+'k':'£'+Math.round(a));}
+function fmtK(v){const a=Math.abs(v),s=v<0?'-':'';if(a>=1000){const k=a/1000;return s+'£'+(Math.abs(k-Math.round(k))<0.05?Math.round(k):k.toFixed(1))+'k';}return s+'£'+Math.round(a);}
+function niceScale(mn,mx,ticks){mn=Math.min(mn,0);const range=(mx-mn)||1,raw=range/ticks,mag=Math.pow(10,Math.floor(Math.log10(raw))),norm=raw/mag;let step=norm<=1?1:norm<=2?2:norm<=2.5?2.5:norm<=5?5:10;step*=mag;return {min:Math.floor(mn/step)*step,max:Math.ceil(mx/step)*step,step:step};}
 function C(data,type,color,forecastFrom){return {data:data,type:type||'line',color:color||'var(--brand-600)',forecastFrom:(forecastFrom==null?-1:forecastFrom)};}
 let GRAD=0;
 function smoothPath(pts){
@@ -646,16 +647,16 @@ function smoothPath(pts){
 function axedChart(spec,w,h,full){
   if(spec.series||spec.lines)return multiChart(spec,w,h,full);
   const data=spec.data||[],type=spec.type||'line',color=spec.color||'var(--brand-600)',ff=(spec.forecastFrom==null?-1:spec.forecastFrom);
-  const n=data.length||1; let mx=Math.max(...data,0),mn=Math.min(...data,0); if(mx===mn)mx=mn+1;
-  const rng0=mx-mn; mx+=rng0*0.08; if(mn<0)mn-=rng0*0.04;
+  const n=data.length||1; let dmx=Math.max(...data,0),dmn=Math.min(...data,0); if(dmx===dmn)dmx=dmn+1;
+  const sc=niceScale(dmn,dmx,full?4:3), mn=sc.min, mx=sc.max;
   const padL=48,padR=12,padT=10,padB=full?38:22, iw=w-padL-padR, ih=h-padT-padB, gid='gr'+(GRAD++);
   const X=i=> padL+(n>1? i*(iw/(n-1)) : iw/2);
   const Y=v=> padT+ih-((v-mn)/(mx-mn))*ih;
-  const TICKS=full?4:3; let grid='';
-  for(let t=0;t<=TICKS;t++){const val=mn+(mx-mn)*t/TICKS,yy=Y(val).toFixed(1);
+  const nT=Math.round((mx-mn)/sc.step); let grid='';
+  for(let t=0;t<=nT;t++){const val=mn+t*sc.step,yy=Y(val).toFixed(1);
     grid+=`<line x1="${padL}" y1="${yy}" x2="${w-padR}" y2="${yy}" stroke="var(--line2)" stroke-dasharray="2 5"/><text x="${padL-8}" y="${(Y(val)+3).toFixed(1)}" text-anchor="end" font-size="${full?11:9}" fill="var(--text-3)" font-weight="500">${fmtK(val)}</text>`;}
   const labs=monthSeq(n),step=Math.max(1,Math.ceil(n/(full?12:4))); let xl='';
-  labs.forEach((L,i)=>{if(i%step===0)xl+=`<text x="${X(i).toFixed(1)}" y="${(h-padB+(full?15:11)).toFixed(1)}" text-anchor="middle" font-size="${full?10:8}" fill="var(--text-3)">${L}</text>`;});
+  labs.forEach((L,i)=>{if(i%step===0){const anc=i===0?'start':(i>=n-1?'end':'middle');xl+=`<text x="${X(i).toFixed(1)}" y="${(h-padB+(full?15:11)).toFixed(1)}" text-anchor="${anc}" font-size="${full?10:8}" fill="var(--text-3)">${L}</text>`;}});
   const zero= mn<0?`<line x1="${padL}" y1="${Y(0).toFixed(1)}" x2="${w-padR}" y2="${Y(0).toFixed(1)}" stroke="var(--border)"/>`:'';
   const defs=`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity="0.20"/><stop offset="1" stop-color="${color}" stop-opacity="0.01"/></linearGradient></defs>`;
   let s='';
@@ -679,14 +680,15 @@ function multiChart(spec,w,h,full){
   const n=Math.max(1,...series.map(s=>s.data.length),...lines.map(l=>l.data.length));
   const totals=[]; for(let i=0;i<n;i++){let t=0;series.forEach(s=>t+=(s.data[i]||0));totals.push(t);}
   const lineVals=lines.flatMap(l=>l.data);
-  let mx=Math.max(0,...totals,...lineVals), mn=Math.min(0,...lineVals,0); if(mx===mn)mx=mn+1; mx+=(mx-mn)*0.08;
+  let dmx=Math.max(0,...totals,...lineVals), dmn=Math.min(0,...lineVals,0); if(dmx===dmn)dmx=dmn+1;
+  const sc=niceScale(dmn,dmx,full?4:3), mn=sc.min, mx=sc.max;
   const legH=showLeg?24:0, padL=48,padR=12,padT=10,padB=(full?38:22)+legH, iw=w-padL-padR, ih=h-padT-padB;
   const X=i=> padL+(n>1? i*(iw/(n-1)):iw/2), Y=v=> padT+ih-((v-mn)/(mx-mn))*ih;
-  const TICKS=full?4:3; let grid='';
-  for(let t=0;t<=TICKS;t++){const val=mn+(mx-mn)*t/TICKS,yy=Y(val).toFixed(1);
+  const nT=Math.round((mx-mn)/sc.step); let grid='';
+  for(let t=0;t<=nT;t++){const val=mn+t*sc.step,yy=Y(val).toFixed(1);
     grid+=`<line x1="${padL}" y1="${yy}" x2="${w-padR}" y2="${yy}" stroke="var(--line2)" stroke-dasharray="2 5"/><text x="${padL-8}" y="${(Y(val)+3).toFixed(1)}" text-anchor="end" font-size="${full?11:9}" fill="var(--text-3)" font-weight="500">${fmtK(val)}</text>`;}
   const labs=monthSeq(n),step=Math.max(1,Math.ceil(n/(full?12:4))); let xl='';
-  labs.forEach((L,i)=>{if(i%step===0)xl+=`<text x="${X(i).toFixed(1)}" y="${(padT+ih+(full?15:11)).toFixed(1)}" text-anchor="middle" font-size="${full?10:8}" fill="var(--text-3)">${L}</text>`;});
+  labs.forEach((L,i)=>{if(i%step===0){const anc=i===0?'start':(i>=n-1?'end':'middle');xl+=`<text x="${X(i).toFixed(1)}" y="${(padT+ih+(full?15:11)).toFixed(1)}" text-anchor="${anc}" font-size="${full?10:8}" fill="var(--text-3)">${L}</text>`;}});
   let s=''; const gap=iw/n, bw=Math.min(gap*.62,26);
   for(let i=0;i<n;i++){let base=0; const fc=ff>=0&&i>=ff;
     series.forEach(sr=>{const v=sr.data[i]||0,y1=Y(base+v),y0=Y(base),hh=Math.max(0,y0-y1);
