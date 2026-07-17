@@ -273,8 +273,11 @@ table.grid.compact th{padding:8px 12px}
 table.grid.compact td{padding:5px 12px}
 table.grid td.nowrap,table.grid th.nowrap{white-space:nowrap}
 /* fixed column widths so nothing shifts when the flagged toggle filters rows */
-table.txgrid{table-layout:fixed;min-width:840px}
+table.txgrid{table-layout:fixed;min-width:860px}
 table.txgrid td,table.txgrid th{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+table.txgrid tbody tr{transition:background .12s}
+table.txgrid tbody tr:hover td{background:var(--brand-100)}
+table.txgrid tbody tr.flagged:hover td{background:#fff4e0}
 .txsel{width:100%;max-width:100%}
 .autosave{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--text-3);white-space:nowrap}
 .autosave svg{width:13px;height:13px;color:var(--success)}
@@ -1453,7 +1456,7 @@ function txnData(d){
   ];
   return rows.map(r=>({date:r[0],desc:r[1],amt:r[2],cat:r[3],conf:r[4],flag:r[5],merch:r[6],recur:r[7],acct:r[8],matched:r[9]}));
 }
-function tabCateg(d){CATG[d.id]=CATG[d.id]||{sub:'pl',filter:'all',txns:txnData(d)};renderCateg(d.id);}
+function tabCateg(d){CATG[d.id]=CATG[d.id]||{sub:'pl',filter:'all',touched:false,txns:txnData(d)};renderCateg(d.id);}
 function fmtDate(s){const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];const p=s.split('-');return (+p[2])+' '+M[+p[1]-1]+' '+p[0].slice(2);}
 function catStatus(t){return t.flag?'<span class="chip c-warning">Review</span>':t.resolved?'<span class="chip c-success">Resolved</span>':'<span class="chip c-neutral">Auto</span>';}
 function renderCateg(id){
@@ -1471,13 +1474,13 @@ function renderCateg(id){
           <div class="txsub">${bookTotal} categorised automatically · ${conf}% mean confidence${issues?` · ${issues} data issue${issues!=1?'s':''}`:' · all flags cleared'}</div>
         </div>
         <div class="txactions">
-          <span class="autosave" id="autosave-${id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Autosaved</span>
+          ${st.touched?`<span class="autosave" id="autosave-${id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Autosaved</span>`:''}
           <label class="toggle"><input type="checkbox" ${st.filter==='flagged'?'checked':''} onchange="catFilter('${id}')"><span class="sw"></span>Show only flagged</label>
           <button class="btn btn-primary btn-sm" onclick="acceptAll('${id}')" ${toReview?'':'disabled'}>Accept all suggestions</button>
         </div>
       </div>
       <div style="overflow:auto">
-      <table class="grid flat compact txgrid"><colgroup><col style="width:80px"><col><col style="width:150px"><col style="width:92px"><col style="width:92px"><col style="width:184px"><col style="width:56px"><col style="width:80px"></colgroup><thead><tr><th class="nowrap">Date</th><th>Description</th><th>Counterparty</th><th class="num">Amount</th><th class="nowrap">Account</th><th>Category</th><th class="num">Conf.</th><th>Status</th></tr></thead>
+      <table class="grid flat compact txgrid"><colgroup><col style="width:80px"><col><col style="width:150px"><col style="width:92px"><col style="width:92px"><col style="width:180px"><col style="width:66px"><col style="width:84px"></colgroup><thead><tr><th class="nowrap">Date</th><th>Description</th><th>Counterparty</th><th class="num">Amount</th><th class="nowrap">Account</th><th>Category</th><th class="num">Conf.</th><th>Status</th></tr></thead>
       <tbody>${rows.map(t=>{const gi=tx.indexOf(t),cc=t.conf<60?'lo':t.conf<85?'mid':'hi';
         return `<tr class="${t.flag?'flagged':''}"><td class="mono nowrap">${fmtDate(t.date)}</td><td>${t.desc}</td><td class="${t.merch==='—'?'muted':''}">${t.merch}</td><td class="num mono">${money(t.amt)}</td>
         <td class="mono muted nowrap">••••${t.acct}</td>
@@ -1492,7 +1495,7 @@ function renderCateg(id){
       <div class="st ${st.sub==='tx'?'on':''}" onclick="catSub('${id}','tx')">Transactions</div></div>
     ${st.sub==='tx'?txPane:`<div class="card">${monthlyPL(d)}</div>`}`;
 }
-function acceptAll(id){CATG[id].txns.forEach(t=>{if(t.flag){t.flag=false;t.resolved=true;t.conf=Math.max(t.conf,88);}});CATG[id].filter='all';renderCateg(id);flashSaved(id);toast('All suggestions accepted');}
+function acceptAll(id){CATG[id].txns.forEach(t=>{if(t.flag){t.flag=false;t.resolved=true;t.conf=Math.max(t.conf,88);}});CATG[id].filter='all';CATG[id].touched=true;renderCateg(id);flashSaved(id);toast('All suggestions accepted');}
 function catFilter(id){CATG[id].filter=CATG[id].filter==='flagged'?'all':'flagged';renderCateg(id);}
 function catSub(id,s){CATG[id].sub=s;renderCateg(id);}
 function flashSaved(id){const el=document.getElementById('autosave-'+id);if(!el)return;
@@ -1500,7 +1503,7 @@ function flashSaved(id){const el=document.getElementById('autosave-'+id);if(!el)
   setTimeout(()=>{el.classList.remove('saving');el.lastChild.textContent='Saved';},550);}
 function recat(id,i,val){const t=CATG[id].txns[i];t.cat=val;
   if(val!=='Uncategorised'){t.conf=100;t.flag=false;t.resolved=true;}
-  renderCateg(id);flashSaved(id);}
+  CATG[id].touched=true;renderCateg(id);flashSaved(id);}
 function recentMonths(n){const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];let y=2026,m=6;const out=[];for(let i=0;i<n;i++){out.unshift(M[m]+' '+String(y).slice(2));m--;if(m<0){m=11;y--;}}return out;}
 function monthlyPL(d){
   const n=6, labels=recentMonths(n);
