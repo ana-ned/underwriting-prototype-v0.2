@@ -124,14 +124,22 @@ table.grid tfoot td{font-weight:700;border-top:2px solid var(--border);backgroun
 tr.clickable:hover .goarrow{background:var(--brand-600);color:#fff;border-color:var(--brand-600)}
 
 /* MI strip */
-.mi{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:14px;margin-bottom:18px}
-.mi .card-b{padding:14px 16px}
+.mi{display:grid;grid-template-columns:1fr 1fr 1fr 1.25fr;gap:14px;margin-bottom:18px}
+.mi .card{display:flex}
+.mi .card-b{padding:16px 18px;flex:1;display:flex;flex-direction:column;justify-content:center}
 .mi .k{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-3);font-weight:700}
-.mi .v{font-size:26px;font-weight:800;letter-spacing:-.02em;margin-top:5px}
-.mi .s{font-size:12px;color:var(--text-3);margin-top:3px}
-.mi .pie-wrap{display:flex;align-items:center;gap:14px}
-.legend{display:flex;flex-direction:column;gap:3px;font-size:11.5px}
-.legend .li{display:flex;align-items:center;gap:6px} .legend .sw{width:9px;height:9px;border-radius:2px}
+.mi .v{font-size:27px;font-weight:800;letter-spacing:-.02em;margin-top:6px}
+.mi .s{font-size:12px;color:var(--text-3);margin-top:4px}
+/* donut card (Ravi style: title top-left · centered donut w/ total · caption bottom) */
+.mi .donutcard{justify-content:space-between;gap:8px}
+.donutcard .k{align-self:flex-start}
+.donut-c{align-self:center;position:relative;width:132px;height:132px}
+.donut-c svg{display:block}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.donut-center .dc-v{font-size:20px;font-weight:800;letter-spacing:-.02em;color:var(--ink);line-height:1}
+.donut-center .dc-l{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);font-weight:700;margin-top:3px}
+.donut-cap{align-self:center;font-size:11.5px;color:var(--text-3)}
+.dseg{transition:opacity .12s;cursor:pointer}
 
 /* deal header sticky */
 .dealhead{position:sticky;top:56px;z-index:15;background:var(--surface);border:1px solid var(--border);
@@ -700,6 +708,23 @@ function donut(segments, size=92, thick=17){
   }).join('');
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--grey-2)" stroke-width="${thick}"/>${rings}</svg>`;
 }
+let DONUT={segs:[],total:''};
+function ratingDonut(segs,totalLabel){
+  const size=132, thick=19, r=(size-thick)/2, cx=size/2, cy=size/2, C=2*Math.PI*r, gap=3;
+  const tot=segs.reduce((s,x)=>s+x.v,0)||1; let off=0;
+  DONUT={segs,total:totalLabel};
+  const rings=segs.map((s,i)=>{const len=C*s.v/tot; const dash=Math.max(1,len-gap);
+    const el=`<circle class="dseg" cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.c}" stroke-width="${thick}" stroke-dasharray="${dash} ${C-dash}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})" onmouseover="donutHover(${i})" onmouseout="donutHover(-1)"><title>Rating ${s.k} · ${money0(s.v)}</title></circle>`;
+    off+=len; return el;}).join('');
+  return `<div class="donut-c">
+    <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#fff" stroke-width="${thick}"/>${rings}</svg>
+    <div class="donut-center" id="donutCenter"><div class="dc-v">${totalLabel}</div><div class="dc-l">total</div></div>
+  </div>`;
+}
+function donutHover(i){const c=document.getElementById('donutCenter');if(!c)return;
+  const segsEl=document.querySelectorAll('.dseg');
+  if(i<0){c.innerHTML=`<div class="dc-v">${DONUT.total}</div><div class="dc-l">total</div>`;segsEl.forEach(el=>el.style.opacity=1);}
+  else{const s=DONUT.segs[i];c.innerHTML=`<div class="dc-v" style="color:${s.c}">${fmtK(s.v)}</div><div class="dc-l">Rating ${s.k}</div>`;segsEl.forEach((el,j)=>el.style.opacity=j===i?1:.28);}}
 function line(vals,w=240,h=54,col='var(--brand-600)',fill=true){
   const mn=Math.min(...vals),mx=Math.max(...vals),rng=(mx-mn)||1;
   const pts=vals.map((v,i)=>[i*(w/(vals.length-1)),h-4-((v-mn)/rng)*(h-8)]);
@@ -820,7 +845,6 @@ function renderPortfolio(){
   // pie by rating (weight by pre-offer value)
   const byRating={};DEALS.forEach(d=>byRating[d.rating]=(byRating[d.rating]||0)+d.preoffer);
   const segs=Object.keys(byRating).sort().map(k=>({v:byRating[k],c:RATING_COL[k],k}));
-  const legend=segs.map(s=>`<div class="li"><span class="sw" style="background:${s.c}"></span>Rating ${s.k} · ${money0(s.v)}</div>`).join('');
 
   document.getElementById('content').innerHTML=`
     <div class="pagettl" style="display:flex;align-items:baseline;gap:12px;margin-bottom:16px">
@@ -828,10 +852,6 @@ function renderPortfolio(){
       <span class="muted small">Live portfolio view · ${DEALS.length} active deals</span>
     </div>
     <div class="mi">
-      <div class="card"><div class="card-b">
-        <div class="k">Deal value by rating</div>
-        <div class="pie-wrap" style="margin-top:8px">${donut(segs)}<div class="legend">${legend}</div></div>
-      </div></div>
       <div class="card"><div class="card-b">
         <div class="k">Total in underwriting</div><div class="v">${money0(totalPre)}</div>
         <div class="s">Sum of pre-offer value, today</div></div></div>
@@ -841,10 +861,15 @@ function renderPortfolio(){
       <div class="card"><div class="card-b">
         <div class="k">Deals at risk</div><div class="v" style="color:${atRisk?'var(--warning)':'var(--success)'}">${atRisk}</div>
         <div class="s">Need intervention (time in UW / escalation)</div></div></div>
+      <div class="card"><div class="card-b donutcard">
+        <div class="k">Value by rating</div>
+        ${ratingDonut(segs, fmtK(totalPre))}
+        <div class="donut-cap">Hover a segment for the breakdown</div>
+      </div></div>
     </div>
 
     <div class="card">
-      <div class="card-h"><h3>Deals in underwriting</h3><span class="sub">click a row to open the deal workspace</span></div>
+      <div class="card-h"><span class="sub">${DEALS.length} deals · click a row to open the deal workspace</span></div>
       <div style="overflow:auto">
       <table class="grid">
         <thead><tr>
