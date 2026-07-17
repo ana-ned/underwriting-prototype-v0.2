@@ -366,9 +366,9 @@ table.txgrid tbody tr.flagged:hover td{background:#fff4e0}
 .snap-meta .lock{display:inline-flex;align-items:center;gap:5px;color:var(--text-3)}
 .snap-meta .lock svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2}
 .snap-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
-.verdict{display:grid;grid-template-columns:repeat(6,1fr);margin:12px -18px -13px;padding:11px 18px;background:var(--grey-1);border-top:1px solid var(--border);border-radius:0 0 var(--r) var(--r)}
-@media(max-width:1000px){.verdict{grid-template-columns:repeat(3,1fr);row-gap:14px}}
-.verdict .vc{display:flex;flex-direction:column;gap:5px;padding:2px 22px;border-right:1px solid var(--border)}
+.verdict{display:grid;grid-template-columns:repeat(6,1fr);margin:12px -18px -13px;padding:0 18px;background:var(--grey-1);border-top:1px solid var(--border);border-radius:0 0 var(--r) var(--r)}
+@media(max-width:1000px){.verdict{grid-template-columns:repeat(3,1fr)}}
+.verdict .vc{display:flex;flex-direction:column;justify-content:center;gap:5px;padding:12px 22px;border-right:1px solid var(--border)}
 .verdict .vc:first-child{padding-left:0}
 .verdict .vc:last-child{border-right:none;padding-right:0}
 .verdict .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -388,11 +388,28 @@ table.txgrid tbody tr.flagged:hover td{background:#fff4e0}
 .sstep .sic{display:flex;align-items:center;justify-content:center;color:currentColor}
 .sstep .sic svg{width:18px;height:18px;stroke-linecap:round;stroke-linejoin:round}
 .sstep .slabel{font-size:14px;font-weight:600;letter-spacing:-.01em}
-.sstep .sdot-slot{display:inline-flex;align-items:center;justify-content:center;width:6px;flex:0 0 6px}
 .sstep.cur{color:var(--brand-700)}
 .sstep.cur::after{background:var(--brand-600)}
-.sdot{width:6px;height:6px;border-radius:50%;flex:0 0 6px}
-.sdot.amber{background:var(--warning)} .sdot.red{background:var(--error)}
+/* tiny numbered status marker on the right of each step — no connecting lines */
+.snum{width:14px;height:14px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:800;flex:0 0 14px;letter-spacing:-.02em}
+.snum svg{width:8px;height:8px}
+.snum.clean{width:11px;height:11px;flex:0 0 11px;background:transparent;border:1.5px solid #b8c4c7} /* hollow grey ring, no number */
+.snum.red{background:var(--error-bg);color:var(--error)} /* light red bg, bright red font */
+.snum.done{background:var(--brand-600);color:#fff}
+/* review-progress ring in the verdict bar */
+.prog-val{display:flex;align-items:center;gap:8px}
+.pring{flex:0 0 20px}
+/* per-step "mark as reviewed" confirm bar */
+.confirm-bar{position:sticky;bottom:16px;z-index:11;display:flex;align-items:center;gap:12px;margin-top:16px;padding:13px 16px;background:#fff;border:1px solid var(--border);border-radius:var(--r);box-shadow:0 6px 22px rgba(6,56,68,.14)}
+.confirm-bar.done{background:var(--brand-100);border-color:var(--brand-300);box-shadow:0 4px 16px rgba(18,128,129,.14)}
+.confirm-bar .cb-msg{font-weight:600;color:var(--ink);font-size:13.5px}
+.confirm-bar .cb-sub{color:var(--text-3);font-size:12.5px;margin-left:2px}
+.confirm-bar .cb-done{display:inline-flex;align-items:center;gap:7px;font-weight:700;color:var(--brand-700);font-size:13.5px}
+.confirm-bar .cb-done svg{width:16px;height:16px}
+.confirm-bar .cb-act{margin-left:auto;display:flex;gap:8px}
+/* scroll-to + highlight when you jump to an issue from Review / checks table */
+.focus-flash{animation:focusflash 2.2s ease}
+@keyframes focusflash{0%,18%{box-shadow:0 0 0 3px var(--brand-300);background:var(--brand-100)}100%{box-shadow:0 0 0 0 rgba(0,0,0,0);background:transparent}}
 
 /* work grid + right rail (tabbed) */
 .work{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;align-items:start}
@@ -406,17 +423,21 @@ table.txgrid tbody tr.flagged:hover td{background:#fff4e0}
 .rail-body{flex:1 1 auto;min-height:0;background:#fff;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--r) var(--r);overflow:hidden;display:flex;flex-direction:column}
 .rail-scroll{flex:1 1 auto;min-height:0;overflow:auto;padding:12px}
 .note-foot{flex:0 0 auto;border-top:1px solid var(--cell);padding:12px;background:#fff}
-.exc{display:flex;gap:9px;padding:10px 8px;border-radius:6px;border:1px solid var(--cell);margin-bottom:8px}
-.exc .sev{width:8px;height:8px;border-radius:50%;margin-top:5px;flex:0 0 8px}
+/* Review = full-bleed divider rows, tag top-right, solid full-width hover */
+.rail-scroll.revlist{padding:0}
+.exc{display:flex;gap:11px;padding:15px 16px;border-bottom:1px solid var(--cell);cursor:pointer;transition:background .12s}
+.exc:last-child{border-bottom:none}
+.exc:hover{background:var(--grey-1)}
+.exc .sev{width:9px;height:9px;border-radius:50%;margin-top:5px;flex:0 0 9px}
 .exc.high .sev{background:var(--red-t)} .exc.med .sev{background:var(--amber-t)}
 .exc .exc-body{flex:1;min-width:0}
 .exc .et-row{display:flex;align-items:flex-start;gap:8px}
-.exc .et{flex:1;min-width:0;font-weight:600;font-size:13px;line-height:1.35}
+.exc .et{flex:1;min-width:0;font-weight:700;font-size:14px;line-height:1.32}
 .exc .et-row .areatag{flex:0 0 auto;margin-top:1px}
-.exc .ecount{display:inline-block;margin-left:6px;font-size:11px;font-weight:800;color:var(--warning);background:var(--warning-bg);border-radius:20px;padding:0 7px;vertical-align:1px}
+.exc .ecount{display:inline-block;margin-left:7px;font-size:11px;font-weight:800;color:var(--warning);background:var(--warning-bg);border-radius:20px;padding:0 7px;vertical-align:1px}
 .exc.high .ecount{color:var(--red-t);background:var(--error-bg)}
-.exc .eloc{font-size:11px;color:var(--text-3);margin-top:3px}
-.exc .ego{margin-top:8px;display:flex;gap:6px}
+.exc .eloc{font-size:12.5px;color:var(--text-3);margin-top:5px;line-height:1.45}
+.exc .ego{margin-top:11px;display:flex;gap:6px}
 .exc.done{opacity:.5}
 .cnum{display:inline-block;margin-left:7px;font-size:11px;font-weight:800;border-radius:20px;padding:0 7px;vertical-align:1px}
 .cnum.a{color:var(--amber-t);background:var(--warning-bg)} .cnum.r{color:var(--red-t);background:var(--error-bg)}
@@ -512,8 +533,8 @@ table.txgrid tbody tr.flagged:hover td{background:#fff4e0}
 .linkitem{display:flex;align-items:center;gap:11px;border:1px solid var(--border);border-radius:8px;padding:9px 11px;margin-bottom:8px;background:#fff;text-decoration:none;color:var(--ink)}
 .linkitem:hover{border-color:var(--brand-300);background:var(--brand-100)}
 .linkitem:last-child{margin-bottom:0}
-.linkitem.flag{border-color:var(--warning-bd);background:var(--warning-bg)}
-.linkitem.flag:hover{background:#fff4e0}
+.linkitem.flag{border-color:#f0dcae;background:#fdf8ee}
+.linkitem.flag:hover{background:#fdf3df}
 .linkitem{min-height:58px}
 .linkitem .li-ic{width:40px;height:40px;flex:0 0 40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--grey-1);color:var(--text-2)}
 .linkitem .li-t{font-weight:700;font-size:13px;line-height:1.25}
@@ -997,18 +1018,36 @@ let CUR={id:null,step:'overview',rail:'review'};
 /* ---- one canonical list of checks; the Review panel and the checks table both read from this,
        so their totals are the same number by construction ---- */
 function checkArea(name){
-  if(/store owner|storefront|inter-client|bank account|linked|diligence/i.test(name))return 'background';
+  // Overview is the summary — it never *owns* an issue; every check routes to the step where it's investigated.
+  if(/store owner|storefront|inter-client|bank account|linked|diligence|eligib/i.test(name))return 'background';
   if(/low score|score/i.test(name))return 'scorecards';
-  return 'overview'; // payments · delinquency · default · eligibility live in the lending relationship on the Overview
+  if(/payment|delinq|default|nsf/i.test(name))return 'rag';
+  return 'background';
+}
+function focusFor(name){
+  // which element to scroll-to + highlight inside the target step
+  if(/bank account|storefront|store owner|eligib/i.test(name))return 'bg-identity';
+  if(/inter-client|linked/i.test(name))return 'bg-linked';
+  if(/low score|score/i.test(name))return 'sc-card';
+  if(/payment|delinq|default|nsf/i.test(name))return 'Behaviour'; // banking behaviour RAG row
+  return name; // RAG rows are anchored by their own name
 }
 function dealChecks(d){
   const label=id=>(STEPS.find(s=>s.id===id)||{t:id}).t;
   const sub=det=>{const m=(det||'').match(/(\d+)\s*(nsf|late|scores?|matches?|other|events?)/i);return m?Math.max(1,parseInt(m[1],10)):1;};
   const rows=[];
-  d.hygiene.forEach(h=>{const step=checkArea(h[0]);rows.push({name:h[0],detail:h[2],sev:h[1],step,area:label(step),count:h[1]==='g'?0:sub(h[2])});});
-  d.rag.forEach(r=>{rows.push({name:r[0],detail:r[2],sev:r[1],step:'rag',area:'RAG checks',count:r[1]==='g'?0:1});});
+  d.hygiene.forEach(h=>{const step=checkArea(h[0]);rows.push({name:h[0],detail:h[2],sev:h[1],step,area:label(step),count:h[1]==='g'?0:sub(h[2]),focus:focusFor(h[0])});});
+  d.rag.forEach(r=>{rows.push({name:r[0],detail:r[2],sev:r[1],step:'rag',area:'RAG checks',count:r[1]==='g'?0:1,focus:r[0]});});
   return rows;
 }
+let FOCUS=null;
+function goFocus(id,step,key){FOCUS=key;
+  if(CUR.id===id&&CUR.step===step)applyFocus();else go('#/deal/'+id+'/'+step);}
+function applyFocus(){if(!FOCUS)return;const key=FOCUS;FOCUS=null;
+  setTimeout(()=>{const el=[...document.querySelectorAll('[data-focus]')].find(e=>e.dataset.focus===key);if(!el)return;
+    if(el.classList.contains('arow')&&!el.classList.contains('open'))toggleAcc(el.id.replace('ar',''));
+    el.scrollIntoView({behavior:'smooth',block:'center'});
+    el.classList.remove('focus-flash');void el.offsetWidth;el.classList.add('focus-flash');},70);}
 function dealFlagged(d){return dealChecks(d).filter(c=>c.count>0);}
 function dealIssueCount(d){return dealChecks(d).reduce((s,c)=>s+c.count,0);}
 function overallRisk(d){return d.rag.some(x=>x[1]==='r')?['r','Red']:d.rag.some(x=>x[1]==='a')?['a','Amber']:['g','Green'];}
@@ -1044,12 +1083,12 @@ function renderDeal(id,step){
           <button class="btn btn-primary btn-sm" onclick="openDecision('${id}')">Make decision</button></div>
       </div>
       <div class="verdict">
+        <div class="vc"><span class="lbl">Pre-offer value</span><span class="val mono">${money0(d.preoffer)}</span></div>
         <div class="vc"><span class="lbl">Overall risk</span><span class="val"><span class="rag-dot ${risk[0]}"></span>${risk[1]}</span></div>
         <div class="vc"><span class="lbl">Suggested decision</span><span class="val">${decisionChip(d.decision)}</span></div>
-        <div class="vc"><span class="lbl">Pre-offer value</span><span class="val mono">${money0(d.preoffer)}</span></div>
         <div class="vc"><span class="lbl">Max amount</span><span class="val mono">${d.maxAmount?money0(d.maxAmount):'£0'}</span></div>
         <div class="vc"><span class="lbl">Product(s)</span><span class="val">${d.products.length?d.products.join(', '):'—'}</span></div>
-        <div class="vc"><span class="lbl">Needs your review</span><span class="val"><span class="exc-num">${nIssues}</span> open</span></div>
+        <div class="vc" id="progcell">${progressCellInner(d)}</div>
       </div>
     </section>
     ${renderSpine(d,step)}
@@ -1065,7 +1104,9 @@ function renderDeal(id,step){
       </aside>
     </div>`;
   (STEPS.find(s=>s.id===step).fn)(d);
+  document.getElementById('pane').insertAdjacentHTML('beforeend', confirmBar(d,step));
   railTab(CUR.rail);
+  applyFocus();
 }
 function stepFlags(d){
   const g={};STEPS.forEach(s=>g[s.id]={n:0,red:false});
@@ -1073,26 +1114,44 @@ function stepFlags(d){
   return g; // same source as the Review + checks table, so the per-tab counts reconcile too
 }
 function renderSpine(d,current){const F=stepFlags(d);
-  return `<nav class="spine">${STEPS.map(s=>{
-    const f=F[s.id]||{n:0}, cur=s.id===current;
-    // dot depends only on the deal (not the active step) + a reserved slot, so tabs never shift when switching
-    const dot=f.n>0?`<span class="sdot ${f.red?'red':'amber'}"></span>`:'';
+  return `<nav class="spine" id="spine">${STEPS.map((s,idx)=>{
+    const f=F[s.id]||{n:0}, cur=s.id===current, done=stepDone(d,s.id);
+    // circle = problem count in red when there are issues · plain grey circle when clean · teal ✓ once reviewed. No lines.
+    const cls=done?'done':(f.n>0?'red':'clean');
+    const inner=done?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>':(f.n>0?f.n:'');
     return `<button class="sstep ${cur?'cur':''}" onclick="go('#/deal/${d.id}/${s.id}')">
       <span class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${stepIcons[s.ic]}</svg></span>
-      <span class="slabel">${s.t}</span><span class="sdot-slot">${dot}</span></button>`;}).join('')}</nav>`;
+      <span class="slabel">${s.t}</span>
+      <span class="snum ${cls}">${inner}</span></button>`;}).join('')}</nav>`;
 }
+const CONFIRMED={};
+function stepDone(d,stepId){return !!(CONFIRMED[d.id]&&CONFIRMED[d.id][stepId]);}
+function confirmedCount(d){return STEPS.filter(s=>stepDone(d,s.id)).length;}
+function progRing(pct){const r=8,c=2*Math.PI*r,off=c*(1-pct/100);
+  return `<svg class="pring" viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="8" fill="none" stroke="#cdd6d9" stroke-width="2.2"/><circle cx="10" cy="10" r="8" fill="none" stroke="var(--brand-600)" stroke-width="2.2" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 10 10)" stroke-linecap="round"/></svg>`;}
+function progressCellInner(d){const done=confirmedCount(d),total=STEPS.length,pct=Math.round(done/total*100);
+  return `<span class="lbl">Review progress</span><span class="val prog-val">${progRing(pct)}<span>${done}/${total} steps</span></span>`;}
+function confirmBar(d,step){const done=stepDone(d,step);
+  return `<div class="confirm-bar ${done?'done':''}" id="confirmbar">${done
+    ?`<span class="cb-done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>You reviewed this step</span><div class="cb-act"><button class="btn btn-outline btn-sm" onclick="confirmStep('${d.id}')">Undo</button></div>`
+    :`<span class="cb-msg">Reviewed everything on this step?<span class="cb-sub"> — confirm to mark it done and move your progress forward.</span></span><div class="cb-act"><button class="btn btn-primary btn-sm" onclick="confirmStep('${d.id}')">Mark as reviewed</button></div>`}</div>`;}
+function confirmStep(id){const d=byId(id),st=CUR.step;CONFIRMED[id]=CONFIRMED[id]||{};CONFIRMED[id][st]=!CONFIRMED[id][st];
+  const sp=document.getElementById('spine');if(sp)sp.outerHTML=renderSpine(d,st);
+  const pc=document.getElementById('progcell');if(pc)pc.innerHTML=progressCellInner(d);
+  const cb=document.getElementById('confirmbar');if(cb)cb.outerHTML=confirmBar(d,st);
+  toast(CONFIRMED[id][st]?'Step marked as reviewed':'Marked not reviewed');}
 function railTab(k){CUR.rail=k;
   document.querySelectorAll('.rail-tabs .rt').forEach(b=>b.classList.toggle('on',b.dataset.rt===k));
   const d=byId(CUR.id), host=document.getElementById('rail-body'); if(!host)return;
   if(k==='review'){const fl=dealFlagged(d);
-    host.innerHTML=`<div class="rail-scroll">${fl.length?fl.map((c,i)=>`<div class="exc ${c.sev==='r'?'high':'med'}" id="ex${i}"><span class="sev"></span>
+    host.innerHTML=`<div class="rail-scroll revlist">${fl.length?fl.map((c,i)=>`<div class="exc ${c.sev==='r'?'high':'med'}" id="ex${i}" onclick="goFocus('${d.id}','${c.step}','${c.focus}')"><span class="sev"></span>
       <div class="exc-body">
         <div class="et-row"><div class="et">${c.name}${c.count>1?`<span class="ecount">${c.count}</span>`:''}</div><span class="areatag">${c.area}</span></div>
         <div class="eloc">${c.detail}</div>
-        <div class="ego"><button class="btn btn-outline btn-sm" onclick="go('#/deal/${d.id}/${c.step}')">Go to step</button>
-          <button class="btn btn-outline btn-sm" onclick="document.getElementById('ex${i}').classList.add('done');toast('Marked resolved')">Resolve</button></div>
+        <div class="ego"><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();goFocus('${d.id}','${c.step}','${c.focus}')">Go to step</button>
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();document.getElementById('ex${i}').classList.add('done');toast('Marked resolved')">Resolve</button></div>
       </div></div>`).join('')
-      :'<div class="muted small" style="padding:12px;text-align:center">Nothing to review — all clear ✓</div>'}</div>`;
+      :'<div class="muted small" style="padding:14px;text-align:center">Nothing to review — all clear ✓</div>'}</div>`;
   } else if(k==='notes'){
     host.innerHTML=`<div class="rail-scroll">${(NOTES[CUR.id]||[]).map(n=>`<div class="rnote"><div class="who">${n.who}</div>${n.tx}</div>`).join('')||'<div class="muted small" style="padding:4px 2px 10px">No notes yet.</div>'}</div>
       <div class="note-foot"><textarea id="noteInput" placeholder="Add a note — stays with the deal, on every step"></textarea>
@@ -1255,12 +1314,12 @@ function tabBackground(d){
   document.getElementById('pane').innerHTML=`
    ${aiWebFull(d)}
    <div class="grid2">
-     <div class="card"><div class="card-h"><h3>Identity &amp; ownership verification</h3><span class="sub">who they say they are — triangulated</span></div>
+     <div class="card" data-focus="bg-identity"><div class="card-h"><h3>Identity &amp; ownership verification</h3><span class="sub">who they say they are — triangulated</span></div>
        <div class="card-b">${rows(bgIdentity(d))}</div></div>
      <div class="card"><div class="card-h"><h3>Adverse media &amp; compliance screening</h3><span class="sub">KYC · sanctions · registry</span></div>
        <div class="card-b">${rows(bgScreen(d))}</div></div>
    </div>
-   <div class="card" style="margin-top:14px"><div class="card-h"><h3>Linked entities &amp; inter-client exposure</h3><span class="sub">${linked.length?linked.length+' related org'+(linked.length!=1?'s':''):'none found'}</span></div>
+   <div class="card" style="margin-top:14px" data-focus="bg-linked"><div class="card-h"><h3>Linked entities &amp; inter-client exposure</h3><span class="sub">${linked.length?linked.length+' related org'+(linked.length!=1?'s':''):'none found'}</span></div>
      <div class="card-b">${linkedCard}</div></div>`;
 }
 function tabDecision(d){
@@ -1336,7 +1395,7 @@ function tabOverview(d){
             <td><span class="areatag">${c.area}</span></td>
             <td class="muted">${c.detail}</td>
             <td style="white-space:nowrap"><span class="chip ${cls}"><span class="dot"></span>${lab}</span></td>
-            <td class="num"><a class="viewcta" href="#" onclick="go('#/deal/${d.id}/${c.step}');return false;">View →</a></td>
+            <td class="num"><a class="viewcta" href="#" onclick="goFocus('${d.id}','${c.step}','${c.focus}');return false;">View →</a></td>
           </tr>`}).join('')}</tbody></table></div>
     </div>
 
@@ -1381,7 +1440,7 @@ function tabRAG(d){
 }
 function ragRow(d,x,i){
   const [name,st,detail]=x;
-  return `<div class="arow ${st}" id="ar${i}">
+  return `<div class="arow ${st}" id="ar${i}" data-focus="${name}">
     <div class="ahead" onclick="toggleAcc(${i})">
       <span class="chip ${st=='g'?'c-success':st=='a'?'c-warning':'c-error'}" id="arc${i}"><span class="dot"></span>${st=='g'?'Green':st=='a'?'Amber':'Red'}</span>
       <span class="aname">${name}</span><span class="adetail">${detail}</span>
@@ -1414,7 +1473,7 @@ function tabScore(d){
   const bg={A:'var(--green-bg)',B:'var(--green-bg)',C:'var(--grey-2)',D:'var(--amber-bg)',E:'var(--red-bg)',F:'var(--red-bg)','-':'var(--grey-2)'};
   const ink={A:'var(--green)',B:'var(--green)',C:'var(--text-2)',D:'var(--amber-t)',E:'var(--red-t)',F:'var(--red-t)','-':'var(--text-3)'};
   document.getElementById('pane').innerHTML=`
-   <div class="card" style="margin-bottom:14px"><div class="card-h"><h3>Scorecards</h3><span class="sub">all model scores in one place</span></div>
+   <div class="card" style="margin-bottom:14px" data-focus="sc-card"><div class="card-h"><h3>Scorecards</h3><span class="sub">all model scores in one place</span></div>
      <div class="card-b"><div class="scstrip">
        ${d.scorecards.map(s=>`<div class="sc"><div class="g" style="background:${bg[s[1]]};color:${ink[s[1]]}">${s[1]}</div><div class="lab">${s[0]}</div></div>`).join('')}
      </div></div></div>
