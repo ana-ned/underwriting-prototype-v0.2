@@ -496,13 +496,41 @@ table.txgrid tbody tr.flagged:hover td{background:#fff4e0}
 .linked-item:last-child{border-bottom:none}
 .linked-item .lg{width:26px;height:26px;flex:0 0 26px;border-radius:6px;background:var(--warning-bg);color:var(--warning);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px}
 /* About: 3-column layout */
-.about-groups{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:15px -15px -15px;padding:16px;background:var(--grey-1);border-top:1px solid var(--border)}
-@media(max-width:1050px){.about-groups{grid-template-columns:1fr;gap:18px}}
-.about-groups .gcol{padding:0 22px;border-right:1px solid var(--border)}
+.about-groups{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:15px -15px -15px;padding:0 16px;background:var(--grey-1);border-top:1px solid var(--border)}
+@media(max-width:1050px){.about-groups{grid-template-columns:1fr;gap:18px;padding:16px}}
+.about-groups .gcol{padding:16px 22px;border-right:1px solid var(--border)}
 .about-groups .gcol:first-child{padding-left:0}
 .about-groups .gcol:last-child{border-right:none;padding-right:0}
 .about .collbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);font-weight:700;margin-bottom:11px}
 .about p.sum{margin:0;color:var(--text-2);font-size:13px;line-height:1.55}
+.rel-sum{display:flex;gap:9px;align-items:flex-start;margin:0 0 14px}
+.rel-sum .ai-badge{flex:0 0 auto;margin-top:2px}
+.rel-sum p{margin:0;color:var(--text-2);font-size:13px;line-height:1.55}
+/* AI review panel — distinctive treatment for AI summaries/analysis (not just a badge) */
+.ai-panel{border:1px solid #e6e0fb;background:linear-gradient(180deg,#faf9ff,#fefdff);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.ai-panel .aip-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.ai-panel .aip-title{font-weight:800;font-size:12.5px;color:#5b45c9;letter-spacing:.01em}
+.ai-panel .aip-metric{display:flex;align-items:baseline;gap:9px;margin:2px 0 8px}
+.ai-panel .aip-num{font-size:22px;font-weight:800;letter-spacing:-.02em;color:var(--ink)}
+.ai-panel .aip-sub{font-size:12px;color:var(--text-3)}
+.ai-panel .aip-body{margin:0;font-size:13px;color:var(--text-2);line-height:1.55}
+.ai-panel .aip-body b{color:var(--ink);font-weight:700}
+/* Decision step — per-product offer cards */
+.offer-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:900px){.offer-grid{grid-template-columns:1fr}}
+.offer-card{border:1px solid var(--border);border-radius:var(--r);background:#fff;padding:15px 16px;box-shadow:var(--sh-1)}
+.offer-card.ok{box-shadow:inset 3px 0 0 var(--success),var(--sh-1);border-color:var(--success-bd)}
+.offer-card.rej{box-shadow:inset 3px 0 0 var(--error),var(--sh-1);border-color:var(--error-bd);opacity:.9}
+.oc-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:11px}
+.oc-t{font-weight:800;font-size:15px}
+.oc-rec,.oc-avail{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:1px 7px;border-radius:20px;margin-left:7px;vertical-align:2px}
+.oc-rec{color:var(--brand-700);background:var(--brand-100);border:1px solid var(--brand-300)}
+.oc-avail{color:var(--text-3);background:var(--grey-1);border:1px solid var(--border)}
+.oc-term{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--cell);font-size:13px}
+.oc-term:last-child{border-bottom:none}
+.oc-term .ot-k{color:var(--text-3)} .oc-term .ot-v{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.oc-actions{display:flex;align-items:center;gap:8px;margin-top:13px}
+.oc-rejbtn.on{border-color:var(--error);color:var(--error);background:var(--error-bg)}
 .about .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
 /* AI branding + AI web-search card */
 .ai-badge{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:800;letter-spacing:.03em;color:#fff;
@@ -1017,6 +1045,27 @@ const NOTES={
 let CUR={id:null,step:'overview',rail:'review'};
 /* ---- one canonical list of checks; the Review panel and the checks table both read from this,
        so their totals are the same number by construction ---- */
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const QM={Q1:2,Q2:5,Q3:8,Q4:11};
+function qStart(q){const p=(q||'Q1 2025').split(' ');return MON[(QM[p[0]]||1)-1]+' '+p[1];}
+function repayStatus(d,p,i){
+  if(d.id==='ORG-6109'&&p[2]==='Funded'&&i===0)return ['warning','1 late · cured'];
+  return ['success','On time'];
+}
+function relationshipSummary(d){return {
+  'ORG-4821':'Returning customer of just over two years, and one of our cleaner books. Three facilities to date — a Q3 2024 term loan, a Q1 2025 line of credit and a Q4 2025 top-up — all drawn, serviced and repaid in full, on or ahead of schedule. Each approval followed strengthening Amazon revenue and healthy inventory cover. No missed collections, delinquencies or defaults on record.',
+  'ORG-5573':'Relationship began in early 2025. Two touchpoints so far: an MCA funded in Q2 2025 that is repaying on schedule with no missed collections, and a Q4 2025 top-up enquiry we paused pending connection of a second bank account (••••4231) seen in transfers. That unconnected account is currently the only open item on the relationship.',
+  'ORG-6109':'Longer, more chequered history — four applications since 2024. The first two were declined (thin banking history, then deteriorating Amazon account health). We funded one term loan in Q4 2024, which saw a single late collection that was later cured, and a Q3 2025 top-up was lost before completion. The account is now flagged for undisclosed debt drawn through a linked entity, materially changing the risk picture.'
+}[d.id]||'New customer — no prior facilities with Uncapped, so the relationship view is limited to the current application.';}
+function openRepaySchedule(id,i){const d=byId(id),p=d.prior[i];const n=8,per=Math.max(1,Math.round((p[3]||60000)/n));
+  const paidCount=Math.min(n,Math.max(0,Math.round(((p[3]||0)-(p[4]||0))/per)));
+  const parts=(p[0]||'Q1 2025').split(' ');let mi=QM[parts[0]]||1,y=+parts[1];
+  let rows='';for(let k=0;k<n;k++){const paid=k<paidCount;
+    rows+=`<tr><td class="nowrap">${MON[mi-1]} ${y}</td><td>${d.source==='Amazon'?'Amazon payout split':'Direct Debit'}</td><td class="num mono">${money0(per)}</td><td>${paid?'<span class="chip c-success"><span class="dot"></span>Paid</span>':'<span class="chip c-neutral">Scheduled</span>'}</td></tr>`;
+    mi++;if(mi>12){mi=1;y++;}}
+  openOverlay(`<div class="modal" style="max-width:560px"><div class="mh"><h3>Repayments &amp; collections — ${p[1]} · ${qStart(p[0])}</h3><div class="x" onclick="closeOverlay()">✕</div></div>
+   <div class="mb"><p class="muted small" style="margin:0 0 11px">${paidCount} of ${n} collections settled · ${money0(p[4]||0)} outstanding. Mirrors the back-office Repayments &amp; Collections schedule for this deal.</p>
+   <table class="grid flat"><thead><tr><th>Due</th><th>Method</th><th class="num">Amount</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div></div>`);}
 function checkArea(name){
   // Overview is the summary — it never *owns* an issue; every check routes to the step where it's investigated.
   if(/store owner|storefront|inter-client|bank account|linked|diligence|eligib/i.test(name))return 'background';
@@ -1080,7 +1129,7 @@ function renderDeal(id,step){
               <div class="vm-note">🔒 Locked snapshot — everyone on this deal sees the same data until someone refreshes.</div>
             </div>
           </div>
-          <button class="btn btn-primary btn-sm" onclick="openDecision('${id}')">Make decision</button></div>
+          <button class="btn btn-primary btn-sm" onclick="go('#/deal/${id}/decision')">Make decision</button></div>
       </div>
       <div class="verdict">
         <div class="vc"><span class="lbl">Pre-offer value</span><span class="val mono">${money0(d.preoffer)}</span></div>
@@ -1104,7 +1153,7 @@ function renderDeal(id,step){
       </aside>
     </div>`;
   (STEPS.find(s=>s.id===step).fn)(d);
-  document.getElementById('pane').insertAdjacentHTML('beforeend', confirmBar(d,step));
+  if(step!=='decision')document.getElementById('pane').insertAdjacentHTML('beforeend', confirmBar(d,step)); // Decision's confirmation is "Publish decision"
   railTab(CUR.rail);
   applyFocus();
 }
@@ -1185,7 +1234,7 @@ function glanceTiles(d){
   const cash=Math.round(d.preoffer*0.34), rev12=d.preoffer*5, rev3=Math.round(rev12/4), inv=Math.round(d.preoffer*0.72);
   const debt=debtLoans(d).reduce((s,l)=>s+l[2],0), nf=debtLoans(d).length;
   const score={A:88,B:74,C:58,D:46,E:34,F:22}[d.rating]||60, up=d.revTrend==='up', down=d.revTrend==='down';
-  const T=(k,v,cls,cap,step)=>`<button class="gtile" onclick="go('#/deal/${d.id}/${step}')">
+  const T=(k,v,cls,cap,step,focus)=>`<button class="gtile" onclick="${focus?`goFocus('${d.id}','${step}','${focus}')`:`go('#/deal/${d.id}/${step}')`}">
     <div class="gk">${k}</div>
     <div class="gv mono">${v}</div><div class="gc ${cls}">${cap}</div></button>`;
   return `<div class="glance">
@@ -1194,7 +1243,7 @@ function glanceTiles(d){
     ${T('Revenue (T3M)',fmtK(rev3),up?'up':down?'down':'mut',up?'▲ vs prior Q':down?'▼ 14% vs prior Q':'flat vs prior Q','forecast')}
     ${T('Amazon inventory',fmtK(inv),'mut',d.source==='Amazon'?'62 days of cover':'—','forecast')}
     ${T('Debt outstanding',money0(debt),debt>200000?'warn':'mut',nf+' active facilit'+(nf!=1?'ies':'y'),'forecast')}
-    ${T('Scorecard',score+'<span style="font-size:12px;color:var(--text-3);font-weight:600"> / 100</span>',score>=70?'up':score>=50?'warn':'down',score>=70?'Strong':score>=50?'Moderate':'Weak','scorecards')}
+    ${T('Final score',score+'<span style="font-size:12px;color:var(--text-3);font-weight:600"> / 100</span>',score>=70?'up':score>=50?'warn':'down','Grade '+d.rating+' · int + ext scores','scorecards','sc-card')}
   </div>`;}
 function connectionsFor(d){
   const base=[['Business bank account','Primary · 24 months coverage · synced 16 Jul 2026','ok','£'],
@@ -1246,7 +1295,7 @@ function webSearch(d){
     sum:'No adverse litigation, regulatory enforcement or criminal records found for the company or its directors. Standard verification recommended.',
     flags:[]};
 }
-const AI_STAR='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 5.6L19.5 9l-4.6 3.3L16 18l-4-3.2L8 18l1.1-5.7L4.5 9l5.6-1.4z"/></svg>';
+const AI_STAR='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 1Q9 9 17 9Q9 9 9 17Q9 9 1 9Q9 9 9 1ZM18 13Q18 17 22 17Q18 17 18 21Q18 17 14 17Q18 17 18 13Z"/></svg>';
 // Overview: one compact line. Detail lives in Background.
 function aiWebBrief(d){const w=webSearch(d);
   if(w.clear)return `<div class="ws-brief clear">
@@ -1322,20 +1371,67 @@ function tabBackground(d){
    <div class="card" style="margin-top:14px" data-focus="bg-linked"><div class="card-h"><h3>Linked entities &amp; inter-client exposure</h3><span class="sub">${linked.length?linked.length+' related org'+(linked.length!=1?'s':''):'none found'}</span></div>
      <div class="card-b">${linkedCard}</div></div>`;
 }
-function tabDecision(d){
-  document.getElementById('pane').innerHTML=`
-   <div class="card"><div class="card-h"><h3>Decision</h3><span class="sub">suggested by the model — confirm or adjust</span></div>
-     <div class="card-b">
-       <div class="verdict" style="border:none;margin:0;padding:0;grid-template-columns:repeat(4,1fr);background:transparent">
-         <div class="vc"><span class="lbl">Recommended</span><span class="val">${decisionChip(d.decision)}</span></div>
-         <div class="vc"><span class="lbl">Rating</span><span class="val"><span class="rating rt-${d.rating}">${d.rating}</span></span></div>
-         <div class="vc"><span class="lbl">Max amount</span><span class="val mono">${d.maxAmount?money0(d.maxAmount):'£0'}</span></div>
-         <div class="vc"><span class="lbl">Product(s)</span><span class="val">${d.products.length?d.products.join(', '):'—'}</span></div>
-       </div>
-       <p class="muted small" style="margin:14px 0 0">${dealIssueCount(d)} open item${dealIssueCount(d)!=1?'s':''} to clear before sign-off.</p>
-       <div style="margin-top:14px"><button class="btn btn-primary" onclick="openDecision('${d.id}')">Make decision</button></div>
-     </div></div>`;
+const DEC={};
+function decisionProducts(d){
+  const m=d.maxAmount||120000, sec=d.rating==='B'?'Not required':'Personal guarantee';
+  const rec=n=>d.products.some(p=>p.toLowerCase().includes(n));
+  return [
+    {name:'Term loan',rec:rec('term'),terms:[['Max advance',money0(m)],['Term','10 months'],['Collection','Every 15 days'],['Cash fee','0.88% / mo'],['Security',sec]]},
+    {name:'Line of credit',rec:rec('loc')||rec('line'),terms:[['Facility limit',money0(Math.round(m*0.8))],['Min draw','£15,000'],['Fee on drawn','0.90% / mo'],['Term','Revolving · 12 mo'],['Security',sec]]},
+    {name:'Daily payouts',rec:rec('daily')||rec('payout'),terms:[['Advance',money0(Math.round(m*0.5))],['Holdback','12% of daily payouts'],['Factor','1.09'],['Est. duration','~7 months']]},
+    {name:'Cash advance',rec:rec('mca')||rec('cash'),terms:[['Advance',money0(Math.round(m*0.6))],['Factor rate','1.12'],['Collection','12% of receipts'],['Est. duration','~8 months']]},
+  ];
 }
+function defaultDecision(d,p){if(d.decision==='Reject')return 'reject';if(d.decision==='Undetermined')return p.rec?'pending':'reject';return p.rec?'approve':'reject';}
+function decState(d,i,p){return (DEC[d.id]&&DEC[d.id][i])||defaultDecision(d,p);}
+function offerCard(d,p,i){
+  const state=decState(d,i,p),cls=state==='approve'?'ok':state==='reject'?'rej':'pend';
+  const chip=state==='approve'?'<span class="chip c-success"><span class="dot"></span>Approved</span>':state==='reject'?'<span class="chip c-error"><span class="dot"></span>Rejected</span>':'<span class="chip c-neutral">Pending</span>';
+  return `<div class="offer-card ${cls}" id="oc${i}">
+    <div class="oc-head"><div class="oc-t">${p.name}${p.rec?'<span class="oc-rec">Recommended</span>':'<span class="oc-avail">Not recommended</span>'}</div>${chip}</div>
+    <div class="oc-terms">${p.terms.map(t=>`<div class="oc-term"><span class="ot-k">${t[0]}</span><span class="ot-v">${t[1]}</span></div>`).join('')}</div>
+    <div class="oc-actions"><button class="btn btn-outline btn-sm" onclick="editOffer('${d.id}',${i})">Edit terms</button><span style="flex:1"></span>
+      <button class="btn btn-outline btn-sm oc-rejbtn ${state==='reject'?'on':''}" onclick="decideOffer('${d.id}',${i},'reject')">Reject</button>
+      <button class="btn ${state==='approve'?'btn-primary':'btn-outline'} btn-sm" onclick="decideOffer('${d.id}',${i},'approve')">Approve</button></div>
+  </div>`;
+}
+function tabDecision(d){
+  const prods=decisionProducts(d);DEC[d.id]=DEC[d.id]||{};
+  const ap=prods.filter((p,i)=>decState(d,i,p)==='approve').length, rj=prods.filter((p,i)=>decState(d,i,p)==='reject').length;
+  const open=dealIssueCount(d);
+  document.getElementById('pane').innerHTML=`
+   <div class="card" style="margin-bottom:14px"><div class="card-h"><h3>Decision</h3><span class="sub">the model suggests an offer per product — approve, reject or edit each</span></div>
+     <div class="card-b"><div class="verdict" style="border:none;margin:0;padding:0;grid-template-columns:repeat(4,1fr);background:transparent">
+       <div class="vc"><span class="lbl">Recommended</span><span class="val">${decisionChip(d.decision)}</span></div>
+       <div class="vc"><span class="lbl">Rating</span><span class="val"><span class="rating rt-${d.rating}">${d.rating}</span></span></div>
+       <div class="vc"><span class="lbl">Max amount</span><span class="val mono">${d.maxAmount?money0(d.maxAmount):'£0'}</span></div>
+       <div class="vc"><span class="lbl">Open items</span><span class="val">${open} to clear</span></div>
+     </div></div></div>
+   <div class="offer-grid">${prods.map((p,i)=>offerCard(d,p,i)).join('')}</div>
+   <div class="card" style="margin-top:14px"><div class="card-b" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+     <div style="font-size:13.5px"><b>${ap} approved</b> · ${rj} rejected · ${prods.length-ap-rj} pending</div>
+     ${open?`<span class="chip c-warning" style="margin-left:auto"><span class="dot"></span>${open} open item${open!=1?'s':''} before sign-off</span>`:'<span class="chip c-success" style="margin-left:auto"><span class="dot"></span>All checks reviewed</span>'}
+     <button class="btn btn-primary" style="${open?'':'margin-left:auto'}" onclick="publishDecision('${d.id}')">Publish decision</button>
+   </div></div>`;
+}
+function publishDecision(id){CONFIRMED[id]=CONFIRMED[id]||{};CONFIRMED[id].decision=true;
+  const sp=document.getElementById('spine');if(sp)sp.outerHTML=renderSpine(byId(id),CUR.step);
+  const pc=document.getElementById('progcell');if(pc)pc.innerHTML=progressCellInner(byId(id));
+  toast('Decision published — sent for risk sign-off');}
+function decideOffer(id,i,verdict){const p=decisionProducts(byId(id))[i];
+  openOverlay(`<div class="modal" style="max-width:440px"><div class="mh"><h3>${verdict==='approve'?'Approve':'Reject'} — ${p.name}</h3><div class="x" onclick="closeOverlay()">✕</div></div>
+   <div class="mb"><p class="muted small" style="margin:0 0 8px">Add a short reason — it's saved to the deal history.</p>
+   <textarea id="decReason" class="editcell" style="width:100%;min-height:70px;text-align:left" placeholder="${verdict==='approve'?'e.g. Cashflow supports the advance at this size.':'e.g. Undisclosed linked-entity debt changes the risk picture.'}"></textarea>
+   <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-outline btn-sm" onclick="closeOverlay()">Cancel</button>
+     <button class="btn btn-primary btn-sm" onclick="applyDecide('${id}',${i},'${verdict}')">${verdict==='approve'?'Approve offer':'Reject offer'}</button></div></div></div>`);}
+function applyDecide(id,i,verdict){const r=((document.getElementById('decReason')||{}).value||'').trim();
+  const p=decisionProducts(byId(id))[i];DEC[id]=DEC[id]||{};DEC[id][i]=verdict;closeOverlay();
+  (NOTES[id]=NOTES[id]||[]).unshift({who:'Meridian Capital · just now',tx:`${verdict==='approve'?'Approved':'Rejected'} ${p.name}${r?' — '+r:''}`});
+  tabDecision(byId(id));toast(`${verdict==='approve'?'Approved':'Rejected'} ${p.name}`);}
+function editOffer(id,i){const p=decisionProducts(byId(id))[i];
+  openOverlay(`<div class="modal" style="max-width:520px"><div class="mh"><h3>Edit offer — ${p.name}</h3><div class="x" onclick="closeOverlay()">✕</div></div>
+   <div class="mb"><table class="grid flat">${p.terms.map(t=>`<tr><td style="color:var(--text-3);font-weight:600;width:180px">${t[0]}</td><td><input class="editcell" style="width:190px;text-align:left" value="${t[1]}"></td></tr>`).join('')}</table>
+   <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-outline btn-sm" onclick="closeOverlay()">Cancel</button><button class="btn btn-primary btn-sm" onclick="closeOverlay();toast('Offer terms updated (demo)')">Save terms</button></div></div></div>`);}
 
 /* ---------- OVERVIEW TAB ---------- */
 function tabOverview(d){
@@ -1400,10 +1496,11 @@ function tabOverview(d){
     </div>
 
     <div class="card" style="margin-bottom:14px">
-      <div class="card-h"><h3>Lending relationship with Uncapped</h3><span class="sub">total outstanding ${money0(totalOut)}</span></div>
+      <div class="card-h"><h3>Lending relationship with Uncapped</h3><span class="sub" style="margin-left:auto">total outstanding ${money0(totalOut)}</span></div>
       <div class="card-b">
-        <div style="overflow:auto"><table class="grid flat"><thead><tr><th>Period</th><th>Type</th><th>Outcome</th><th class="num">Amount funded</th><th class="num">Outstanding</th><th></th></tr></thead>
-          <tbody>${d.prior.length?d.prior.map(p=>`<tr><td>${p[0]}</td><td>${p[1]}</td><td>${p[2]=='Funded'?'<span class="chip c-success"><span class="dot"></span>Funded</span>':p[2]=='Lost'?'<span class="chip c-neutral">Lost</span>':'<span class="chip c-error">Rejected</span>'}</td><td class="num mono">${p[3]?money0(p[3]):'—'}</td><td class="num mono">${p[4]?money0(p[4]):'—'}</td><td><a href="#" onclick="toast('Opening prior deal (demo)');return false;">View →</a></td></tr>`).join(''):'<tr><td colspan="6" class="muted">No prior deals — new customer</td></tr>'}</tbody></table></div>
+        <div class="rel-sum"><span class="ai-badge">${AI_STAR}AI</span><p>${relationshipSummary(d)}</p></div>
+        <div style="overflow:auto"><table class="grid flat"><thead><tr><th>Started</th><th>Type</th><th>Outcome</th><th>Repayment</th><th class="num">Amount funded</th><th class="num">Outstanding</th><th></th></tr></thead>
+          <tbody>${d.prior.length?d.prior.map((p,i)=>{const rs=repayStatus(d,p,i);return `<tr><td class="nowrap">${qStart(p[0])}</td><td>${p[1]}</td><td>${p[2]=='Funded'?'<span class="chip c-success"><span class="dot"></span>Funded</span>':p[2]=='Lost'?'<span class="chip c-neutral">Lost</span>':'<span class="chip c-error">Rejected</span>'}</td><td>${p[2]=='Funded'?`<span class="chip c-${rs[0]}"><span class="dot"></span>${rs[1]}</span>`:'<span class="muted">—</span>'}</td><td class="num mono">${p[3]?money0(p[3]):'—'}</td><td class="num mono">${p[4]?money0(p[4]):'—'}</td><td class="num"><a class="viewcta" href="#" onclick="openRepaySchedule('${d.id}',${i});return false;">View →</a></td></tr>`}).join(''):'<tr><td colspan="7" class="muted">No prior deals — new customer</td></tr>'}</tbody></table></div>
         <div class="lbl" style="margin:16px 0 6px">Principal balance over time <span style="text-transform:none;font-weight:500;color:var(--text-3)">— monthly closing principal</span></div>
         ${axedChart(C(principal,'line','var(--brand-600)'),640,150,false)}
         <div class="muted small" style="margin-top:8px">Delinquency: ${d.rating==='E'?'1 late repayment (cured)':'clean · never delinquent'}</div>
@@ -1690,6 +1787,22 @@ function txnData(d){
 function tabCateg(d){CATG[d.id]=CATG[d.id]||{sub:'pl',filter:'all',touched:false,txns:txnData(d)};renderCateg(d.id);}
 function fmtDate(s){const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];const p=s.split('-');return (+p[2])+' '+M[+p[1]-1]+' '+p[0].slice(2);}
 function catStatus(t){return t.flag?'<span class="chip c-warning">Review</span>':t.resolved?'<span class="chip c-success">Resolved</span>':'<span class="chip c-neutral">Auto</span>';}
+function aiTxnPanel(flagged){
+  if(!flagged.length)return '';
+  const abs=t=>Math.abs(t.amt), suspected=flagged.reduce((s,t)=>s+abs(t),0);
+  const wire=flagged.find(t=>/wire/i.test(t.desc));
+  const cash=flagged.filter(t=>/atm|deposit/i.test(t.desc)).reduce((s,t)=>s+abs(t),0);
+  const intra=flagged.find(t=>/transfer/i.test(t.desc));
+  const bits=[];
+  if(wire)bits.push(`a <b>${money0(abs(wire))}</b> inbound wire with no identifiable counterparty`);
+  if(cash)bits.push(`<b>${money0(cash)}</b> arriving as cash / ATM deposits`);
+  if(intra)bits.push(`an <b>${money0(abs(intra))}</b> transfer to a linked account (${(intra.desc||'').replace(/^Transfer to /,'')})`);
+  return `<div class="ai-panel">
+    <div class="aip-head"><span class="ai-badge">${AI_STAR}AI</span><span class="aip-title">Transaction review</span></div>
+    <div class="aip-metric"><span class="aip-num">${money0(suspected)}</span><span class="aip-sub">flagged as unusual · across ${flagged.length} transactions</span></div>
+    <p class="aip-body">These don't fit the seller's usual Amazon / Shopify settlement pattern — ${bits.join(', ')}. Until each is explained by connected data, the reported cash position may be overstated. Recommend confirming source of funds before sizing an offer.</p>
+  </div>`;
+}
 function renderCateg(id){
   const d=byId(id),st=CATG[id],tx=st.txns;
   const flagged=tx.filter(t=>t.flag),toReview=flagged.length;
@@ -1721,6 +1834,7 @@ function renderCateg(id){
       ${rows.length?'':'<tr><td colspan="8" class="muted" style="text-align:center;padding:24px">Nothing left to review — all flags cleared ✓</td></tr>'}</tbody></table></div>
     </div>`;
   document.getElementById('pane').innerHTML=`
+    ${aiTxnPanel(flagged)}
     <div class="subtabs">
       <div class="st ${st.sub==='pl'?'on':''}" onclick="catSub('${id}','pl')">Monthly P&amp;L</div>
       <div class="st ${st.sub==='tx'?'on':''}" onclick="catSub('${id}','tx')">Transactions</div></div>
