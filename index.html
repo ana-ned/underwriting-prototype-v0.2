@@ -722,7 +722,7 @@ function donut(segments, size=92, thick=17){
 }
 let DONUT={segs:[],total:''};
 function ratingDonut(segs,totalLabel){
-  const size=132, thick=19, r=(size-thick)/2, cx=size/2, cy=size/2, C=2*Math.PI*r, gap=3;
+  const size=104, thick=15, r=(size-thick)/2, cx=size/2, cy=size/2, C=2*Math.PI*r, gap=3;
   const tot=segs.reduce((s,x)=>s+x.v,0)||1; let off=0;
   DONUT={segs,total:totalLabel};
   const rings=segs.map((s,i)=>{const len=C*s.v/tot; const dash=Math.max(1,len-gap);
