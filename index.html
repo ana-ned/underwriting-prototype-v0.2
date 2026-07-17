@@ -409,10 +409,20 @@ table.txgrid tbody tr.flagged:hover td{background:#fff4e0}
 .exc{display:flex;gap:9px;padding:10px 8px;border-radius:6px;border:1px solid var(--cell);margin-bottom:8px}
 .exc .sev{width:8px;height:8px;border-radius:50%;margin-top:5px;flex:0 0 8px}
 .exc.high .sev{background:var(--red-t)} .exc.med .sev{background:var(--amber-t)}
-.exc .et{font-weight:600;font-size:13px;line-height:1.35}
-.exc .eloc{font-size:11px;color:var(--text-3);margin-top:2px}
-.exc .ego{margin-top:7px;display:flex;gap:6px}
+.exc .exc-body{flex:1;min-width:0}
+.exc .et-row{display:flex;align-items:flex-start;gap:8px}
+.exc .et{flex:1;min-width:0;font-weight:600;font-size:13px;line-height:1.35}
+.exc .et-row .areatag{flex:0 0 auto;margin-top:1px}
+.exc .ecount{display:inline-block;margin-left:6px;font-size:11px;font-weight:800;color:var(--warning);background:var(--warning-bg);border-radius:20px;padding:0 7px;vertical-align:1px}
+.exc.high .ecount{color:var(--red-t);background:var(--error-bg)}
+.exc .eloc{font-size:11px;color:var(--text-3);margin-top:3px}
+.exc .ego{margin-top:8px;display:flex;gap:6px}
 .exc.done{opacity:.5}
+.cnum{display:inline-block;margin-left:7px;font-size:11px;font-weight:800;border-radius:20px;padding:0 7px;vertical-align:1px}
+.cnum.a{color:var(--amber-t);background:var(--warning-bg)} .cnum.r{color:var(--red-t);background:var(--error-bg)}
+.areatag{display:inline-block;font-size:11px;font-weight:600;color:var(--text-2);background:var(--grey-1);border:1px solid var(--border);padding:1px 9px;border-radius:20px;white-space:nowrap}
+.viewcta{color:var(--brand-700);font-weight:700;text-decoration:none;white-space:nowrap}
+.viewcta:hover{text-decoration:underline}
 .rnote{border-bottom:1px solid var(--cell);padding:9px 2px;font-size:13px}
 .rnote .who{font-size:11px;color:var(--text-3);font-weight:600;margin-bottom:3px}
 .note-foot textarea{width:100%;min-height:62px;border:1px solid var(--border);border-radius:var(--r);padding:8px;font-family:inherit;font-size:13px;resize:vertical}
@@ -488,6 +498,17 @@ table.txgrid tbody tr.flagged:hover td{background:#fff4e0}
 .aiweb .ws-clear{display:inline-flex;align-items:center;gap:6px;margin-top:11px;font-size:12.5px;color:var(--success)}
 .aiweb .ws-vectors{margin-top:13px;font-size:11.5px;color:var(--text-3)}
 .aiweb .ws-more{margin-left:8px;color:var(--brand-700);font-weight:700;text-decoration:none}
+/* About-card header: title + AI badge + tags on one line (no repeated sub-label) */
+.about-h{flex-wrap:wrap;gap:10px}
+.about-h .about-chips{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+.about-h .about-chips .chip{height:24px}
+/* compact adverse-media line on the Overview (detail lives in Background) */
+.ws-brief{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;padding:9px 13px;border-radius:8px;font-size:13px}
+.ws-brief.flag{background:#fff8e6;border-left:4px solid #e0a400}
+.ws-brief.clear{background:var(--grey-1);border-left:4px solid var(--success)}
+.ws-brief .wb-t{color:var(--text-2)}
+.ws-brief .wb-t b{color:var(--ink);font-weight:700}
+.ws-brief .ws-more{margin-left:auto;color:var(--brand-700);font-weight:700;text-decoration:none;white-space:nowrap}
 .linkitem{display:flex;align-items:center;gap:11px;border:1px solid var(--border);border-radius:8px;padding:9px 11px;margin-bottom:8px;background:#fff;text-decoration:none;color:var(--ink)}
 .linkitem:hover{border-color:var(--brand-300);background:var(--brand-100)}
 .linkitem:last-child{margin-bottom:0}
@@ -973,11 +994,23 @@ const NOTES={
     {who:'Beatriz Blanco · 16 Jul, 12:30',tx:'Amazon account AT_RISK on US + Canada and storefront-owner name mismatch. Recommend decline.'}]
 };
 let CUR={id:null,step:'overview',rail:'review'};
-function dealExceptions(d){const ex=[];
-  d.hygiene.forEach(h=>{if(h[1]!=='g')ex.push({t:h[0],d:h[2],sev:h[1]==='r'?'high':'med',step:'overview',loc:'Overview'});});
-  d.rag.forEach(r=>{if(r[1]!=='g')ex.push({t:r[0],d:r[2],sev:r[1]==='r'?'high':'med',step:'rag',loc:'RAG checks'});});
-  return ex;
+/* ---- one canonical list of checks; the Review panel and the checks table both read from this,
+       so their totals are the same number by construction ---- */
+function checkArea(name){
+  if(/store owner|storefront|inter-client|bank account|linked|diligence/i.test(name))return 'background';
+  if(/low score|score/i.test(name))return 'scorecards';
+  return 'overview'; // payments · delinquency · default · eligibility live in the lending relationship on the Overview
 }
+function dealChecks(d){
+  const label=id=>(STEPS.find(s=>s.id===id)||{t:id}).t;
+  const sub=det=>{const m=(det||'').match(/(\d+)\s*(nsf|late|scores?|matches?|other|events?)/i);return m?Math.max(1,parseInt(m[1],10)):1;};
+  const rows=[];
+  d.hygiene.forEach(h=>{const step=checkArea(h[0]);rows.push({name:h[0],detail:h[2],sev:h[1],step,area:label(step),count:h[1]==='g'?0:sub(h[2])});});
+  d.rag.forEach(r=>{rows.push({name:r[0],detail:r[2],sev:r[1],step:'rag',area:'RAG checks',count:r[1]==='g'?0:1});});
+  return rows;
+}
+function dealFlagged(d){return dealChecks(d).filter(c=>c.count>0);}
+function dealIssueCount(d){return dealChecks(d).reduce((s,c)=>s+c.count,0);}
 function overallRisk(d){return d.rag.some(x=>x[1]==='r')?['r','Red']:d.rag.some(x=>x[1]==='a')?['a','Amber']:['g','Green'];}
 
 function renderDeal(id,step){
@@ -987,7 +1020,7 @@ function renderDeal(id,step){
   setSidebar('deal',d);
   document.getElementById('crumbs').innerHTML=
     `<span class="lnk" onclick="go('#/portfolio')">All deals</span><span class="sep">›</span><span class="lnk" onclick="go('#/portfolio')">Underwriting</span><span class="sep">›</span><b>${d.org}</b>`;
-  const ex=dealExceptions(d), risk=overallRisk(d);
+  const nIssues=dealIssueCount(d), risk=overallRisk(d);
   document.getElementById('content').innerHTML=`
     <section class="snap">
       <div class="snap-top">
@@ -1016,7 +1049,7 @@ function renderDeal(id,step){
         <div class="vc"><span class="lbl">Pre-offer value</span><span class="val mono">${money0(d.preoffer)}</span></div>
         <div class="vc"><span class="lbl">Max amount</span><span class="val mono">${d.maxAmount?money0(d.maxAmount):'£0'}</span></div>
         <div class="vc"><span class="lbl">Product(s)</span><span class="val">${d.products.length?d.products.join(', '):'—'}</span></div>
-        <div class="vc"><span class="lbl">Needs your review</span><span class="val"><span class="exc-num">${ex.length}</span> open</span></div>
+        <div class="vc"><span class="lbl">Needs your review</span><span class="val"><span class="exc-num">${nIssues}</span> open</span></div>
       </div>
     </section>
     ${renderSpine(d,step)}
@@ -1024,7 +1057,7 @@ function renderDeal(id,step){
       <main class="step-host" id="pane"></main>
       <aside class="rail">
         <div class="rail-tabs">
-          <button class="rt" data-rt="review" onclick="railTab('review')">Review <span class="rt-badge">${ex.length}</span></button>
+          <button class="rt" data-rt="review" onclick="railTab('review')">Review <span class="rt-badge">${nIssues}</span></button>
           <button class="rt" data-rt="notes" onclick="railTab('notes')">Notes</button>
           <button class="rt" data-rt="history" onclick="railTab('history')">History</button>
         </div>
@@ -1035,15 +1068,9 @@ function renderDeal(id,step){
   railTab(CUR.rail);
 }
 function stepFlags(d){
-  const tx=txnData(d).filter(t=>t.flag);
-  const ov=d.hygiene.filter(h=>/bank|connect|account|payment|delinq|default|eligib/i.test(h[0])&&h[1]!=='g');
-  const bg=d.hygiene.filter(h=>/storefront|store owner|inter-client/i.test(h[0])&&h[1]!=='g');
-  const sc=d.scorecards.filter(s=>['D','E','F'].includes(s[1]));
-  const rg=d.rag.filter(r=>r[1]!=='g');
-  const red=a=>a.some(x=>x[1]==='r'||x[1]==='E'||x[1]==='F');
-  return {overview:{n:ov.length,red:red(ov)},categorisation:{n:tx.length,red:tx.some(t=>t.conf<50)},
-    background:{n:bg.length,red:red(bg)},rag:{n:rg.length,red:red(rg)},
-    scorecards:{n:sc.length,red:sc.some(s=>['E','F'].includes(s[1]))},forecast:{n:0},decision:{n:0}};
+  const g={};STEPS.forEach(s=>g[s.id]={n:0,red:false});
+  dealChecks(d).forEach(c=>{if(c.count>0){g[c.step].n+=c.count;if(c.sev==='r')g[c.step].red=true;}});
+  return g; // same source as the Review + checks table, so the per-tab counts reconcile too
 }
 function renderSpine(d,current){const F=stepFlags(d);
   return `<nav class="spine">${STEPS.map(s=>{
@@ -1057,18 +1084,21 @@ function renderSpine(d,current){const F=stepFlags(d);
 function railTab(k){CUR.rail=k;
   document.querySelectorAll('.rail-tabs .rt').forEach(b=>b.classList.toggle('on',b.dataset.rt===k));
   const d=byId(CUR.id), host=document.getElementById('rail-body'); if(!host)return;
-  if(k==='review'){const ex=dealExceptions(d);
-    host.innerHTML=`<div class="rail-scroll">${ex.length?ex.map((e,i)=>`<div class="exc ${e.sev}" id="ex${i}"><span class="sev"></span>
-      <div><div class="et">${e.t}</div><div class="eloc">${e.d} · ${e.loc}</div>
-      <div class="ego"><button class="btn btn-outline btn-sm" onclick="go('#/deal/${d.id}/${e.step}')">Go to step</button>
-        <button class="btn btn-outline btn-sm" onclick="document.getElementById('ex${i}').classList.add('done');toast('Marked resolved')">Resolve</button></div></div></div>`).join('')
+  if(k==='review'){const fl=dealFlagged(d);
+    host.innerHTML=`<div class="rail-scroll">${fl.length?fl.map((c,i)=>`<div class="exc ${c.sev==='r'?'high':'med'}" id="ex${i}"><span class="sev"></span>
+      <div class="exc-body">
+        <div class="et-row"><div class="et">${c.name}${c.count>1?`<span class="ecount">${c.count}</span>`:''}</div><span class="areatag">${c.area}</span></div>
+        <div class="eloc">${c.detail}</div>
+        <div class="ego"><button class="btn btn-outline btn-sm" onclick="go('#/deal/${d.id}/${c.step}')">Go to step</button>
+          <button class="btn btn-outline btn-sm" onclick="document.getElementById('ex${i}').classList.add('done');toast('Marked resolved')">Resolve</button></div>
+      </div></div>`).join('')
       :'<div class="muted small" style="padding:12px;text-align:center">Nothing to review — all clear ✓</div>'}</div>`;
   } else if(k==='notes'){
     host.innerHTML=`<div class="rail-scroll">${(NOTES[CUR.id]||[]).map(n=>`<div class="rnote"><div class="who">${n.who}</div>${n.tx}</div>`).join('')||'<div class="muted small" style="padding:4px 2px 10px">No notes yet.</div>'}</div>
       <div class="note-foot"><textarea id="noteInput" placeholder="Add a note — stays with the deal, on every step"></textarea>
       <button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="addNote()">Add note</button></div>`;
   } else {
-    host.innerHTML=`<div class="rail-scroll"><div class="hrow"><span class="ht">15:18</span><span>Pipeline run — <b>${d.rag.length} RAG checks</b>, <b>${dealExceptions(d).length} flags</b>, recommendation <b>${d.decision}</b></span></div>
+    host.innerHTML=`<div class="rail-scroll"><div class="hrow"><span class="ht">15:18</span><span>Pipeline run — <b>${d.rag.length} RAG checks</b>, <b>${dealIssueCount(d)} flags</b>, recommendation <b>${d.decision}</b></span></div>
       <div class="hrow"><span class="ht">15:18</span><span>Snapshot <b>locked</b> as of 16 Jul 2026 (v1)</span></div>
       <div class="hrow"><span class="ht">15:12</span><span>Data connectors refreshed</span></div>
       <div class="hrow"><span class="ht">15:10</span><span>Deal assigned to Meridian Capital</span></div></div>`;
@@ -1157,19 +1187,30 @@ function webSearch(d){
     sum:'No adverse litigation, regulatory enforcement or criminal records found for the company or its directors. Standard verification recommended.',
     flags:[]};
 }
-function aiWebCard(d){const w=webSearch(d);
+const AI_STAR='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 5.6L19.5 9l-4.6 3.3L16 18l-4-3.2L8 18l1.1-5.7L4.5 9l5.6-1.4z"/></svg>';
+// Overview: one compact line. Detail lives in Background.
+function aiWebBrief(d){const w=webSearch(d);
+  if(w.clear)return `<div class="ws-brief clear">
+    <span class="wb-t">Web search — <b>no adverse media found</b></span>
+    <a class="ws-more" href="#" onclick="go('#/deal/${d.id}/background');return false;">Full report →</a></div>`;
+  const titles=w.flags.map(f=>`<b>${f[0].toLowerCase()}</b>`).join(' · ');
+  return `<div class="ws-brief flag">
+    <span class="wb-t">⚠ Adverse media — ${titles}</span>
+    <a class="ws-more" href="#" onclick="go('#/deal/${d.id}/background');return false;">Full report →</a></div>`;
+}
+// Background: the full report.
+function aiWebFull(d){const w=webSearch(d);
   const flags=w.flags.map(f=>`<div class="ws-flag"><div><div class="wf-t">⚠ ${f[0]}</div><div class="wf-d">${f[1]}</div><div class="wf-src">Source: ${f[2]}</div></div></div>`).join('');
   const tail=w.clear
     ? `<div class="ws-clear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M20 6L9 17l-5-5"/></svg>No legal or regulatory red flags found.</div>`
     : flags;
   return `<div class="card aiweb" style="margin-bottom:14px">
     <div class="card-h"><h3>Web search &amp; adverse media</h3>
-      <span class="ai-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 5.6L19.5 9l-4.6 3.3L16 18l-4-3.2L8 18l1.1-5.7L4.5 9l5.6-1.4z"/></svg>AI</span>
-      <span class="sub">litigation · regulatory · criminal · registries</span></div>
+      <span class="ai-badge">${AI_STAR}AI</span></div>
     <div class="card-b">
       <p class="ws-sum">${w.sum}</p>
       ${tail}
-      <div class="ws-vectors">Searched: active &amp; historical litigation · regulatory enforcement · criminal records · registry checks (Companies House, court dockets).<a class="ws-more" href="#" onclick="go('#/deal/${d.id}/background');return false;">Full report →</a></div>
+      <div class="ws-vectors">Searched: active &amp; historical litigation · regulatory enforcement · criminal records · registry checks (Companies House, court dockets).</div>
     </div></div>`;
 }
 function hygStep(name){
@@ -1212,6 +1253,7 @@ function tabBackground(d){
     ? `<div>${linked.map(l=>`<div class="linkrow"><div><div class="lo-n">${l[0]}</div><div class="lo-id mono">${l[1]}</div></div><div class="lo-rel">${l[2]}</div><div class="lo-exp">${expchip(l[3],l[4])}</div></div>`).join('')}</div>`
     : `<div class="bg-clean"><span class="chip c-success"><span class="dot"></span>Clear</span> No linked entities or shared-director exposure on file.</div>`;
   document.getElementById('pane').innerHTML=`
+   ${aiWebFull(d)}
    <div class="grid2">
      <div class="card"><div class="card-h"><h3>Identity &amp; ownership verification</h3><span class="sub">who they say they are — triangulated</span></div>
        <div class="card-b">${rows(bgIdentity(d))}</div></div>
@@ -1231,7 +1273,7 @@ function tabDecision(d){
          <div class="vc"><span class="lbl">Max amount</span><span class="val mono">${d.maxAmount?money0(d.maxAmount):'£0'}</span></div>
          <div class="vc"><span class="lbl">Product(s)</span><span class="val">${d.products.length?d.products.join(', '):'—'}</span></div>
        </div>
-       <p class="muted small" style="margin:14px 0 0">${dealExceptions(d).length} open exception${dealExceptions(d).length!=1?'s':''} to clear before sign-off.</p>
+       <p class="muted small" style="margin:14px 0 0">${dealIssueCount(d)} open item${dealIssueCount(d)!=1?'s':''} to clear before sign-off.</p>
        <div style="margin-top:14px"><button class="btn btn-primary" onclick="openDecision('${d.id}')">Make decision</button></div>
      </div></div>`;
 }
@@ -1252,14 +1294,15 @@ function tabOverview(d){
   const REV_SPEC={series:[{name:'Revenue',data:rev24,color:'#3f7fd6'},{name:'Other revenue',data:oth24,color:'#f2b21e'}],forecastFrom:12,legend:true};
   const CASH_SPEC={lines:[{name:'Baseline',data:cash24,color:'var(--brand-600)'},{name:'Pessimistic',data:cashPess,color:'#f2b21e',dashed:true}],forecastFrom:18,legend:true};
   const sf=(d.hygiene.find(h=>h[0]==='Storefronts connected')||['','','—'])[2];
-  const issues=d.hygiene.filter(h=>h[1]!=='g').length;
+  const issues=dealIssueCount(d);
   document.getElementById('pane').innerHTML=`
     <div style="margin-bottom:16px">${glanceTiles(d)}</div>
 
-    <div class="card" style="margin-bottom:14px"><div class="card-h"><h3>About the company</h3><span class="sub">AI summary · ${d.type} · ${d.tenure}</span></div>
+    <div class="card" style="margin-bottom:14px"><div class="card-h about-h"><h3>About the company</h3><span class="ai-badge">${AI_STAR}AI</span>
+        <div class="about-chips"><span class="chip c-neutral">${d.type}</span><span class="chip c-neutral">${d.tenure}</span><a class="chip c-success" href="#" onclick="toast('Opening TrustPilot (demo)');return false;" style="text-decoration:none;cursor:pointer">★ TrustPilot 4.5 · 1,204 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="width:11px;height:11px;margin-left:1px"><path d="M7 17L17 7M8 7h9v9"/></svg></a></div></div>
       <div class="card-b about">
         <p class="sum" style="max-width:none;margin-top:0">${d.story}</p>
-        <div class="chips"><span class="chip c-neutral">${d.type}</span><span class="chip c-neutral">${d.tenure}</span><a class="chip c-success" href="#" onclick="toast('Opening TrustPilot (demo)');return false;" style="text-decoration:none;cursor:pointer">★ TrustPilot 4.5 · 1,204 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="width:11px;height:11px;margin-left:1px"><path d="M7 17L17 7M8 7h9v9"/></svg></a></div>
+        ${aiWebBrief(d)}
         <div class="about-groups">
           <div class="gcol">
             <div class="collbl">Connected links</div>
@@ -1283,16 +1326,18 @@ function tabOverview(d){
         </div>
       </div></div>
 
-    ${aiWebCard(d)}
-
     <div class="card" style="margin-bottom:14px"><div class="card-h"><h3>Data coverage &amp; checks</h3>
+      <span class="sub">every issue here also appears in Review</span>
       ${issues?`<span class="chip c-warning" style="margin-left:auto"><span class="dot"></span>${issues} to review</span>`:'<span class="chip c-success" style="margin-left:auto"><span class="dot"></span>All clear</span>'}</div>
-      <div style="overflow:auto"><table class="grid flat"><thead><tr><th>Check</th><th>Detail</th><th style="text-align:right">Status</th></tr></thead>
-        <tbody>${d.hygiene.map(h=>{const cls=h[1]=='g'?'c-success':h[1]=='a'?'c-warning':'c-error',lab=h[1]=='g'?'Clear':h[1]=='a'?'Check':'Fail';
-          const cta=h[1]!=='g'?(/bank account/i.test(h[0])
-            ?`<a href="#" style="margin-left:10px;font-weight:600" onclick="toast('Requested from customer');return false;">Request →</a>`
-            :`<a href="#" style="margin-left:10px;font-weight:600" onclick="go('#/deal/${d.id}/${hygStep(h[0])}');return false;">Review →</a>`):'';
-          return `<tr><td style="font-weight:600;white-space:nowrap">${h[0]}</td><td class="muted">${h[2]}</td><td class="num" style="white-space:nowrap"><span class="chip ${cls}"><span class="dot"></span>${lab}</span>${cta}</td></tr>`}).join('')}</tbody></table></div>
+      <div style="overflow:auto"><table class="grid flat"><thead><tr><th>Check</th><th>Area</th><th>Detail</th><th>Status</th><th></th></tr></thead>
+        <tbody>${dealChecks(d).map(c=>{const cls=c.sev=='g'?'c-success':c.sev=='a'?'c-warning':'c-error',lab=c.sev=='g'?'Clear':c.sev=='a'?'Check':'Fail';
+          return `<tr>
+            <td style="font-weight:600;white-space:nowrap">${c.name}${c.count>1?` <span class="cnum ${c.sev}">${c.count}</span>`:''}</td>
+            <td><span class="areatag">${c.area}</span></td>
+            <td class="muted">${c.detail}</td>
+            <td style="white-space:nowrap"><span class="chip ${cls}"><span class="dot"></span>${lab}</span></td>
+            <td class="num"><a class="viewcta" href="#" onclick="go('#/deal/${d.id}/${c.step}');return false;">View →</a></td>
+          </tr>`}).join('')}</tbody></table></div>
     </div>
 
     <div class="card" style="margin-bottom:14px">
