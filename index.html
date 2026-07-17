@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <title>Uncapped · Underwriting</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23063844'/%3E%3Ctext x='16' y='24' font-family='Inter,Arial,sans-serif' font-size='22' font-weight='800' fill='%23ffffff' text-anchor='middle'%3Eu%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -491,9 +492,40 @@ table.txgrid tbody tr.flagged:hover td{background:#fff4e0}
 .conn .cn{font-weight:600;font-size:13.5px}
 .conn .cm{font-size:12px;color:var(--text-3);margin-top:1px}
 .conn .cright{margin-left:auto;text-align:right}
+/* ---- soft access gate (demo only — data is fictional) ---- */
+.gate{position:fixed;inset:0;z-index:99999;background:#f0f3f4;display:flex;align-items:center;justify-content:center;padding:20px}
+.gatecard{background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:0 12px 44px rgba(6,56,68,.14);padding:30px 30px 24px;width:330px;text-align:center}
+.gate-badge{width:44px;height:44px;border-radius:11px;background:#063844;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:23px;margin:0 auto 14px}
+.gatecard h1{font-size:19px;margin:0 0 4px;color:var(--ink)}
+.gatecard p{font-size:13px;color:var(--text-3);margin:0 0 18px}
+.gatecard input{width:100%;padding:11px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;text-align:center;letter-spacing:.06em}
+.gatecard input:focus{outline:none;border-color:var(--brand-600);box-shadow:0 0 0 3px var(--brand-100)}
+.gatecard button{width:100%;margin-top:12px;padding:11px;border:none;border-radius:8px;background:var(--brand-600);color:#fff;font-weight:700;font-size:14px;font-family:inherit;cursor:pointer;transition:background .15s}
+.gatecard button:hover{background:var(--brand-700)}
+.gate-err{color:var(--error);font-size:12.5px;margin-top:11px}
+.gate-foot{margin-top:18px;font-size:11px;color:var(--text-3);line-height:1.4}
 </style>
 </head>
 <body>
+<div id="gate" class="gate">
+  <form class="gatecard" onsubmit="return uwUnlock(event)">
+    <div class="gate-badge">u</div>
+    <h1>Underwriting — demo</h1>
+    <p>Enter the access password to continue.</p>
+    <input id="gatepw" type="password" autocomplete="off" autofocus placeholder="Password" aria-label="Access password">
+    <button type="submit">Enter</button>
+    <div id="gateerr" class="gate-err" hidden>Incorrect password — try again.</div>
+    <div class="gate-foot">Prototype · illustrative data only · not connected to any live system.</div>
+  </form>
+</div>
+<script>
+(function(){
+  var H=7713441667532882;
+  function cyrb53(str,seed){seed=seed||0;var h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(var i=0,ch;i<str.length;i++){ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677);}h1=Math.imul(h1^(h1>>>16),2246822507);h1^=Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507);h2^=Math.imul(h1^(h1>>>13),3266489909);return 4294967296*(2097151&h2)+(h1>>>0);}
+  window.uwUnlock=function(e){e.preventDefault();var v=(document.getElementById('gatepw').value||'').trim();if(cyrb53(v)===H){try{sessionStorage.setItem('uwauth','1');}catch(_){}var g=document.getElementById('gate');if(g)g.parentNode.removeChild(g);}else{document.getElementById('gateerr').hidden=false;var i=document.getElementById('gatepw');i.value='';i.focus();}return false;};
+  try{if(sessionStorage.getItem('uwauth')==='1'){var g=document.getElementById('gate');if(g)g.parentNode.removeChild(g);}}catch(_){}
+})();
+</script>
 <div class="app">
   <!-- SIDEBAR (Ravi structure) -->
   <aside class="side">
