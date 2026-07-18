@@ -666,6 +666,21 @@ table.txgrid tbody tr.flagged:hover td{background:#fff4e0}
 /* Decision step — per-product offer cards */
 .offer-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:900px){.offer-grid{grid-template-columns:1fr}}
+/* Decision offers as rows */
+.offer-table{width:100%;border-collapse:collapse;font-size:13px}
+.offer-table th{font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--text-3);font-weight:700;text-align:left;padding:11px 16px;border-bottom:1px solid var(--divider)}
+.offer-table td{padding:14px 16px;border-top:1px solid var(--cell);vertical-align:middle}
+.offer-table tbody tr:first-child td{border-top:none}
+.offer-row.approve td:first-child{box-shadow:inset 3px 0 0 var(--success)}
+.offer-row.approve{background:var(--success-bg)}
+.offer-row.reject{opacity:.72}
+.or-name{font-weight:700;color:var(--ink);margin-right:8px}
+.or-amt{font-weight:800;color:var(--ink);white-space:nowrap}
+.or-terms{color:var(--text-2);font-size:12px;line-height:1.5}
+.or-terms .ot-k{color:var(--text-3)}
+.or-terms .ot-sep{margin:0 7px;color:var(--disabled)}
+.or-act{white-space:nowrap;text-align:right}
+.or-act .btn{margin-left:6px}
 .offer-card{border:1px solid var(--border);border-radius:var(--r);background:#fff;padding:19px 20px;box-shadow:var(--sh-1)}
 .offer-card.ok{box-shadow:inset 3px 0 0 var(--success),var(--sh-1);border-color:var(--success-bd)}
 .offer-card.rej{box-shadow:inset 3px 0 0 var(--error),var(--sh-1);border-color:var(--error-bd);opacity:.9}
@@ -1898,6 +1913,23 @@ function offerCard(d,p,i){
       <button class="btn ${state==='approve'?'btn-primary':'btn-outline'} btn-sm" onclick="decideOffer('${d.id}',${i},'approve')">Approve</button></div>
   </div>`;
 }
+// Decision offers as compact rows (transcript §7: summary-style, not inline-editable; amounts via Edit → modal)
+function offerRow(d,p,i){
+  const state=decState(d,i,p);
+  const chip=state==='approve'?'<span class="chip c-success"><span class="dot"></span>Approved</span>':state==='reject'?'<span class="chip c-error"><span class="dot"></span>Rejected</span>':'<span class="chip c-neutral">Pending</span>';
+  const amt=p.terms[0][1];
+  const rest=p.terms.slice(1).map(t=>`<span class="ot-k">${t[0]}</span> ${t[1]}`).join('<span class="ot-sep">·</span>');
+  return `<tr class="offer-row ${state}" id="or${i}">
+    <td class="or-prod"><span class="or-name">${p.name}</span>${p.rec?'<span class="oc-rec">Recommended</span>':'<span class="oc-avail">Not rec.</span>'}</td>
+    <td class="or-amt mono">${amt}</td>
+    <td class="or-terms">${rest}</td>
+    <td>${chip}</td>
+    <td class="or-act">
+      <button class="btn btn-outline btn-sm" onclick="editOffer('${d.id}',${i})">Edit</button>
+      <button class="btn btn-outline btn-sm oc-rejbtn ${state==='reject'?'on':''}" onclick="decideOffer('${d.id}',${i},'reject')">Reject</button>
+      <button class="btn ${state==='approve'?'btn-primary':'btn-outline'} btn-sm" onclick="decideOffer('${d.id}',${i},'approve')">Approve</button>
+    </td></tr>`;
+}
 function tabDecision(d){
   const prods=decisionProducts(d);DEC[d.id]=DEC[d.id]||{};
   const ap=prods.filter((p,i)=>decState(d,i,p)==='approve').length, rj=prods.filter((p,i)=>decState(d,i,p)==='reject').length;
@@ -1910,12 +1942,18 @@ function tabDecision(d){
        <div class="vc"><span class="lbl">Recommended amount</span><span class="val mono">${d.maxAmount?money0(d.maxAmount):'£0'}</span></div>
        <div class="vc"><span class="lbl">Open items</span><span class="val">${open} to clear</span></div>
      </div></div></div>
-   <div class="offer-grid">${prods.map((p,i)=>offerCard(d,p,i)).join('')}</div>
-   <div class="card" style="margin-top:14px"><div class="card-b" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-     <div style="font-size:13.5px"><b>${ap} approved</b> · ${rj} rejected · ${prods.length-ap-rj} pending</div>
-     ${open?`<span class="chip c-warning" style="margin-left:auto"><span class="dot"></span>${open} open item${open!=1?'s':''} before sign-off</span>`:'<span class="chip c-success" style="margin-left:auto"><span class="dot"></span>All checks reviewed</span>'}
-     <button class="btn btn-primary" style="${open?'':'margin-left:auto'}" onclick="publishDecision('${d.id}')">Publish decision</button>
-   </div></div>`;
+   <div class="card" style="margin-bottom:14px"><div class="card-h"><h3>Offers</h3><span class="sub">one row per product · Edit opens the terms · approve or reject each</span></div>
+     <div style="overflow:auto"><table class="offer-table"><thead><tr><th>Product</th><th>Amount</th><th>Key terms</th><th>Status</th><th></th></tr></thead>
+       <tbody>${prods.map((p,i)=>offerRow(d,p,i)).join('')}</tbody></table></div></div>
+   <div class="card"><div class="card-h"><h3>Underwriting summary</h3><span class="sub">finalise the note before publishing — saved with the decision for sign-off</span></div>
+     <div class="card-b">
+       <textarea class="editcell" id="uwNote" style="width:100%;min-height:64px;text-align:left" placeholder="Summarise the rationale and any conditions before publishing…">${dealMetrics(d).rationale}</textarea>
+       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px">
+         <div style="font-size:13.5px"><b>${ap} approved</b> · ${rj} rejected · ${prods.length-ap-rj} pending</div>
+         ${open?`<span class="chip c-warning" style="margin-left:auto"><span class="dot"></span>${open} open item${open!=1?'s':''} before sign-off</span>`:'<span class="chip c-success" style="margin-left:auto"><span class="dot"></span>All checks reviewed</span>'}
+         <button class="btn btn-primary" style="${open?'':'margin-left:auto'}" onclick="publishDecision('${d.id}')">Publish decision</button>
+       </div>
+     </div></div>`;
 }
 function publishDecision(id){CONFIRMED[id]=CONFIRMED[id]||{};CONFIRMED[id].decision=true;
   const sp=document.getElementById('spine');if(sp)sp.outerHTML=renderSpine(byId(id),CUR.step);
