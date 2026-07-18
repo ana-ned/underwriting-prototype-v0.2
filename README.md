@@ -8,14 +8,19 @@ back-office deal-view prototype.
 - **`DEMO-SCRIPT.md`** — a 1-page click-path for presenting it.
 
 ## What's inside
-- **Portfolio (helicopter) view** — MI strip + "Deals in underwriting" table.
-- **Deal workspace** — sticky header + point-in-time data lock/version control, a step spine
-  (Overview → Categorisation → Background → RAG → Scorecards → Forecast → Decision), and a
-  tabbed right rail (Review / Notes / History).
-- **Step 1 (Overview)** built out: Deal-at-a-glance tiles, About the company (AI summary,
-  products, linked companies), Data coverage & checks, lending relationship, and a
-  one-view summary of multi-series charts (click any chart to open the gallery).
-- Three fictional demo cases (Approve / borderline / Reject).
+- **Portfolio (helicopter) view** — MI strip (value-by-rating donut with legend, sparkline
+  trend cards for total-in-underwriting / weighted amount / deals-at-risk) + filter tabs and a
+  "Deals in underwriting" table (org logos, rating, suggested decision, time-in-UW bars,
+  intervention tags).
+- **Deal workspace** — sticky header + point-in-time data lock/version control, an 8-step
+  spine (Overview → Data checks → Background → Categorisation → RAG checks → Scorecards →
+  Forecast → Decision), and a movable/resizable **Underwriter notes** window + History popup.
+- **Overview** built out as two sections: a **Recommendation** card (recommended amount,
+  rationale, positive factors, risks) and a **Company overview** (KPI tiles + an AI company
+  summary: business background · web search · Uncapped history), plus lending relationship and
+  a one-view summary of multi-series charts (click any chart to open the gallery).
+- **Data checks** tab holds the full non-financial hygiene checklist (moved off Overview).
+- Eight fictional demo cases spanning ratings A–E (Approve / Request info / Reject).
 
 > Prototype only — all data is illustrative/fictional. Not connected to any live system.
 
