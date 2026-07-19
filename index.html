@@ -277,6 +277,11 @@ tr.clickable:hover .goarrow{background:var(--brand-600);color:#fff;border-color:
 .pl tr.hd td{font-weight:800;background:var(--grey-1);text-transform:uppercase;font-size:11px;letter-spacing:.03em;color:var(--text-2)}
 .pl tr.sub td{color:var(--text-3);font-size:12px;padding-top:1px;padding-bottom:6px}
 .pl tr.tot td{font-weight:700;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.fcpl .pl td{padding:9px 18px;font-size:11.5px}
+.fcpl .pl td.num{white-space:nowrap}
+.fcpl .pl td:first-child{white-space:nowrap;padding-right:8px}
+.fcpl .pl tr.hd td,.fcpl .pl tr.sub td{font-size:10.5px}
+.fcpl .card-b{padding:8px 4px!important}
 .pl tr.ext td{background:var(--grey-1)}
 .pl tr.ext td:first-child{color:var(--text-1)}
 
@@ -308,6 +313,9 @@ tr.clickable:hover .goarrow{background:var(--brand-600);color:#fff;border-color:
 /* expand-a-chart + toast */
 .bigchart svg{height:340px!important;width:100%}
 .minic:hover{box-shadow:0 0 0 1px var(--brand-300)!important}
+/* full-width expandable chart (e.g. Existing Uncapped balance) — the mini card fills the card body */
+.wide-mini{width:100%}
+.wide-mini .minic{width:100%}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;
   padding:11px 18px;border-radius:8px;box-shadow:var(--sh-6);z-index:80;font-weight:600;font-size:13px}
 /* categorisation */
@@ -421,6 +429,15 @@ table.txgrid tbody tr.flagged:hover td{background:#fff4e0}
 @media(max-width:1000px){.verdict{grid-template-columns:repeat(3,1fr)}}
 .verdict .vc{display:flex;flex-direction:column;justify-content:center;gap:5px;padding:16px 22px;border-right:1px solid var(--border)}
 .verdict .vc:first-child{padding-left:0}
+/* Decision strip: full-height dividers (no top/bottom gap) + tighter height */
+.dec-strip .card-b{padding-top:0;padding-bottom:0}
+.dec-strip .verdict .vc{padding-top:13px;padding-bottom:13px}
+/* publish-decision confirmation modal */
+.pub-sum{background:var(--grey-1);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:16px}
+.pub-sum-v{font-weight:700;font-size:15px;margin-top:6px;display:flex;align-items:center;gap:9px}
+.pub-lbl{display:block;font-size:12px;font-weight:700;color:var(--text-2);margin-bottom:6px}
+.pub-lbl .req{color:var(--error);font-weight:700;text-transform:uppercase;font-size:10px;letter-spacing:.04em;margin-left:5px}
+.pub-err{color:var(--error);font-size:12.5px;font-weight:600;margin-top:9px}
 .verdict .vc:last-child{border-right:none;padding-right:0}
 .verdict .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .verdict .val{font-size:14px;font-weight:700;display:flex;align-items:center;gap:7px}
@@ -436,8 +453,7 @@ table.txgrid tbody tr.flagged:hover td{background:#fff4e0}
 /* on scroll: condense into a flat, full-width toolbar flush under the header */
 .spine.stuck{border-radius:0;border-left:none;border-right:none;border-top:none;border-bottom:1px solid var(--border);
   margin-left:calc(-1*clamp(18px,1.5vw,30px));margin-right:calc(-1*clamp(18px,1.5vw,30px));
-  padding:5px clamp(18px,1.5vw,30px);box-shadow:0 4px 12px rgba(6,56,68,.06)}
-.spine.stuck .sstep{padding-top:6px;padding-bottom:6px}
+  padding:12px clamp(18px,1.5vw,30px);box-shadow:0 4px 12px rgba(6,56,68,.05)}
 .sline{flex:1 1 auto;min-width:8px;height:2.5px;align-self:center;margin:0 6px;border-radius:2px;background:#d5dde0}
 .sline.done{background:var(--brand-300)}
 .sstep{position:relative;flex:0 0 auto;display:flex;align-items:center;gap:6px;border:none;background:none;cursor:pointer;
@@ -564,6 +580,9 @@ table.txgrid tbody tr.flagged:hover td{background:#fff4e0}
 .assume .afields label{display:block;font-size:12px;font-weight:700;color:var(--text-2)}
 .assume .afields label .muted{font-weight:500}
 .assume .afields select,.assume .afields input{display:block;width:100%;margin-top:5px;font-size:13px;border:1px solid var(--border);border-radius:var(--r);padding:6px 8px;background:#fff;font-family:inherit}
+/* native number-input spinner arrows sit flush to the field's right border — give them right padding so they don't touch the edge */
+.fcctl input[type=number],.assume .afields input[type=number]{padding-right:12px}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{margin-left:6px}
 .fc-sub-h{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--text-3);margin:4px 0 12px;font-weight:700}
 .sched2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:640px){.sched2{grid-template-columns:1fr}}
@@ -612,12 +631,29 @@ table.txgrid tbody tr.flagged:hover td{background:#fff4e0}
 .linked-item:last-child{border-bottom:none}
 .linked-item .lg{width:26px;height:26px;flex:0 0 26px;border-radius:6px;background:var(--warning-bg);color:var(--warning);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px}
 /* About: 3-column layout */
-.about-groups{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:15px -15px -15px;padding:0 16px;background:var(--grey-1);border-top:1px solid var(--border)}
+.about-groups{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:-19px;padding:0 22px;background:var(--grey-1);border-radius:0 0 var(--r) var(--r)}
 @media(max-width:1050px){.about-groups{grid-template-columns:1fr;gap:18px;padding:16px}}
+/* Connections & data coverage — visual bank/platform status */
+.conn-cov{display:flex;flex-direction:column;gap:14px}
+.conn-group{border:1px solid var(--border);border-radius:10px;padding:14px 18px 16px;background:var(--grey-1)}
+.conn-glbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);font-weight:700;margin:0 0 10px}
+.conn-row{display:flex;align-items:center;gap:14px;padding:15px 0;border-top:1px solid var(--divider)}
+.conn-row:first-of-type{border-top:none}
+.conn-logo{width:40px;height:40px;flex:0 0 40px;border-radius:9px;border:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.conn-logo svg{width:23px;height:23px}
+.conn-logo.stripe{background:#635BFF;border-color:#635BFF;color:#fff;font-weight:800;font-size:16px}
+.conn-meta{flex:1;min-width:0}
+.conn-name{font-weight:700;font-size:13.5px;color:var(--ink)}
+.conn-sub{font-size:12px;color:var(--text-3);margin-top:1px}
+.conn-pill{display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:4px 11px;font-size:12px;font-weight:700;border:1px solid;white-space:nowrap}
+.conn-pill svg{width:13px;height:13px}
+.conn-pill.ok{background:var(--success-bg);border-color:var(--success-bd);color:var(--success)}
+.conn-pill.req{background:var(--info-bg);border-color:var(--info-bd);color:var(--info)}
+.conn-pill.miss{background:var(--warning-bg);border-color:var(--warning-bd);color:var(--warning)}
 .about-groups .gcol{padding:20px 22px;border-right:1px solid var(--border)}
 .about-groups .gcol:first-child{padding-left:0}
 .about-groups .gcol:last-child{border-right:none;padding-right:0}
-.about .collbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);font-weight:700;margin-bottom:11px}
+.about .collbl,.about-groups .collbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);font-weight:700;margin-bottom:18px}
 .about p.sum{margin:0;color:var(--text-2);font-size:13px;line-height:1.55}
 .rel-sum{display:flex;gap:9px;align-items:flex-start;margin:0 0 14px}
 .rel-sum .ai-badge{flex:0 0 auto;margin-top:2px}
@@ -632,7 +668,7 @@ table.txgrid tbody tr.flagged:hover td{background:#fff4e0}
 .ai-panel .aip-body{margin:0;font-size:13px;color:var(--text-2);line-height:1.55}
 .ai-panel .aip-body b{color:var(--ink);font-weight:700}
 /* AI summary card (metric + flag pill + AI SUMMARY badge · white panel w/ highlight chips) */
-.ai-sum{border-left:4px solid #7c5cff;background:linear-gradient(180deg,#f5f3ff,#faf9ff);border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.ai-sum{border:1px solid #E7DFFF;border-left:4px solid #7c5cff;background:linear-gradient(180deg,#f5f3ff,#faf9ff);border-radius:12px;padding:18px 20px;margin-bottom:14px}
 .ais-head{display:flex;align-items:center;gap:10px;margin-bottom:9px}
 .ais-title{font-weight:800;font-size:13.5px;color:var(--ink);letter-spacing:-.01em}
 .ais-metricrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:9px}
@@ -1118,7 +1154,7 @@ function axedChart(spec,w,h,full){
   const nT=Math.round((mx-mn)/sc.step); let grid='';
   for(let t=0;t<=nT;t++){const val=mn+t*sc.step,yy=Y(val).toFixed(1);
     grid+=`<line x1="${padL}" y1="${yy}" x2="${w-padR}" y2="${yy}" stroke="var(--line2)" stroke-dasharray="2 5"/><text x="${padL-8}" y="${(Y(val)+3).toFixed(1)}" text-anchor="end" font-size="${full?11:9}" fill="var(--text-3)" font-weight="500">${fmtK(val)}</text>`;}
-  const labs=(spec.labels&&spec.labels.length===n)?spec.labels:monthSeq(n),step=Math.max(1,Math.ceil(n/(full?12:4))); let xl='';
+  const labs=(spec.labels&&spec.labels.length===n)?spec.labels:monthSeq(n),step=Math.max(1,Math.ceil(n/Math.max(3,Math.round(w/(full?80:110))))); let xl='';
   labs.forEach((L,i)=>{if(i%step===0){const anc=i===0?'start':(i>=n-1?'end':'middle');xl+=`<text x="${X(i).toFixed(1)}" y="${(h-padB+(full?15:11)).toFixed(1)}" text-anchor="${anc}" font-size="${full?10:8}" fill="var(--text-3)">${L}</text>`;}});
   const zero= mn<0?`<line x1="${padL}" y1="${Y(0).toFixed(1)}" x2="${w-padR}" y2="${Y(0).toFixed(1)}" stroke="var(--border)"/>`:'';
   const defs=`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity="0.20"/><stop offset="1" stop-color="${color}" stop-opacity="0.01"/></linearGradient></defs>`;
@@ -1150,7 +1186,7 @@ function multiChart(spec,w,h,full){
   const nT=Math.round((mx-mn)/sc.step); let grid='';
   for(let t=0;t<=nT;t++){const val=mn+t*sc.step,yy=Y(val).toFixed(1);
     grid+=`<line x1="${padL}" y1="${yy}" x2="${w-padR}" y2="${yy}" stroke="var(--line2)" stroke-dasharray="2 5"/><text x="${padL-8}" y="${(Y(val)+3).toFixed(1)}" text-anchor="end" font-size="${full?11:9}" fill="var(--text-3)" font-weight="500">${fmtK(val)}</text>`;}
-  const labs=(spec.labels&&spec.labels.length===n)?spec.labels:monthSeq(n),step=Math.max(1,Math.ceil(n/(full?12:4))); let xl='';
+  const labs=(spec.labels&&spec.labels.length===n)?spec.labels:monthSeq(n),step=Math.max(1,Math.ceil(n/Math.max(3,Math.round(w/(full?80:110))))); let xl='';
   labs.forEach((L,i)=>{if(i%step===0){const anc=i===0?'start':(i>=n-1?'end':'middle');xl+=`<text x="${X(i).toFixed(1)}" y="${(padT+ih+(full?15:11)).toFixed(1)}" text-anchor="${anc}" font-size="${full?10:8}" fill="var(--text-3)">${L}</text>`;}});
   let s=''; const gap=iw/n, bw=Math.min(gap*.62,26);
   for(let i=0;i<n;i++){let base=0; const fc=ff>=0&&i>=ff;
@@ -1570,9 +1606,10 @@ function renderDeal(id,step){
       </div>
     </div>`;
   (STEPS.find(s=>s.id===step).fn)(d);
-  if(step!=='decision')document.getElementById('pane').insertAdjacentHTML('beforeend', confirmBar(d,step)); // Decision's confirmation is "Publish decision"
+  document.getElementById('pane').insertAdjacentHTML('beforeend', step==='decision'?decisionBar(d):confirmBar(d,step));
   initNoteDrag();
   if(NOTE_OPEN)openNoteWin();
+  if(!FOCUS)window.scrollTo(0,0);   // land at the top of each step (focus jumps override below)
   applyFocus();syncSpineStuck();
 }
 function stepFlags(d){
@@ -1754,7 +1791,7 @@ const ICON={
 /* reusable AI-summary card: metric + "flag" pill + AI SUMMARY badge, white panel with body + highlight chips */
 function aiChip(c){return `<div class="ais-chip"><span class="aic-ic" style="background:${c.tint}22;color:${c.tint}">${c.icon}</span>${c.amount?`<b>${c.amount}</b> `:''}<span class="aic-l">${c.label}</span></div>`;}
 function aiSummaryCard(o){const hasChips=o.chips&&o.chips.length;return `<div class="ai-sum">
-  <div class="ais-head"><span class="ais-title">${o.title||'Engine summary'}</span><span class="ais-badge">${AI_STAR}Engine</span></div>
+  <div class="ais-head"><span class="ais-title">${o.title||'Summary'}</span><span class="ais-badge">${AI_STAR}Engine</span></div>
   ${(o.metric||o.flag)?`<div class="ais-metricrow">${o.metric?`<span class="ais-metric">${o.metric}</span>`:''}${o.flag?`<span class="ais-flag ${o.flagCls||'warn'}">${o.flagIcon?`<span class="af-ic">${o.flagIcon}</span>`:''}${o.flag}</span>`:''}</div>`:''}
   <p class="ais-body">${o.body}</p>
   ${hasChips?`<div class="ais-chips">${o.chips.map(aiChip).join('')}</div>`:''}
@@ -1810,30 +1847,30 @@ function stepSummary(d,step){
   const m=dealMetrics(d);
   if(step==='datachecks'){
     const fails=d.hygiene.filter(h=>h[1]!=='g'), reds=fails.filter(h=>h[1]==='r'), amb=fails.filter(h=>h[1]==='a'), clear=!fails.length;
-    return aiSummaryCard({title:'Data checks — Engine summary',
+    return aiSummaryCard({title:'Data checks summary',
       flag:clear?'All checks clear':`${fails.length} to review`, flagCls:clear?'ok':(reds.length?'bad':'warn'), flagIcon:clear?AI_CHECK:AI_ALERT,
       body:`Non-financial data hygiene — account connections, ownership match, delinquency and eligibility flags that every later step relies on. ${clear?'All accounts and storefronts are connected and no flags were raised — the file is clean to underwrite.':`${reds.length?reds.length+' failed check'+(reds.length!=1?'s':'')+' and ':''}${amb.length?amb.length+' to look at':''} before you trust the downstream numbers.`}`,
       chips:fails.slice(0,4).map(h=>({tint:h[1]==='r'?'#d9534f':'#e0a400',icon:h[1]==='r'?AI_ALERT:ICON.doc,label:h[0]}))});
   }
   if(step==='rag'){
     const c={g:0,a:0,r:0};d.rag.forEach(x=>c[x[1]]++);const fl=d.rag.filter(x=>x[1]!=='g'),clear=!fl.length;
-    return aiSummaryCard({title:'RAG checks — Engine summary', metric:`${c.g} green · ${c.a} amber · ${c.r} red`,
+    return aiSummaryCard({title:'RAG checks summary', metric:`${c.g} green · ${c.a} amber · ${c.r} red`,
       flag:clear?'All areas green':`${fl.length} flagged`, flagCls:clear?'ok':(c.r?'bad':'warn'), flagIcon:clear?AI_CHECK:AI_ALERT,
       body:`Seven risk areas scored red / amber / green from the locked financial data. ${clear?'Every area sits within tolerance — nothing to escalate here.':`The flags cluster around ${fl.slice(0,3).map(x=>x[0].toLowerCase()).join(', ')} — click a row for the backing charts, or override the status with the R/A/G toggle.`}`,
       chips:fl.slice(0,4).map(x=>({tint:x[1]==='r'?'#d9534f':'#e0a400',icon:x[1]==='r'?AI_ALERT:ICON.doc,label:x[0]}))});
   }
-  if(step==='score'){
+  if(step==='scorecards'){
     const low=d.scorecards.filter(s=>['C','D','E','F'].includes(s[1])),clear=!low.length;
-    return aiSummaryCard({title:'Scorecards — Engine summary', metric:`Final ${d.rating} · ${m.score}/100`,
+    return aiSummaryCard({title:'Scorecards summary', metric:`Final ${d.rating} · ${m.score}/100`,
       flag:clear?'All scores C or above':`${low.length} below C`, flagCls:clear?'ok':(low.some(s=>['E','F'].includes(s[1]))?'bad':'warn'), flagIcon:clear?AI_CHECK:AI_ALERT,
       body:`Blended model rating of ${d.rating} (${m.score}/100), composed from the Amazon, banking, banking-ML and bureau scorecards. ${clear?'No single model pulls the file down — the scores corroborate each other.':`Weakest inputs: ${low.map(s=>s[0].toLowerCase()).join(', ')} — the blended grade already reflects them, so treat this as the model’s honest read, not a veto.`}`,
       chips:low.slice(0,4).map(s=>({tint:['E','F'].includes(s[1])?'#d9534f':'#e0a400',icon:['E','F'].includes(s[1])?AI_ALERT:ICON.doc,label:`${s[0]} · ${s[1]}`}))});
   }
   if(step==='forecast'){
     const recy=(FCST[d.id]&&FCST[d.id].recycling)||(d.revTrend==='down'?25:90), ok=d.runway>=6, thin=d.runway>=3;
-    return aiSummaryCard({title:'Forecast — Engine summary', metric:`${d.runway} mo runway`,
+    return aiSummaryCard({title:'Forecast summary', metric:`${d.runway} mo runway`,
       flag:ok?'Runway healthy':thin?'Runway thin':'Runway tight', flagCls:ok?'ok':thin?'warn':'bad', flagIcon:ok?AI_CHECK:AI_ALERT,
-      body:`The model auto-forecasts 18 months of revenue, cost and debt off 24 months of actuals. ${d.revTrend==='up'?'Revenue momentum is positive, so the cash cone widens through the term and comfortably covers repayments.':d.revTrend==='down'?'Revenue is softening — the forward view keeps declining, which is what compresses runway and caps the size we can support.':'Revenue is broadly flat; the forecast holds steady and repayments stay covered.'} Debt recycling is set to ${recy}%. Everything runs on its own — flex an assumption only where you disagree with the model.`,
+      body:`The model auto-forecasts 24 months of revenue, cost and debt off 24 months of actuals. ${d.revTrend==='up'?'Revenue momentum is positive, so the cash cone widens through the term and comfortably covers repayments.':d.revTrend==='down'?'Revenue is softening — the forward view keeps declining, which is what compresses runway and caps the size we can support.':'Revenue is broadly flat; the forecast holds steady and repayments stay covered.'} Debt recycling is set to ${recy}%. Everything runs on its own — flex an assumption only where you disagree with the model.`,
       chips:[{tint:ok?'#128081':'#e0a400',icon:ok?AI_CHECK:AI_ALERT,label:`${d.runway} month${d.runway!=1?'s':''} to zero cash`},{tint:'#3f7fd6',icon:ICON.cash,label:`recycling ${recy}%`}]});
   }
   if(step==='decision'){
@@ -1852,6 +1889,8 @@ function stepSummary(d,step){
 const IC_PLUS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8.4v7.2M8.4 12h7.2"/></svg>';
 const IC_MINUS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8.4 12h7.2"/></svg>';
 const IC_GEAR='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>';
+const IC_CLOCK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3 2"/></svg>';
+const IC_XMARK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>';
 function toggleAssume(id){const el=document.getElementById(id);if(el)el.classList.toggle('collapsed');}
 function recommendationCard(d){const m=dealMetrics(d), f=m.f;
   const green=f.green.slice(0,5), red=f.red.slice(0,6);
@@ -1906,6 +1945,33 @@ function bgConnections(d){
           <span class="li-open" style="color:var(--ink);font-weight:800">${p[1]}</span></a>`).join(''):`<div class="muted small" style="padding:6px 0">No marketplace listings connected yet.</div>`}
       </div>
     </div></div></div>`;
+}
+// Connections & data coverage — visual bank + platform status with clear connected / requested / missing states
+function connPill(s){const M={ok:['ok','Connected',AI_CHECK],req:['req','Requested',IC_CLOCK],miss:['miss','Not connected',IC_XMARK]};const[c,l,ic]=M[s];return `<span class="conn-pill ${c}">${ic}${l}</span>`;}
+function bgConnCoverage(d){
+  const BANKS=[['Barclays','#0a9ed9'],['HSBC','#db0011'],['Lloyds','#0b6b3a'],['NatWest','#5a287d']];
+  const bk=BANKS[Math.abs((d.id.charCodeAt(6)||52)-48)%BANKS.length];
+  const bankGlyph=c=>`<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V10M19 21V10M4 10l8-5 8 5M9 21v-6h6v6"/></svg>`;
+  const shopLogo=`<svg viewBox="0 0 24 24" fill="none"><path d="M6.5 7l-1 13h13l-1-13z" fill="#5E8E3E"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8" stroke="#3f6b2c" stroke-width="1.8"/></svg>`;
+  const flagged=d.at_risk>0||d.rating==='E'||d.rating==='F';
+  const banks=[{logo:bankGlyph(bk[1]),name:`${bk[0]} business account`,sub:'Primary · 24 months coverage · synced 14 Jul 2026',state:'ok'}];
+  if(flagged)banks.push({logo:bankGlyph('#9aa0a6'),name:`Secondary account ····${d.id.slice(-4)}`,sub:'Connection requested — awaiting the customer',state:'req'});
+  const plats=[ d.source==='Amazon'
+    ? {logo:AMAZON_SMILE,name:'Amazon Seller Central',sub:'GBP · 18 months orders & settlements · synced 14 Jul 2026',state:'ok'}
+    : {logo:shopLogo,name:'Shopify',sub:'GBP · 18 months orders · synced 14 Jul 2026',state:'ok'} ];
+  const stripeOk=['A','B','C'].includes(d.rating);
+  plats.push({logo:'stripe',name:'Stripe',sub:stripeOk?'Secondary revenue · 12 months · synced 13 Jul 2026':'Not connected — no card-processing feed on file',state:stripeOk?'ok':'miss'});
+  const all=[...banks,...plats],nMiss=all.filter(x=>x.state==='miss').length,nReq=all.filter(x=>x.state==='req').length;
+  const pill=nMiss?`<span class="chip c-warning" style="margin-left:auto"><span class="dot"></span>${nMiss} missing</span>`
+    :nReq?`<span class="chip c-info" style="margin-left:auto"><span class="dot"></span>${nReq} awaiting</span>`
+    :`<span class="chip c-success" style="margin-left:auto"><span class="dot"></span>All connected</span>`;
+  const row=x=>`<div class="conn-row"><span class="conn-logo${x.logo==='stripe'?' stripe':''}">${x.logo==='stripe'?'S':x.logo}</span>
+    <div class="conn-meta"><div class="conn-name">${x.name}</div><div class="conn-sub">${x.sub}</div></div>${connPill(x.state)}</div>`;
+  return `<div class="card" style="margin-top:14px"><div class="card-h"><h3>Connections &amp; data coverage</h3><span class="sub">bank feeds &amp; sales platforms powering the analysis</span>${pill}</div>
+    <div class="card-b conn-cov">
+      <div class="conn-group"><div class="conn-glbl">Bank accounts</div>${banks.map(row).join('')}</div>
+      <div class="conn-group"><div class="conn-glbl">Sales platforms</div>${plats.map(row).join('')}</div>
+    </div></div>`;
 }
 // Overview: one compact line. Detail lives in Background.
 function aiWebBrief(d){const w=webSearch(d);
@@ -1968,18 +2034,35 @@ function lendingRelationshipCard(d){
       <div class="card-b"><div class="bg-clean"><span class="chip c-neutral">New customer</span> First application with Uncapped — no prior facilities, drawdowns or repayment history to review yet.</div></div></div>`;
   }
   const hasReal=d.realPrincipal&&d.realPrincipal.length;
-  const principal=hasReal? d.realPrincipal : seededSeries(d.id.length*7,18, totalOut||60000, (totalOut||60000)*.5, d.revTrend==='down'?-.4:-.2);
-  const pspec=C(principal,'line','var(--brand-600)'); if(hasReal&&d.realPrincipalMonths&&d.realPrincipalMonths.length===principal.length)pspec.labels=d.realPrincipalMonths;
+  const existing=hasReal? d.realPrincipal.slice() : seededSeries(d.id.length*7,18, totalOut||60000, (totalOut||60000)*.5, d.revTrend==='down'?-.4:-.2).map(v=>Math.round(v));
+  const ff=existing.length, peak=Math.max(...existing,1);
+  // New Uncapped balance — the proposed facility, drawn then amortised over the forecast tail
+  const newAmt=d.maxAmount||peak, TN=12;
+  const existTail=Array.from({length:TN},()=>0); // existing facility already run down to £0 by the forecast window
+  const newLine=Array.from({length:ff+TN},(_,k)=> k<ff? 0 : (k<ff+2? Math.round(newAmt*(k-ff+1)/2) : Math.max(0,Math.round(newAmt*(1-(k-ff-2)/(TN-2))))));
+  const existLine=existing.concat(existTail);
+  // Liquidity (inc. new facility) = cash headroom sitting above the drawn balance
+  const liq=existLine.map((v,k)=>{const nb=newLine[k]||0; return Math.round((d.preoffer||peak)*0.34 + nb*0.5 - v*0.15);});
+  const labels=(hasReal&&d.realPrincipalMonths&&d.realPrincipalMonths.length===ff)
+    ? d.realPrincipalMonths.concat(fwdMonths(d.realPrincipalMonths[ff-1],TN))
+    : monthSeq(ff+TN);
+  const pspec={series:[],lines:[
+      {name:'Existing Uncapped balance',data:existLine,color:'var(--brand-700)'},
+      {name:'New Uncapped balance',data:newLine,color:'#3f7fd6',dashed:true},
+      {name:'Liquidity (inc. new facility)',data:liq,color:'#4a9c5d',dashed:true}
+    ],forecastFrom:ff,legend:true,labels};
+  const overLev=totalOut>peak*1.8;
+  const pai=`Monthly closing principal of our own exposure. ${hasReal&&peak?`The prior facility peaked at ${money0(peak)} and amortised toward £0 — a clean drawdown-and-repay relationship`:'Read-only lending-relationship context'}. The dashed lines project the proposed new facility being drawn then amortised over 12 months, with liquidity (including the new facility) staying ${overLev?'thin — combined exposure runs hot against the balance':'comfortably above the drawn balance'}. Recycling assumption feeds this from the Forecast step. Delinquency: ${d.rating==='E'?'1 late repayment, since cured':'clean, never delinquent'}.`;
   return `<div class="card" style="margin-top:14px"><div class="card-h"><h3>Lending relationship with Uncapped</h3><span class="sub" style="margin-left:auto">total outstanding ${money0(totalOut)}</span></div>
     <div class="card-b">
       ${aiSummaryCard({title:'Relationship summary',body:relationshipSummary(d),chips:relChips(d)})}
       <div style="overflow:auto"><table class="grid flat"><thead><tr><th>Started</th><th>Type</th><th>Outcome</th><th>Repayment</th><th class="num">Amount funded</th><th class="num">Outstanding</th><th></th></tr></thead>
         <tbody>${d.prior.map((p,i)=>{const rs=repayStatus(d,p,i);return `<tr><td class="nowrap">${qStart(p[0])}</td><td>${p[1]}</td><td>${p[2]=='Funded'?'<span class="chip c-success"><span class="dot"></span>Funded</span>':p[2]=='Lost'?'<span class="chip c-neutral">Lost</span>':'<span class="chip c-error">Rejected</span>'}</td><td>${p[2]=='Funded'?`<span class="chip c-${rs[0]}"><span class="dot"></span>${rs[1]}</span>`:'<span class="muted">—</span>'}</td><td class="num mono">${p[3]?money0(p[3]):'—'}</td><td class="num mono">${p[4]?money0(p[4]):'—'}</td><td class="num"><a class="viewcta" href="#" onclick="openRepaySchedule('${d.id}',${i});return false;">View →</a></td></tr>`}).join('')}</tbody></table></div>
-      <div class="lbl" style="margin:16px 0 6px">Existing Uncapped balance <span style="text-transform:none;font-weight:500;color:var(--text-3)">— monthly closing principal</span></div>
-      ${axedChart(pspec,640,150,false)}
-      <div class="muted small" style="margin-top:8px">Delinquency: ${d.rating==='E'?'1 late repayment (cured)':'clean · never delinquent'}</div>
+      <div class="wide-mini" style="margin-top:16px">${miniChart('Existing Uncapped balance',pspec,'monthly closing principal · click to expand',pai,940,190)}</div>
     </div></div>`;
 }
+// forward month labels continuing from a "Mon 'YY" label
+function fwdMonths(last,n){const idx=MONTHS.findIndex(mo=>last&&last.indexOf(mo)===0);let m=idx>=0?idx:0,y=last?parseInt('20'+last.slice(-2)):2026;const out=[];for(let i=0;i<n;i++){m++;if(m>11){m=0;y++;}out.push(MONTHS[m]+" '"+String(y).slice(2));}return out;}
 function tabBackground(d){
   const chip=s=>`<span class="chip ${s=='g'?'c-success':s=='a'?'c-warning':'c-error'}"><span class="dot"></span>${s=='g'?'Verified':s=='a'?'Check':'Fail'}</span>`;
   const rows=list=>list.map(r=>`<div class="checkrow"><span class="st">${chip(r[1])}</span><span class="nm">${r[0]}</span><span class="dt">${r[2]}</span></div>`).join('');
@@ -1990,7 +2073,8 @@ function tabBackground(d){
     : `<div class="bg-clean"><span class="chip c-success"><span class="dot"></span>Clear</span> No linked entities or shared-director exposure on file.</div>`;
   document.getElementById('pane').innerHTML=`
    ${aiWebFull(d)}
-   <div class="grid2">
+   ${bgConnCoverage(d)}
+   <div class="grid2" style="margin-top:14px">
      <div class="card" data-focus="bg-identity"><div class="card-h"><h3>Identity &amp; ownership verification</h3><span class="sub">who they say they are — triangulated</span></div>
        <div class="card-b">${rows(bgIdentity(d))}</div></div>
      <div class="card"><div class="card-h"><h3>Adverse media &amp; compliance screening</h3><span class="sub">KYC · sanctions · registry</span></div>
@@ -2048,7 +2132,7 @@ function tabDecision(d){
   const open=dealIssueCount(d);
   document.getElementById('pane').innerHTML=`
    ${stepSummary(d,'decision')}
-   <div class="card" style="margin-bottom:14px"><div class="card-h"><h3>Decision</h3><span class="sub">the model suggests an offer per product — approve, reject or edit each</span></div>
+   <div class="card dec-strip" style="margin-bottom:14px"><div class="card-h"><h3>Decision</h3><span class="sub">the model suggests an offer per product — approve, reject or edit each</span></div>
      <div class="card-b"><div class="verdict" style="border:none;margin:0;padding:0;grid-template-columns:repeat(4,1fr);background:transparent">
        <div class="vc"><span class="lbl">Recommended</span><span class="val">${decisionChip(d.decision)}</span></div>
        <div class="vc"><span class="lbl">Rating</span><span class="val"><span class="rating rt-${d.rating}">${d.rating}</span></span></div>
@@ -2064,10 +2148,40 @@ function tabDecision(d){
        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px">
          <div style="font-size:13.5px"><b>${ap} approved</b> · ${rj} rejected · ${prods.length-ap-rj} pending</div>
          ${open?`<span class="chip c-warning" style="margin-left:auto"><span class="dot"></span>${open} open item${open!=1?'s':''} before sign-off</span>`:'<span class="chip c-success" style="margin-left:auto"><span class="dot"></span>All checks reviewed</span>'}
-         <button class="btn btn-primary" style="${open?'':'margin-left:auto'}" onclick="publishDecision('${d.id}')">Publish decision</button>
        </div>
+       <p class="muted small" style="margin:12px 0 0">Use <b>Publish decision</b> in the footer below to confirm — you’ll add a decision note before it’s sent for sign-off.</p>
      </div></div>`;
 }
+// Decision step gets the same fixed footer as every other step; its CTA is "Publish decision"
+function decisionBar(d){const prods=decisionProducts(d);
+  const ap=prods.filter((p,i)=>decState(d,i,p)==='approve').length, rj=prods.filter((p,i)=>decState(d,i,p)==='reject').length;
+  const open=dealIssueCount(d), done=CONFIRMED[d.id]&&CONFIRMED[d.id].decision;
+  return `<div class="confirm-bar${done?' done':''}" id="confirmbar">
+    ${done?`<span class="cb-done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Decision published — sent for risk sign-off</span>`
+      :`<span class="cb-msg"><b>${ap} approved</b> · ${rj} rejected${open?` · <span style="color:var(--warning);font-weight:700">${open} open item${open!=1?'s':''}</span>`:''}<span class="cb-sub"> — publish to send this decision for risk sign-off.</span></span>`}
+    <div class="cb-act"><button class="btn btn-primary btn-sm" onclick="openPublishModal('${d.id}')" ${done?'disabled':''}>Publish decision</button></div></div>`;
+}
+function openPublishModal(id){const d=byId(id);
+  const cur=((document.getElementById('uwNote')||{}).value||dealMetrics(d).rationale||'').trim();
+  const prods=decisionProducts(d), ap=prods.filter((p,i)=>decState(d,i,p)==='approve');
+  const summary=ap.length?`${ap.map(p=>p.name).join(', ')} · ${money0(d.maxAmount)}`:(d.decision==='Reject'?'Decline — no offer':'Request info first');
+  openOverlay(`<div class="modal" style="max-width:520px"><div class="mh"><h3>Publish decision</h3><div class="x" onclick="closeOverlay()">✕</div></div>
+   <div class="mb">
+     <div class="pub-sum"><span class="muted small">You’re about to publish</span><div class="pub-sum-v">${decisionChip(d.decision)} <span>${summary}</span></div></div>
+     <label class="pub-lbl" for="pubNote">Decision note <span class="req">Required</span></label>
+     <textarea id="pubNote" class="editcell" style="width:100%;min-height:92px;text-align:left" placeholder="Summarise the rationale and any conditions — saved with the decision for sign-off." oninput="var e=document.getElementById('pubErr');if(e&&this.value.trim())e.hidden=true;">${cur}</textarea>
+     <div class="pub-err" id="pubErr" hidden>Add a note explaining your decision before publishing.</div>
+     <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-outline btn-sm" onclick="closeOverlay()">Cancel</button>
+       <button class="btn btn-primary btn-sm" onclick="confirmPublish('${id}')">Publish &amp; send for sign-off</button></div>
+   </div></div>`);
+  setTimeout(()=>{const t=document.getElementById('pubNote');if(t){t.focus();t.setSelectionRange(t.value.length,t.value.length);}},60);
+}
+function confirmPublish(id){const t=document.getElementById('pubNote'),v=((t||{}).value||'').trim();
+  if(!v){const e=document.getElementById('pubErr');if(e)e.hidden=false;if(t){t.classList.add('chg');t.focus();}return;}
+  const uw=document.getElementById('uwNote');if(uw)uw.value=v;
+  (NOTES[id]=NOTES[id]||[]).push({name:'Meridian Capital',initials:'MC',time:nowStamp(),stepId:'decision',tag:'Decision',tx:`Published decision — ${v}`});
+  closeOverlay();publishDecision(id);
+  const cb=document.getElementById('confirmbar');if(cb)cb.outerHTML=decisionBar(byId(id));}
 function publishDecision(id){CONFIRMED[id]=CONFIRMED[id]||{};CONFIRMED[id].decision=true;
   const sp=document.getElementById('spine');if(sp)sp.outerHTML=renderSpine(byId(id),CUR.step);
   const pc=document.getElementById('progcell');if(pc)pc.innerHTML=progressCellInner(byId(id));
@@ -2160,10 +2274,10 @@ function debtSpec(d){
   const tail=Array.from({length:18},(_,i)=> i<2? Math.round(peak*(i+1)/2) : Math.max(0,Math.round(peak*(1-(i-2)/16))));
   return C(hist.concat(tail),'line','var(--error)',ff);
 }
-function miniChart(title,spec,tag,ai){const id='ch'+(chartN++);CHARTS[id]=Object.assign({title:title,ai:ai||''},spec);
+function miniChart(title,spec,tag,ai,w,h){const id='ch'+(chartN++);CHARTS[id]=Object.assign({title:title,ai:ai||''},spec);
   return `<div class="card minic" data-cid="${id}" style="box-shadow:none;cursor:zoom-in" onclick="expandChart('${id}')" title="click to expand"><div class="card-b" style="padding:11px 12px">
   <div style="display:flex;justify-content:space-between;align-items:baseline"><div class="lbl">${title}</div>${tag?`<span class="muted small">${tag}</span>`:''}</div>
-  <div class="cbody" style="margin-top:6px">${axedChart(spec,460,150,false)}</div></div></div>`;}
+  <div class="cbody" style="margin-top:6px">${axedChart(spec,w||460,h||150,false)}</div></div></div>`;}
 
 /* ---------- RAG TAB (accordion) ---------- */
 function tabRAG(d){
@@ -2182,20 +2296,91 @@ function ragRow(d,x,i){
   return `<div class="arow ${st}" id="ar${i}" data-focus="${name}">
     <div class="ahead" onclick="toggleAcc(${i})">
       <span class="chip ${st=='g'?'c-success':st=='a'?'c-warning':'c-error'}" id="arc${i}"><span class="dot"></span>${st=='g'?'Green':st=='a'?'Amber':'Red'}</span>
-      <span class="aname">${name}</span><span class="adetail">${detail}</span>
+      <span class="aname">${name}</span><span class="adetail">${String(detail).replace(/^Flagged:\s*/i,'')}</span>
       <span class="seg" onclick="event.stopPropagation()">
-        ${['g','a','r'].map(s=>`<button class="${s} ${s==st?'on':''}" onclick="setRag(${i},'${s}')">${s.toUpperCase()}</button>`).join('')}</span>
+        ${['g','a','r'].map(s=>`<button class="${s} ${s==st?'on':''}" onclick="confirmRag(${i},'${s}')">${s.toUpperCase()}</button>`).join('')}</span>
       <svg class="acaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--text-3)"><path d="M6 9l6 6 6-6"/></svg>
     </div>
     <div class="abody">${ragCharts(d,name,i)}</div></div>`;
 }
+// Real backing-chart sets per RAG area — mapped from the Amazon Model 2.0 tabs (Model / Debt Summary / Account Status / Inventory / Revenue by Source)
 function ragCharts(d,name,i){
-  const s1=seededSeries(i*7+3,18,d.preoffer/12,d.preoffer/20,d.revTrend==='down'?-.3:.15);
-  const s2=seededSeries(i*11+5,18,d.preoffer/14,d.preoffer/18,0);
-  return `<div class="grid3">
-    ${miniChart(name+' — 18-mo trend',C(s1,'bars','var(--brand-600)'),'')}
-    ${miniChart('By source',C(s2,'bars','#4a9c5d'),'')}
-    ${miniChart('Comparison',C(s1,'line','var(--ink)'),'')}</div>`;
+  const P=d.preoffer||300000, up=d.revTrend==='up', down=d.revTrend==='down';
+  const trendW=up?'trending up with healthy momentum':down?'softening — the forward view keeps declining':'broadly flat';
+  // revenue actuals + 24-mo forecast tail (real when available)
+  const rev=realSeries(d.realRev,d.realRevF,24,d.revTrend);
+  const revData=rev?rev.data:seededSeries(21,48,P/12,P/20,up?.2:down?-.25:0), ff=rev?rev.ff:24;
+  const lab=rev?realLabels(d,revData.length):monthSeq(revData.length);
+  const act=revData.slice(0,ff);
+  const roll=(a,n)=>a.map((_,k)=>{const s=Math.max(0,k-n+1),w=a.slice(s,k+1);return Math.round(w.reduce((x,y)=>x+y,0)/w.length);});
+  const S=(seed,n,base,vol,tr)=>seededSeries(seed,n,base,vol,tr);
+  const G=(inner,tag)=>`<div class="grid3">${inner}</div>`; // 3-up grid
+  const mc=(t,spec,tag,ai)=>miniChart(t,spec,tag||'',ai);
+
+  if(name==='Revenue'){
+    const t3m=roll(act,3);
+    const amz=act.map(v=>Math.round(v*(d.source==='Amazon'?.8:.14))), shop=act.map(v=>Math.round(v*(d.source==='Amazon'?.09:.72))), oth=act.map((v,k)=>Math.max(0,act[k]-amz[k]-shop[k]));
+    const revSpec={data:revData,type:'line',color:'#3f7fd6',forecastFrom:ff,legend:true,labels:lab};
+    const srcSpec={series:[{name:'Amazon',data:amz,color:'#e0932a'},{name:d.source==='Amazon'?'Other':'Shopify',data:shop,color:'#5E8E3E'},{name:'Other',data:oth,color:'#9fb0b3'}],legend:true,labels:lab.slice(0,ff)};
+    return G(
+      mc('T3M average revenue',C(t3m,'line','#3f7fd6'),money0(t3m[t3m.length-1])+'/mo',`Rolling 3-month average revenue — the headline runrate. Currently ${trendW}.`)+
+      mc('Runrate: recent vs prior',{lines:[{name:'Recent 1–3m',data:roll(act,3).slice(-12),color:'#128081'},{name:'Prior 3–6m',data:roll(act,3).slice(-15,-3),color:'#9fb0b3',dashed:true}],legend:true},up?'accelerating':down?'decelerating':'steady',`Recent 1–3m window vs the prior 3–6m window — the early-deterioration signal. ${down?'Recent sits below prior, confirming the slowdown.':'Recent holds at or above prior.'}`)+
+      mc('Net revenue forecast',revSpec,'24-mo forecast',`Solid = ${rev?'real':'modelled'} actuals; dashed = the model's ${down?'declining':'projected'} forward forecast over 24 months.`)+
+      mc('Revenue by source',srcSpec,d.source,`Channel mix — ${d.source} is the dominant stream. Concentration on a single marketplace is the key dependency to weigh.`));
+  }
+  if(name==='Debt'){
+    const dTot=d.debt_total||0, hasReal=d.realPrincipal&&d.realPrincipal.length;
+    const prin=hasReal?d.realPrincipal:S(i+9,18,dTot||P*.6,(dTot||P*.6)*.4,-.3);
+    const pspec=C(prin,'line','var(--brand-700)'); if(hasReal&&d.realPrincipalMonths&&d.realPrincipalMonths.length===prin.length)pspec.labels=d.realPrincipalMonths;
+    return G(
+      mc('Cumulative debt cashflow',C(S(i+17,48,P/6,P/10,down?-.4:-.2),'line','var(--error)',24),'recycling '+(down?25:90)+'%',`Cumulative debt inflows vs T3M revenue — the recycling view. The applicable recycling % is the one editable input; ${down?'declining revenue caps how much they can re-borrow.':'growth supports re-borrowing repayments.'}`)+
+      mc('Existing Uncapped balance',pspec,dTot?money0(dTot)+' external':'no external debt',hasReal?`Prior Uncapped facility peaked at ${money0(Math.max(...prin))} and drew down toward £0 — a clean repayment relationship.`:`Monthly closing principal. ${dTot?money0(dTot)+' of external debt on file across '+d.debt_count+' facilit'+(d.debt_count!=1?'ies':'y')+'.':'No third-party debt — unleveraged.'}`)+
+      mc('Debt repayment forecast',C(S(i+13,42,(dTot||P)/22,(dTot||P)/40,0),'bars','#8a5a00',24),'',`Scheduled repayments (actuals) plus the projected remaining schedule for identified facilities. Steady cadence, no arrears on the ledger.`));
+  }
+  if(name==='Assets'){
+    const cover=d.inv_cover||3;
+    const invVal=S(i+2,42,P/9,P/24,down?-.15:.06).map((v,k)=>v*(1+0.24*Math.sin(k/12*6.283+1.1)));
+    const invFBA=invVal.map(v=>v*.6), invRes=invVal.map(v=>v*.25), invTr=invVal.map(v=>v*.15);
+    return G(
+      mc('Inventory valuation',{series:[{name:'FBA',data:invFBA,color:'#128081'},{name:'Reserved',data:invRes,color:'#8fcfce'},{name:'In transit',data:invTr,color:'#f2b21e'}],lines:[{name:'Total',data:invVal,color:'var(--ink)'}],forecastFrom:24,legend:true},d.source==='Amazon'?'key input':'',`Inventory value stacked by location with total-valuation line. Clear yearly seasonality; FBA is the dominant, most-liquid tranche.`)+
+      mc('Months of cover',C(Array.from({length:12},(_,k)=>+(Math.max(.5,cover*(0.8+0.4*Math.sin(k/3)))).toFixed(1)),'bars','#128081'),cover+' mo avg',`Inventory-to-revenue expressed as months of cover — averaging ~${cover} months. ${cover<2?'Thin cover is a restock-risk watch-item.':'Comfortable cover.'}`)+
+      mc('Cash balance',C(S(i+7,24,P*.34,P*.1,down?-.5:-.1),'line','var(--brand-600)'),money0(Math.round(P*.34)),`Closing bank cash over the trailing period — the liquidity buffer behind the days-of-cash-cover signal.`));
+  }
+  if(name==='Cashflow / Profitability'){
+    const nf=S(i+3,24,P/16,P/12,down?-.4:.05).map((v,k)=>k%4===3?-Math.abs(v)*.6:Math.abs(v));
+    const cashCone=S(i+7,42,P*.34,P*.09,down?-.5:-.05);
+    return G(
+      mc('Net cash flows',C(nf,'bars','var(--brand-600)'),'',`Monthly net cash movements — ${down?'increasingly negative months in the recent window':'mostly positive with occasional draws'}. No sustained cash-negative run that would threaten servicing.`)+
+      mc('Average balance',C(S(i+5,24,P*.3,P*.08,down?-.3:.05),'line','#3f7fd6'),'',`Average daily balance trend — the buffer the business runs on. ${down?'Drifting down alongside revenue.':'Stable to improving.'}`)+
+      mc('Cash balance & runway',C(cashCone,'line','var(--brand-600)',24),d.runway+' mo runway',`Closing cash projected forward with ~${d.runway} months of runway. ${d.runway>=6?'Comfortably positive through the term.':'Thins but holds under the base case.'}`));
+  }
+  if(name==='Data completeness'){
+    const cov=[['Bank feed',100],['Amazon',100],[d.source==='Amazon'?'Stripe':'Shopify',['A','B','C'].includes(d.rating)?100:0]];
+    const covBars=cov.map(c=>c[1]);
+    return G(
+      mc('Source coverage',C(covBars,'bars','#128081'),covBars.filter(v=>v).length+'/'+covBars.length+' connected',`Share of expected data sources connected. ${covBars.includes(0)?'A card-processing feed is missing — completeness gap flagged.':'All feeds connected — full coverage.'}`)+
+      mc('History harvested',C(S(i+31,12,20,4,.08).map(v=>Math.min(24,Math.round(v))),'bars','#3f7fd6'),'~24 mo',`Months of bank history harvested per account — depth the model can rely on. Freshness synced within the last week.`)+
+      mc('Uncategorised %',C(S(i+33,18,6,2,-.4).map(v=>Math.max(0,+v.toFixed(1))),'line','#8a5a00'),'trending to 0',`Uncategorised share of flows, trending toward zero as rules mature — low residual means the P&L is trustworthy.`));
+  }
+  if(name==='Product'){
+    const asins=d.asins||40, top3=Math.min(72,Math.max(28,100-Math.round(asins*0.8)));
+    const asinBars=Array.from({length:14},(_,k)=>Math.round((P/8)*Math.pow(0.82,k))+2);
+    const season=Array.from({length:12},(_,k)=>Math.round(P/12*(1+0.5*Math.sin((k-9)/12*6.283))));
+    return G(
+      mc('ASIN concentration',C(asinBars,'bars','var(--brand-600)'),'top-3 = '+top3+'%',`Revenue is ${top3>=55?'highly concentrated':top3>=40?'moderately concentrated':'well diversified'} — top-3 ASINs are ${top3}% across ~${asins} listings. ${top3>=55?'Concentration is a resilience watch-item.':'Within a comfortable range.'}`)+
+      mc('Seasonality',C(season,'bars','#f2b21e'),'peak Q4',`Monthly revenue shape across a year — peak concentrated in the ${season.indexOf(Math.max(...season))>=9?'Q4 holiday window':'mid-year'}. Seasonality is priced into the forecast dampening.`)+
+      mc('Monthly volatility',C(roll(S(i+19,24,P/12,P/9,0),1),'line','var(--ink)'),'',`Month-to-month revenue dispersion around the mean — ${down?'widening':'contained'}. Feeds the volatility component of the Product score.`));
+  }
+  if(name==='Behaviour'){
+    const ar=d.at_risk||0;
+    const status={series:[{name:'Normal',data:Array.from({length:6},()=>100-ar),color:'#128081'},{name:'At risk',data:Array.from({length:6},()=>ar),color:'#e0473f'}],legend:true};
+    return G(
+      mc('Account status',status,ar>0?ar+'% at risk':'all normal',`Marketplace account health by month. ${ar>0?ar+'% of storefronts are AT_RISK — a direct threat to the payout stream and the single biggest behavioural flag.':'All storefronts NORMAL — no suspension exposure.'}`)+
+      mc('Seller-warning rate',C(S(i+23,18,ar>0?3:0.6,1,ar>0?.3:-.05).map(v=>Math.max(0,+v.toFixed(1))),'line',ar>0?'var(--error)':'#128081'),'TTM',`Trailing seller-warning rate. ${ar>0?'Elevated and rising — consistent with the at-risk status.':'Low and stable — a well-run account.'}`)+
+      mc('Negative-feedback rate',C(S(i+27,18,1.2,0.5,down?.2:-.05).map(v=>Math.max(0,+v.toFixed(1))),'line','#3f7fd6'),'~1% of orders',`Negative order-feedback rate, ~1% of orders — ${down?'drifting up, worth monitoring':'within the category norm'}.`));
+  }
+  // fallback (should not hit — all 7 areas covered)
+  return G(mc(name+' — trend',C(S(i*7+3,24,P/12,P/20,down?-.3:.15),'bars','var(--brand-600)'),'',''));
 }
 function toggleAcc(i){document.getElementById('ar'+i).classList.toggle('open');}
 function setRag(i,s){
@@ -2206,6 +2391,27 @@ function setRag(i,s){
   c.innerHTML='<span class="dot"></span>'+(s=='g'?'Green':s=='a'?'Amber':'Red');
   el.querySelectorAll('.seg button').forEach(b=>b.classList.toggle('on',b.classList.contains(s)));
 }
+// RAG override must be explained — confirmation popup with a required reason note
+const RAGN={g:'Green',a:'Amber',r:'Red'};
+function ragChipCls(s){return s=='g'?'c-success':s=='a'?'c-warning':'c-error';}
+function confirmRag(i,s){const d=byId(CUR.id),area=d.rag[i],cur=area[1];
+  if(s===cur)return; // no change
+  openOverlay(`<div class="modal" style="max-width:480px"><div class="mh"><h3>Override RAG status</h3><div class="x" onclick="closeOverlay()">✕</div></div>
+   <div class="mb">
+     <div class="pub-sum"><span class="muted small">${area[0]}</span><div class="pub-sum-v"><span class="chip ${ragChipCls(cur)}"><span class="dot"></span>${RAGN[cur]}</span> <span class="muted">→</span> <span class="chip ${ragChipCls(s)}"><span class="dot"></span>${RAGN[s]}</span></div></div>
+     <label class="pub-lbl" for="ragNote">Reason for override <span class="req">Required</span></label>
+     <textarea id="ragNote" class="editcell" style="width:100%;min-height:80px;text-align:left" placeholder="Explain why you're changing this rating — saved to the deal history." oninput="var e=document.getElementById('ragErr');if(e&&this.value.trim())e.hidden=true;"></textarea>
+     <div class="pub-err" id="ragErr" hidden>Add a reason before applying the override.</div>
+     <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-outline btn-sm" onclick="closeOverlay()">Cancel</button>
+       <button class="btn btn-primary btn-sm" onclick="applyRag(${i},'${s}')">Apply override</button></div>
+   </div></div>`);
+  setTimeout(()=>{const t=document.getElementById('ragNote');if(t)t.focus();},60);}
+function applyRag(i,s){const t=document.getElementById('ragNote'),v=((t||{}).value||'').trim();
+  if(!v){const e=document.getElementById('ragErr');if(e)e.hidden=false;if(t){t.classList.add('chg');t.focus();}return;}
+  const d=byId(CUR.id),area=d.rag[i],cur=area[1];
+  d.rag[i][1]=s; setRag(i,s); // persist override + update DOM
+  (NOTES[d.id]=NOTES[d.id]||[]).push({name:'Meridian Capital',initials:'MC',time:nowStamp(),stepId:'rag',tag:'RAG override',tx:`${area[0]}: ${RAGN[cur]} → ${RAGN[s]} — ${v}`});
+  closeOverlay();toast(`${area[0]} set to ${RAGN[s]}`);}
 
 /* ---------- SCORECARDS TAB ---------- */
 function tabScore(d){
@@ -2213,7 +2419,7 @@ function tabScore(d){
   const bg={A:'#7ec7c6',B:'#d9edec',C:'#fdf2cd',D:'#fbe3cf',E:'#fbdedb',F:'#f2c4bf','-':'#eef1f2'};
   const ink={A:'#06403f',B:'#00696b',C:'#8a6a12',D:'#a05a26',E:'#b23b30',F:'#96182b','-':'#94a0a4'};
   document.getElementById('pane').innerHTML=`
-   ${stepSummary(d,'score')}
+   ${stepSummary(d,'scorecards')}
    <div class="card" style="margin-bottom:14px" data-focus="sc-card"><div class="card-h"><h3>Scorecards</h3><span class="sub">all model scores in one place</span></div>
      <div class="card-b"><div class="scstrip">
        ${d.scorecards.map(s=>`<div class="sc"><div class="g" style="background:${bg[s[1]]};color:${ink[s[1]]}">${s[1]}</div><div class="lab">${s[0]}</div></div>`).join('')}
@@ -2241,7 +2447,7 @@ function tabForecast(d){
   document.getElementById('pane').innerHTML=`
    ${stepSummary(d,'forecast')}
    <div class="fcrow">
-     <div class="card fcpl" style="flex:0 0 320px;position:sticky;top:150px"><div class="card-h"><h3>Cashflow summary</h3><span class="sub">L12M vs N12M</span></div>
+     <div class="card fcpl" style="flex:0 0 380px;position:sticky;top:128px"><div class="card-h"><h3>Cashflow summary</h3><span class="sub">L12M vs N12M</span></div>
        <div class="card-b" style="padding:6px 0">${plRows(d)}</div></div>
      <div class="fcright">
 
@@ -2262,7 +2468,7 @@ function tabForecast(d){
                <label>Regular-inflow inclusion<input class="editcell" value="16%"></label>
              </div>
            </div>
-           <div class="fc-sub-h">Net revenue forecast — 24 mo actuals · 18 mo forecast</div>
+           <div class="fc-sub-h">Net revenue forecast — 24 mo actuals · 24 mo forecast</div>
            <div id="revchart"></div>
            <div class="muted small" id="revscenlab" style="margin:8px 0 4px"></div>
            <div class="fc-ctx-lbl" style="margin-top:20px">👁 Read-only — these inform your assumptions</div>
@@ -2290,7 +2496,7 @@ function tabForecast(d){
                <label>Fixed cost adjustment<input class="editcell" value="0%"></label>
              </div>
            </div>
-           <div class="fc-sub-h">Cost forecast — 24 mo actuals · 18 mo forecast</div>
+           <div class="fc-sub-h">Cost forecast — 24 mo actuals · 24 mo forecast</div>
            <div id="costchart"></div>
          </div>
        </div>
@@ -2313,7 +2519,7 @@ function tabForecast(d){
              </div>
            </div>
            <span class="edit-badge"><span class="gear">${IC_GEAR}</span>Editable — this drives the number</span>
-           <div class="fc-sub-h">Cumulative debt cashflows vs T3M revenue — 24 mo actuals · 18 mo forecast</div>
+           <div class="fc-sub-h">Cumulative debt cashflows vs T3M revenue — 24 mo actuals · 24 mo forecast</div>
            ${axedChart(C(seededSeries(57,42,d.preoffer/6,d.preoffer/10,d.revTrend==='down'?-.4:-.2),'line','var(--brand-700)',24),640,220,true)}
            <div class="fc-ctx-lbl" style="margin-top:22px">👁 Read-only — these inform the number</div>
            <div class="grid2">
@@ -2324,9 +2530,11 @@ function tabForecast(d){
        </div>
 
        <!-- OTHER DEBT -->
-       <div class="card"><div class="card-h"><h3>Other debt forecast</h3><span class="sub">identified facilities — exclude, refinance or edit the schedule</span></div>
-         <div style="overflow:auto"><table class="grid flat"><thead><tr><th>Lender</th><th>Type</th><th class="num">Outstanding (est.)</th><th class="num">Monthly</th><th>Status</th><th></th></tr></thead>
-         <tbody>${debtRows(d)}</tbody></table></div></div>
+       <div class="card"><div class="card-h"><h3>Other debt forecast</h3><span class="sub">identified facilities — exclude, refinance or edit the schedule</span>${debtLoans(d).length?'':'<span class="chip c-success" style="margin-left:auto"><span class="dot"></span>No external debt</span>'}</div>
+         ${debtLoans(d).length
+           ? `<div style="overflow:auto"><table class="grid flat"><thead><tr><th>Lender</th><th>Type</th><th class="num">Outstanding (est.)</th><th class="num">Monthly</th><th>Status</th><th></th></tr></thead>
+           <tbody>${debtRows(d)}</tbody></table></div>`
+           : `<div class="card-b"><div class="bg-clean"><span class="chip c-neutral">Nothing to schedule</span> No third-party facilities identified in the bank data — this seller carries no external debt to exclude, refinance or reschedule.</div></div>`}</div>
 
      </div></div>`;
   drawRev(id); drawCost(d);
@@ -2359,11 +2567,19 @@ function plRows(d){
   </table>`;
 }
 // real monthly actuals + forecast when available, else synthetic. Returns {data, ff} (ff = index where forecast starts)
-function realSeries(a,f){const av=(a||[]).filter(x=>typeof x==='number'),fv=(f||[]).filter(x=>typeof x==='number');
-  return av.length? {data:av.concat(fv), ff:av.length} : null;}
-function realLabels(d){const m=d.realMonths||[];return m.length?m.map(s=>{const p=String(s).split('-');return MONTHS[(+p[1]||1)-1]+" '"+String(p[0]).slice(2);}):null;}
-function baseRev(d){const rs=realSeries(d.realRev,d.realRevF);
-  return rs || {data:seededSeries(21,42,d.preoffer/12,d.preoffer/20,d.revTrend==='up'?.2:d.revTrend==='down'?-.25:0), ff:24};}
+// padTo: extend the real forecast tail to N months (Dips wanted a longer forecast horizon) — projected as a gentle continuation of the model trend
+function realSeries(a,f,padTo,trend){const av=(a||[]).filter(x=>typeof x==='number');let ff=(f||[]).filter(x=>typeof x==='number');
+  if(!av.length)return null;
+  if(padTo&&ff.length<padTo){const gr=trend==='up'?1.012:trend==='down'?0.986:1.0;let last=ff.length?ff[ff.length-1]:av[av.length-1];
+    while(ff.length<padTo){last=Math.round(last*gr);ff.push(last);}}
+  return {data:av.concat(ff), ff:av.length};}
+// labels: continuous month sequence of `len` starting at the real first month (so a padded forecast still gets correct month labels)
+function realLabels(d,len){const m=d.realMonths||[];if(!m.length)return len?monthSeq(len):null;
+  const p=String(m[0]).split('-');let y=+p[0]||2024,mo=+p[1]||1;const n=len||m.length,out=[];
+  for(let i=0;i<n;i++){out.push(MONTHS[mo-1]+" '"+String(y).slice(2));mo++;if(mo>12){mo=1;y++;}}
+  return out;}
+function baseRev(d){const rs=realSeries(d.realRev,d.realRevF,24,d.revTrend);
+  return rs || {data:seededSeries(21,48,d.preoffer/12,d.preoffer/20,d.revTrend==='up'?.2:d.revTrend==='down'?-.25:0), ff:24};}
 function fcSet(id,key,val){FCST[id][key]=val;drawRev(id);}
 function srcChips(id){const s=FCST[id].sources;
   return Object.keys(s).map(k=>`<button class="srcchip ${s[k]?'on':''}" onclick="toggleSrc('${id}','${k}')">${s[k]?'✓ ':'+ '}${k}</button>`).join('');}
@@ -2381,11 +2597,11 @@ function drawRev(id){const d=byId(id),f=FCST[id];
     x = x*(1-dk)+fmean*dk;                    // seasonality dampening → toward forecast mean
     return x*(0.55+0.45*incl);               // excluded sources reduce forecast weight
   });
-  const _rspec=C(adj,'bars','var(--brand-600)',ff);_rspec.labels=realLabels(d);
+  const _rspec=C(adj,'bars','var(--brand-600)',ff);_rspec.labels=realLabels(d,adj.length);
   document.getElementById('revchart').innerHTML=axedChart(_rspec,640,230,true);
   const lab=document.getElementById('revscenlab');
   if(lab)lab.textContent=`${f.basis==='cash'?'Cash basis':'E-commerce basis'} · ${({base:'baseline',opt:'optimistic',pess:'pessimistic'})[f.scen]} · dampening k=${f.damp}`;}
-function drawCost(d){const c=seededSeries(31,42,d.preoffer/12*.66,d.preoffer/26,0);
+function drawCost(d){const c=seededSeries(31,48,d.preoffer/12*.66,d.preoffer/26,0);
   document.getElementById('costchart').innerHTML=axedChart(C(c,'bars','#d9a441',24),640,210,true);}
 function fcChart(adj){
   const w=560,h=150,n=adj.length,mx=Math.max(...adj)*1.12||1,bw=w/n*.62,gap=w/n;
@@ -2612,7 +2828,10 @@ function pickDec(b){b.parentNode.querySelectorAll('button').forEach(x=>x.classLi
 function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent='✓ '+msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2600);}
 let GAL={list:[],idx:0};
 function expandChart(id){
-  GAL.list=[...document.querySelectorAll('#pane .minic')].map(e=>e.dataset.cid).filter(x=>CHARTS[x]);
+  // scope the gallery to the sibling charts only — a RAG area's own charts (.abody), else the containing card
+  const el=document.querySelector(`#pane .minic[data-cid="${id}"]`);
+  const scope=(el&&(el.closest('.abody')||el.closest('.card')))||document.querySelector('#pane');
+  GAL.list=[...scope.querySelectorAll('.minic')].map(e=>e.dataset.cid).filter(x=>CHARTS[x]);
   if(!GAL.list.length)GAL.list=[id];
   GAL.idx=Math.max(0,GAL.list.indexOf(id));
   openOverlay(`<div class="modal chartmodal" style="max-width:980px" id="chartmodal"></div>`);
@@ -2621,16 +2840,17 @@ function expandChart(id){
 function galleryNav(dir){GAL.idx=Math.min(GAL.list.length-1,Math.max(0,GAL.idx+dir));galleryRender();}
 function gallerySet(i){GAL.idx=i;galleryRender();}
 function galleryRender(){const c=CHARTS[GAL.list[GAL.idx]],m=document.getElementById('chartmodal');if(!m||!c)return;
+  const multi=GAL.list.length>1;
   m.innerHTML=`
-   <div class="mh"><h3>${c.title}</h3><span class="muted small">${GAL.idx+1} / ${GAL.list.length} · monthly</span><div class="x" onclick="closeOverlay()">✕</div></div>
+   <div class="mh"><h3>${c.title}</h3><span class="muted small">${multi?`${GAL.idx+1} / ${GAL.list.length} · `:''}monthly</span><div class="x" onclick="closeOverlay()">✕</div></div>
    <div class="mb galbody">
      <div class="galstage">
-       <button class="galnav" ${GAL.idx===0?'disabled':''} onclick="galleryNav(-1)" title="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg></button>
+       ${multi?`<button class="galnav" ${GAL.idx===0?'disabled':''} onclick="galleryNav(-1)" title="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg></button>`:''}
        <div class="galmain">${axedChart(c,900,410,true)}</div>
-       <button class="galnav" ${GAL.idx===GAL.list.length-1?'disabled':''} onclick="galleryNav(1)" title="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+       ${multi?`<button class="galnav" ${GAL.idx===GAL.list.length-1?'disabled':''} onclick="galleryNav(1)" title="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>`:''}
      </div>
-     ${c.ai?`<div class="gal-ai"><span class="ais-badge">${AI_STAR}Engine</span><div class="gal-ai-tx"><span class="gal-ai-h">Engine analysis</span> ${c.ai}</div></div>`:''}
-     <div class="galthumbs">${GAL.list.map((cid,i)=>`<button class="galthumb ${i===GAL.idx?'on':''}" onclick="gallerySet(${i})"><div class="gtlab">${CHARTS[cid].title}</div>${axedChart(CHARTS[cid],240,74,false)}</button>`).join('')}</div>
+     ${c.ai?`<div class="gal-ai"><span class="ais-badge">${AI_STAR}Engine</span><div class="gal-ai-tx"><span class="gal-ai-h">Analysis</span> ${c.ai}</div></div>`:''}
+     ${multi?`<div class="galthumbs">${GAL.list.map((cid,i)=>`<button class="galthumb ${i===GAL.idx?'on':''}" onclick="gallerySet(${i})"><div class="gtlab">${CHARTS[cid].title}</div>${axedChart(CHARTS[cid],240,74,false)}</button>`).join('')}</div>`:''}
    </div>`;
 }
 document.addEventListener('keydown',function(e){if(!document.getElementById('chartmodal'))return;
