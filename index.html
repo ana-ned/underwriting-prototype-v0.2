@@ -1699,7 +1699,7 @@ const ICON={
 /* reusable AI-summary card: metric + "flag" pill + AI SUMMARY badge, white panel with body + highlight chips */
 function aiChip(c){return `<div class="ais-chip"><span class="aic-ic" style="background:${c.tint}22;color:${c.tint}">${c.icon}</span>${c.amount?`<b>${c.amount}</b> `:''}<span class="aic-l">${c.label}</span></div>`;}
 function aiSummaryCard(o){const hasChips=o.chips&&o.chips.length;return `<div class="ai-sum">
-  <div class="ais-head"><span class="ais-title">${o.title||'AI summary'}</span><span class="ais-badge">${AI_STAR}AI</span></div>
+  <div class="ais-head"><span class="ais-title">${o.title||'Engine summary'}</span><span class="ais-badge">${AI_STAR}Engine</span></div>
   ${(o.metric||o.flag)?`<div class="ais-metricrow">${o.metric?`<span class="ais-metric">${o.metric}</span>`:''}${o.flag?`<span class="ais-flag"><span class="af-ic ${o.flagCls||'warn'}">${o.flagIcon||''}</span>${o.flag}</span>`:''}</div>`:''}
   <p class="ais-body">${o.body}</p>
   ${hasChips?`<div class="ais-chips">${o.chips.map(aiChip).join('')}</div>`:''}
@@ -1757,7 +1757,7 @@ function recommendationCard(d){const m=dealMetrics(d), f=m.f;
   return `<div class="card rec-card" style="margin-bottom:14px"><div class="card-b">
     <div class="rec-grid">
       <div class="rec-left">
-        <div class="rec-head"><span class="ais-badge" style="margin-left:0">${AI_STAR}AI</span><h3>Recommendation</h3></div>
+        <div class="rec-head"><span class="ais-badge" style="margin-left:0">${AI_STAR}Engine</span><h3>Recommendation</h3></div>
         <div class="ds-amt">${d.maxAmount?money0(d.maxAmount):'£0'}</div>
         <div class="ds-amt-sub">vs ${money0(d.preoffer)} requested</div>
         <div class="ds-amt-tags">${decisionChip(d.decision)}<span class="rating rt-${d.rating}">${d.rating}</span>${d.products.length?d.products.map(p=>`<span class="ds-tag">${p}</span>`).join(''):'<span class="ds-tag">No product</span>'}</div>
@@ -2011,7 +2011,7 @@ function tabOverview(d){
     ${recommendationCard(d)}
 
     <div class="card snap-card" style="margin-bottom:14px">
-      <div class="card-h about-h snap-head"><span class="ais-badge" style="margin-left:0">${AI_STAR}AI</span><h3>Company snapshot</h3>
+      <div class="card-h about-h snap-head"><span class="ais-badge" style="margin-left:0">${AI_STAR}Engine</span><h3>Company snapshot</h3>
         <span class="sub" style="margin-left:auto">Auto-computed from locked data</span></div>
       <div class="card-b about"><div class="glance-in">${glanceTiles(d)}</div></div>
       ${companyContext(d)}
@@ -2122,7 +2122,7 @@ function tabScore(d){
          <dt>Final rating</dt><dd><span class="rating rt-${d.rating}">${d.rating}</span></dd>
          <dt>Override</dt><dd>${(d.rating==='C'||d.rating==='E')?'<span class="chip c-warning"><span class="dot"></span>underwriter may override</span>':'<span class="muted">not overridden</span>'}</dd>
        </dl><p class="muted small" style="margin:12px 0 0">A–E proceeds to sizing; F is typically a reject. Override reserved for strong-conviction cases (usually a downgrade on recent deterioration).</p></div></div>
-     <div class="card"><div class="card-h"><h3>Low-scoring areas</h3><span class="sub">AI explanation</span></div>
+     <div class="card"><div class="card-h"><h3>Low-scoring areas</h3><span class="sub">Engine explanation</span></div>
        <div class="card-b">${d.lowscore?`<p style="margin:0;color:var(--text-2)">${d.lowscore}</p>`:'<p class="muted" style="margin:0">No sub-C scores — nothing flagged.</p>'}</div></div>
    </div>`;
 }
@@ -2498,7 +2498,7 @@ function galleryRender(){const c=CHARTS[GAL.list[GAL.idx]],m=document.getElement
        <div class="galmain">${axedChart(c,900,410,true)}</div>
        <button class="galnav" ${GAL.idx===GAL.list.length-1?'disabled':''} onclick="galleryNav(1)" title="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
      </div>
-     ${c.ai?`<div class="gal-ai"><span class="ais-badge">${AI_STAR}AI</span><div class="gal-ai-tx"><span class="gal-ai-h">AI analysis</span> ${c.ai}</div></div>`:''}
+     ${c.ai?`<div class="gal-ai"><span class="ais-badge">${AI_STAR}Engine</span><div class="gal-ai-tx"><span class="gal-ai-h">Engine analysis</span> ${c.ai}</div></div>`:''}
      <div class="galthumbs">${GAL.list.map((cid,i)=>`<button class="galthumb ${i===GAL.idx?'on':''}" onclick="gallerySet(${i})"><div class="gtlab">${CHARTS[cid].title}</div>${axedChart(CHARTS[cid],240,74,false)}</button>`).join('')}</div>
    </div>`;
 }
