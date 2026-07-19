@@ -228,6 +228,10 @@ tr.clickable:hover .goarrow{background:var(--brand-600);color:#fff;border-color:
 @media(max-width:640px){.trends-grid{grid-template-columns:1fr}}
 .concbar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--grey-2)}
 .concbar span{display:block;height:100%}
+.gal-ai{display:flex;gap:12px;align-items:flex-start;margin-top:14px;padding:14px 16px;background:linear-gradient(180deg,#f5f3ff,#faf9ff);border:1px solid #e6e0ff;border-radius:10px}
+.gal-ai .ais-badge{margin-left:0;flex:0 0 auto}
+.gal-ai-tx{font-size:13px;line-height:1.55;color:var(--text-2)}
+.gal-ai-h{font-weight:800;color:#6d4bd6;text-transform:uppercase;letter-spacing:.04em;font-size:11px;margin-right:6px}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:13px}
 .kv dt{color:var(--text-3);font-weight:600} .kv dd{margin:0;font-weight:600}
 .checkrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--cell);font-size:13px}
@@ -1347,10 +1351,13 @@ function renderNoteList(id){const el=document.getElementById('nwList');if(!el)re
     <div class="nw-tx">${n.tx}</div></div>`).join('')
     :'<div class="muted small" style="padding:4px 2px">No notes yet — add the first below.</div>';}
 function noteJump(id,i){const n=(NOTES[id]||[])[i];if(!n)return;goFocus(id,n.stepId||CUR.step,n.focus||'');}
+function nowStamp(){const d=new Date(),M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],p=n=>String(n).padStart(2,'0');return `${d.getDate()} ${M[d.getMonth()]} ${p(d.getHours())}:${p(d.getMinutes())}`;}
 function addNoteWin(){const t=document.getElementById('noteWinInput');if(!t||!t.value.trim())return;
   const stepT=(STEPS.find(s=>s.id===CUR.step)||{t:''}).t;
-  (NOTES[CUR.id]=NOTES[CUR.id]||[]).unshift({name:'Meridian Capital',initials:'MC',time:'just now',stepId:CUR.step,tag:stepT,tx:t.value.trim()});
-  t.value='';renderNoteList(CUR.id);const fb=document.querySelector('.note-fab');if(fb){const b=fb.querySelector('b');const n=(NOTES[CUR.id]||[]).length;if(b)b.textContent=n;else fb.insertAdjacentHTML('beforeend',` <b>${n}</b>`);}toast('Note added');}
+  (NOTES[CUR.id]=NOTES[CUR.id]||[]).push({name:'Meridian Capital',initials:'MC',time:nowStamp(),stepId:CUR.step,tag:stepT,tx:t.value.trim()});
+  t.value='';renderNoteList(CUR.id);
+  const nl=document.getElementById('nwList');if(nl)nl.scrollTop=nl.scrollHeight;
+  const fb=document.querySelector('.note-fab');if(fb){const b=fb.querySelector('b');const n=(NOTES[CUR.id]||[]).length;if(b)b.textContent=n;else fb.insertAdjacentHTML('beforeend',` <b>${n}</b>`);}toast('Note added');}
 document.addEventListener('mousedown',function(e){const h=e.target.closest('#nwHead');if(!h||e.target.closest('button'))return;
   const w=document.getElementById('notewin');const r=w.getBoundingClientRect();
   w._drag={dx:e.clientX-r.left,dy:e.clientY-r.top};e.preventDefault();});
@@ -1557,6 +1564,10 @@ function confirmBar(d,step){const done=stepDone(d,step);
     ?`<span class="cb-done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>You reviewed this step</span><div class="cb-act"><button class="btn btn-outline btn-sm" onclick="confirmStep('${d.id}')">Undo</button></div>`
     :`<span class="cb-msg">Reviewed everything on this step?<span class="cb-sub"> — confirm to mark it done and move your progress forward.</span></span><div class="cb-act"><button class="btn btn-primary btn-sm" onclick="confirmStep('${d.id}')">Mark as reviewed</button></div>`}</div>`;}
 function confirmStep(id){const d=byId(id),st=CUR.step;CONFIRMED[id]=CONFIRMED[id]||{};CONFIRMED[id][st]=!CONFIRMED[id][st];
+  if(CONFIRMED[id][st]){ // just marked reviewed → advance to the next step
+    const idx=STEPS.findIndex(s=>s.id===st);
+    if(idx>=0 && idx<STEPS.length-1){ toast('Reviewed — moving to '+STEPS[idx+1].t); go('#/deal/'+id+'/'+STEPS[idx+1].id); return; }
+  }
   const sp=document.getElementById('spine');if(sp)sp.outerHTML=renderSpine(d,st);
   const pc=document.getElementById('progcell');if(pc)pc.innerHTML=progressCellInner(d);
   const cb=document.getElementById('confirmbar');if(cb)cb.outerHTML=confirmBar(d,st);
@@ -1967,7 +1978,7 @@ function decideOffer(id,i,verdict){const p=decisionProducts(byId(id))[i];
      <button class="btn btn-primary btn-sm" onclick="applyDecide('${id}',${i},'${verdict}')">${verdict==='approve'?'Approve offer':'Reject offer'}</button></div></div></div>`);}
 function applyDecide(id,i,verdict){const r=((document.getElementById('decReason')||{}).value||'').trim();
   const p=decisionProducts(byId(id))[i];DEC[id]=DEC[id]||{};DEC[id][i]=verdict;closeOverlay();
-  (NOTES[id]=NOTES[id]||[]).unshift({who:'Meridian Capital · just now',tx:`${verdict==='approve'?'Approved':'Rejected'} ${p.name}${r?' — '+r:''}`});
+  (NOTES[id]=NOTES[id]||[]).push({name:'Meridian Capital',initials:'MC',time:nowStamp(),stepId:'decision',tag:'Decision',tx:`${verdict==='approve'?'Approved':'Rejected'} ${p.name}${r?' — '+r:''}`});
   tabDecision(byId(id));toast(`${verdict==='approve'?'Approved':'Rejected'} ${p.name}`);}
 function editOffer(id,i){const p=decisionProducts(byId(id))[i];
   openOverlay(`<div class="modal" style="max-width:520px"><div class="mh"><h3>Edit offer — ${p.name}</h3><div class="x" onclick="closeOverlay()">✕</div></div>
@@ -1994,6 +2005,8 @@ function tabOverview(d){
   const CASH_SPEC={lines:[{name:'Baseline',data:cash24,color:'var(--brand-600)'},{name:'Pessimistic',data:cashPess,color:'#f2b21e',dashed:true}],forecastFrom:18,legend:true};
   const sf=(d.hygiene.find(h=>h[0]==='Storefronts connected')||['','','—'])[2];
   const issues=dealIssueCount(d);
+  const top3=Math.min(72,Math.max(28,100-Math.round((d.asins||40)*0.8)));
+  const asinBars=Array.from({length:14},(_,i)=>Math.round((d.preoffer/8||120000)*Math.pow(0.8,i))+2);
   document.getElementById('pane').innerHTML=`
     ${recommendationCard(d)}
 
@@ -2007,14 +2020,22 @@ function tabOverview(d){
     <div class="card">
       <div class="card-h"><h3>Trends</h3><span class="sub">the direction behind the snapshot numbers</span><span class="sub" style="margin-left:auto">read-only · click to expand</span></div>
       <div class="card-b trends-grid">
-        ${miniChart('Revenue T12M',REV_SPEC,d.revTrend==='up'?'trending up':d.revTrend==='down'?'declining':'flat')}
-        ${miniChart('Monthly cashflow',C(cash,'bars','var(--brand-600)'),'')}
-        ${miniChart('Cash balance & runway',CASH_SPEC,d.runway+' mo runway')}
-        ${miniChart('Inventory valuation',INV_SPEC,d.source==='Amazon'?'key input':'')}
-        ${miniChart('Debt outstanding',debtSpec(d),'')}
-        ${concMini(d)}
-        ${miniChart('Repayment history',C(seededSeries(29,18,(d.preoffer||300000)/40,(d.preoffer||300000)/80,0),'bars','var(--brand-600)'),'')}
-        ${miniChart('Refund rate',C(seededSeries(37,18,4,1.5,d.revTrend==='down'?.35:-.05),'line','var(--brand-600)'),'~4% of orders')}
+        ${miniChart('Revenue T12M',REV_SPEC,d.revTrend==='up'?'trending up':d.revTrend==='down'?'declining':'flat',
+          `Trailing-12-month revenue is ${d.revTrend==='up'?'trending up with healthy momentum':d.revTrend==='down'?'in decline — the forward view keeps softening':'broadly flat'}. Solid = actuals (with real month-to-month seasonality); lighter = the model's forward forecast.`)}
+        ${miniChart('Monthly cashflow',C(cash,'bars','var(--brand-600)'),'',
+          `Net monthly cash movements are ${d.revTrend==='down'?'increasingly negative in recent months':'mostly positive with occasional draws'} — no sustained cash-negative run that would threaten servicing.`)}
+        ${miniChart('Cash balance & runway',CASH_SPEC,d.runway+' mo runway',
+          `Closing cash balance with ~${d.runway} month${d.runway!=1?'s':''} of runway. Baseline (solid) vs pessimistic (dashed) — the downside scenario ${d.runway>=6?'stays comfortably positive':'thins but holds'}.`)}
+        ${miniChart('Inventory valuation',INV_SPEC,d.source==='Amazon'?'key input':'',
+          `Inventory value stacked by location — Amazon FBA · inbound · in-transit · reserved — with total-valuation and fee-discounted overlay lines. Clear yearly seasonality; FBA is the dominant tranche and a key liquidity input.`)}
+        ${miniChart('Debt outstanding',debtSpec(d),'',
+          (d.realPrincipal&&d.realPrincipal.length? `The prior Uncapped facility peaked at ${money0(Math.max(...d.realPrincipal))} and was drawn down to £0 — a clean repayment. The forecast projects the new facility amortising over ~18 months.` : `External debt balance, with the projected new facility amortising over ~18 months.`))}
+        ${miniChart('Revenue by ASIN',C(asinBars,'bars','var(--brand-600)'),'top-3 = '+top3+'%',
+          `Revenue is ${top3>=55?'highly concentrated':top3>=40?'moderately concentrated':'well diversified'} — the top-3 ASINs account for ${top3}% across ~${(d.asins||40)} listings. ${top3>=55?'Concentration is a resilience watch-item.':'Concentration sits within a comfortable range.'}`)}
+        ${miniChart('Repayment history',C(seededSeries(29,18,(d.preoffer||300000)/40,(d.preoffer||300000)/80,0),'bars','var(--brand-600)'),'',
+          `Regular scheduled repayments, consistent in size and cadence — no missed collections or arrears on the ledger.`)}
+        ${miniChart('Refund rate',C(seededSeries(37,18,4,1.5,d.revTrend==='down'?.35:-.05),'line','var(--brand-600)'),'~4% of orders',
+          `Refund/return rate sits around ~4% of orders, ${d.revTrend==='down'?'drifting up recently — worth monitoring':'stable and within the category norm'}.`)}
       </div>
     </div>`;
 }
@@ -2037,7 +2058,7 @@ function debtSpec(d){
   const tail=Array.from({length:18},(_,i)=> i<2? Math.round(peak*(i+1)/2) : Math.max(0,Math.round(peak*(1-(i-2)/16))));
   return C(hist.concat(tail),'line','var(--error)',ff);
 }
-function miniChart(title,spec,tag){const id='ch'+(chartN++);CHARTS[id]=Object.assign({title:title},spec);
+function miniChart(title,spec,tag,ai){const id='ch'+(chartN++);CHARTS[id]=Object.assign({title:title,ai:ai||''},spec);
   return `<div class="card minic" data-cid="${id}" style="box-shadow:none;cursor:zoom-in" onclick="expandChart('${id}')" title="click to expand"><div class="card-b" style="padding:11px 12px">
   <div style="display:flex;justify-content:space-between;align-items:baseline"><div class="lbl">${title}</div>${tag?`<span class="muted small">${tag}</span>`:''}</div>
   <div class="cbody" style="margin-top:6px">${axedChart(spec,460,150,false)}</div></div></div>`;}
@@ -2477,6 +2498,7 @@ function galleryRender(){const c=CHARTS[GAL.list[GAL.idx]],m=document.getElement
        <div class="galmain">${axedChart(c,900,410,true)}</div>
        <button class="galnav" ${GAL.idx===GAL.list.length-1?'disabled':''} onclick="galleryNav(1)" title="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
      </div>
+     ${c.ai?`<div class="gal-ai"><span class="ais-badge">${AI_STAR}AI</span><div class="gal-ai-tx"><span class="gal-ai-h">AI analysis</span> ${c.ai}</div></div>`:''}
      <div class="galthumbs">${GAL.list.map((cid,i)=>`<button class="galthumb ${i===GAL.idx?'on':''}" onclick="gallerySet(${i})"><div class="gtlab">${CHARTS[cid].title}</div>${axedChart(CHARTS[cid],240,74,false)}</button>`).join('')}</div>
    </div>`;
 }
