@@ -119,6 +119,14 @@ table.grid tr.clickable{cursor:pointer}
 table.grid tr.clickable:hover td{background:var(--brand-100)}
 table.grid td.num,table.grid th.num{text-align:right;font-variant-numeric:tabular-nums}
 table.grid tfoot td{font-weight:700;border-top:2px solid var(--border);background:#fbfdfd}
+/* portfolio (main deals) table — tighter rows, smaller type */
+#pfTable table.grid{font-size:12px}
+#pfTable table.grid td{padding:6px 12px}
+#pfTable table.grid th{font-size:10px;padding:8px 12px}
+#pfTable .org-cell{gap:9px}
+#pfTable .orglogo{width:26px;height:26px;flex:0 0 26px}
+#pfTable .org-cell .small{font-size:10.5px}
+#pfTable .ptag{font-size:10.5px;padding:1px 7px}
 .goarrow{width:26px;height:26px;border-radius:9999px;border:1px solid var(--border);display:inline-flex;
   align-items:center;justify-content:center;color:var(--brand-700);background:#fff}
 tr.clickable:hover .goarrow{background:var(--brand-600);color:#fff;border-color:var(--brand-600)}
@@ -438,6 +446,21 @@ table.txgrid tbody tr.flagged:hover td{background:#fff4e0}
 .pub-lbl{display:block;font-size:12px;font-weight:700;color:var(--text-2);margin-bottom:6px}
 .pub-lbl .req{color:var(--error);font-weight:700;text-transform:uppercase;font-size:10px;letter-spacing:.04em;margin-left:5px}
 .pub-err{color:var(--error);font-size:12.5px;font-weight:600;margin-top:9px}
+.ovr-tag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#7c5cff;background:#f2eefc;border:1px solid #E7DFFF;border-radius:4px;padding:1px 6px;margin-left:7px;vertical-align:middle}
+.ref-rows{margin-top:8px}
+.ref-r{display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid var(--divider);font-size:13px}
+.ref-r:first-child{border-top:none}
+.ref-r.tot{border-top:1px solid var(--border);font-weight:700;margin-top:2px}
+.sch-warn{display:flex;gap:9px;align-items:flex-start;background:var(--warning-bg);border:1px solid var(--warning-bd);color:var(--warning);border-radius:8px;padding:10px 12px;font-size:12.5px;line-height:1.45;margin-bottom:14px}
+.sch-warn b{color:var(--warning)}
+.sch-stop td{background:var(--warning-bg)}
+.stop-tag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--warning);background:#fff;border:1px solid var(--warning-bd);border-radius:4px;padding:1px 6px;margin-left:6px}
+.gal-prov{display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--text-2);margin:12px 0 0;padding:8px 12px;background:var(--grey-1);border:1px solid var(--divider);border-radius:8px}
+.gal-prov .pv{display:inline-flex;align-items:center;gap:7px;font-weight:600}
+.pv-swatch{width:20px;border-top:2.5px solid var(--brand-600);display:inline-block}
+.pv-swatch.dash{border-top-style:dashed}
+.gal-prov .pv-note{color:var(--text-3);font-weight:400;margin-left:auto}
+.galthumbs-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);font-weight:700;margin:16px 0 8px}
 .verdict .vc:last-child{border-right:none;padding-right:0}
 .verdict .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .verdict .val{font-size:14px;font-weight:700;display:flex;align-items:center;gap:7px}
@@ -580,6 +603,7 @@ table.txgrid tbody tr.flagged:hover td{background:#fff4e0}
 .assume .afields label{display:block;font-size:12px;font-weight:700;color:var(--text-2)}
 .assume .afields label .muted{font-weight:500}
 .assume .afields select,.assume .afields input{display:block;width:100%;margin-top:5px;font-size:13px;border:1px solid var(--border);border-radius:var(--r);padding:6px 8px;background:#fff;font-family:inherit}
+.assume .afields select,.fcctl select{padding-right:16px}
 /* native number-input spinner arrows sit flush to the field's right border — give them right padding so they don't touch the edge */
 .fcctl input[type=number],.assume .afields input[type=number]{padding-right:12px}
 input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{margin-left:6px}
@@ -759,6 +783,10 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .oc-rec,.oc-avail{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:2px 7px;border-radius:4px;margin-left:7px;vertical-align:2px}
 .oc-rec{color:var(--brand-700);background:var(--brand-100);border:1px solid var(--brand-300)}
 .oc-avail{color:var(--text-3);background:var(--grey-1);border:1px solid var(--border)}
+.oc-addon{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:2px 7px;border-radius:4px;margin-left:7px;vertical-align:2px;color:#3f7fd6;background:#eef3fb;border:1px solid #d3e2f5}
+.offer-sep td{padding:8px 14px;background:var(--grey-1);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);font-weight:700;border-top:1px solid var(--border)}
+.offer-row.addon{background:#fbfdfe}
+.offer-row.addon .or-name{color:var(--text-2);font-weight:600}
 .oc-term{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--cell);font-size:13px}
 .oc-term:last-child{border-bottom:none}
 .oc-term .ot-k{color:var(--text-3)} .oc-term .ot-v{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
@@ -2092,8 +2120,8 @@ function decisionProducts(d){
   return [
     {name:'Term loan',rec:rec('term'),terms:[['Max advance',money0(m)],['Term','10 months'],['Collection','Every 15 days'],['Cash fee','0.88% / mo'],['Security',sec]]},
     {name:'Line of credit',rec:rec('loc')||rec('line'),terms:[['Facility limit',money0(Math.round(m*0.8))],['Min draw','£15,000'],['Fee on drawn','0.90% / mo'],['Term','Revolving · 12 mo'],['Security',sec]]},
-    {name:'Daily payouts',rec:rec('daily')||rec('payout'),terms:[['Advance',money0(Math.round(m*0.5))],['Holdback','12% of daily payouts'],['Factor','1.09'],['Est. duration','~7 months']]},
     {name:'Cash advance',rec:rec('mca')||rec('cash'),terms:[['Advance',money0(Math.round(m*0.6))],['Factor rate','1.12'],['Collection','12% of receipts'],['Est. duration','~8 months']]},
+    {name:'Daily payouts',rec:rec('daily')||rec('payout'),addon:true,terms:[['Advance',money0(Math.round(m*0.5))],['Holdback','12% of daily payouts'],['Factor','1.09'],['Est. duration','~7 months']]},
   ];
 }
 function defaultDecision(d,p){if(d.decision==='Reject')return 'reject';if(d.decision==='Request info')return p.rec?'pending':'reject';return p.rec?'approve':'reject';}
@@ -2115,8 +2143,8 @@ function offerRow(d,p,i){
   const chip=state==='approve'?'<span class="chip c-success"><span class="dot"></span>Approved</span>':state==='reject'?'<span class="chip c-error"><span class="dot"></span>Rejected</span>':'<span class="chip c-neutral">Pending</span>';
   const amt=p.terms[0][1];
   const rest=p.terms.slice(1).map(t=>`<span class="ot-k">${t[0]}</span> ${t[1]}`).join('<span class="ot-sep">·</span>');
-  return `<tr class="offer-row ${state}" id="or${i}">
-    <td class="or-prod"><span class="or-name">${p.name}</span>${p.rec?'<span class="oc-rec">Recommended</span>':'<span class="oc-avail">Not rec.</span>'}</td>
+  return `<tr class="offer-row ${state}${p.addon?' addon':''}" id="or${i}">
+    <td class="or-prod"><span class="or-name">${p.name}</span>${p.addon?'<span class="oc-addon">Add-on</span>':p.rec?'<span class="oc-rec">Recommended</span>':'<span class="oc-avail">Not rec.</span>'}</td>
     <td class="or-amt mono">${amt}</td>
     <td class="or-terms">${rest}</td>
     <td>${chip}</td>
@@ -2141,7 +2169,7 @@ function tabDecision(d){
      </div></div></div>
    <div class="card" style="margin-bottom:14px"><div class="card-h"><h3>Offers</h3><span class="sub">one row per product · Edit opens the terms · approve or reject each</span></div>
      <div style="overflow:auto"><table class="offer-table"><thead><tr><th>Product</th><th>Amount</th><th>Key terms</th><th>Status</th><th></th></tr></thead>
-       <tbody>${prods.map((p,i)=>offerRow(d,p,i)).join('')}</tbody></table></div></div>
+       <tbody>${prods.map((p,i)=>`${(p.addon&&!(prods[i-1]&&prods[i-1].addon))?`<tr class="offer-sep"><td colspan="5">Add-ons — attach alongside a main facility, not offered standalone</td></tr>`:''}${offerRow(d,p,i)}`).join('')}</tbody></table></div></div>
    <div class="card"><div class="card-h"><h3>Underwriting summary</h3><span class="sub">finalise the note before publishing — saved with the decision for sign-off</span></div>
      <div class="card-b">
        <textarea class="editcell" id="uwNote" style="width:100%;min-height:64px;text-align:left" placeholder="Summarise the rationale and any conditions before publishing…">${dealMetrics(d).rationale}</textarea>
@@ -2198,8 +2226,9 @@ function applyDecide(id,i,verdict){const r=((document.getElementById('decReason'
   tabDecision(byId(id));toast(`${verdict==='approve'?'Approved':'Rejected'} ${p.name}`);}
 function editOffer(id,i){const p=decisionProducts(byId(id))[i];
   openOverlay(`<div class="modal" style="max-width:520px"><div class="mh"><h3>Edit offer — ${p.name}</h3><div class="x" onclick="closeOverlay()">✕</div></div>
-   <div class="mb"><table class="grid flat">${p.terms.map(t=>`<tr><td style="color:var(--text-3);font-weight:600;width:180px">${t[0]}</td><td><input class="editcell" style="width:190px;text-align:left" value="${t[1]}"></td></tr>`).join('')}</table>
-   <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-outline btn-sm" onclick="closeOverlay()">Cancel</button><button class="btn btn-primary btn-sm" onclick="closeOverlay();toast('Offer terms updated (demo)')">Save terms</button></div></div></div>`);}
+   <div class="mb"><table class="grid flat">${p.terms.map(t=>`<tr><td style="color:var(--text-3);font-weight:600;width:180px">${t[0]}</td><td><input class="editcell offer-term-in" data-orig="${t[1]}" style="width:190px;text-align:left" value="${t[1]}" oninput="this.classList.toggle('chg',this.value!==this.dataset.orig)"></td></tr>`).join('')}</table>
+   <div style="margin-top:12px;display:flex;gap:8px;align-items:center"><button class="btn btn-outline btn-sm" onclick="resetOffer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-right:5px;vertical-align:-2px"><path d="M4 12a8 8 0 0 1 14-5m2-2v4h-4"/><path d="M20 12a8 8 0 0 1-14 5m-2 2v-4h4"/></svg>Reset to recommended</button><span style="flex:1"></span><button class="btn btn-outline btn-sm" onclick="closeOverlay()">Cancel</button><button class="btn btn-primary btn-sm" onclick="closeOverlay();toast('Offer terms updated (demo)')">Save terms</button></div></div></div>`);}
+function resetOffer(){document.querySelectorAll('#ovl .offer-term-in').forEach(inp=>{inp.value=inp.dataset.orig;inp.classList.remove('chg');});toast('Reset to recommended terms');}
 
 /* ---------- OVERVIEW TAB ---------- */
 function tabOverview(d){
@@ -2296,7 +2325,7 @@ function ragRow(d,x,i){
   return `<div class="arow ${st}" id="ar${i}" data-focus="${name}">
     <div class="ahead" onclick="toggleAcc(${i})">
       <span class="chip ${st=='g'?'c-success':st=='a'?'c-warning':'c-error'}" id="arc${i}"><span class="dot"></span>${st=='g'?'Green':st=='a'?'Amber':'Red'}</span>
-      <span class="aname">${name}</span><span class="adetail">${String(detail).replace(/^Flagged:\s*/i,'')}</span>
+      <span class="aname">${name}${(RAG_OVR[d.id]&&RAG_OVR[d.id][name])?' <span class="ovr-tag">overridden</span>':''}</span><span class="adetail">${String(detail).replace(/^Flagged:\s*/i,'')}</span>
       <span class="seg" onclick="event.stopPropagation()">
         ${['g','a','r'].map(s=>`<button class="${s} ${s==st?'on':''}" onclick="confirmRag(${i},'${s}')">${s.toUpperCase()}</button>`).join('')}</span>
       <svg class="acaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--text-3)"><path d="M6 9l6 6 6-6"/></svg>
@@ -2409,9 +2438,17 @@ function confirmRag(i,s){const d=byId(CUR.id),area=d.rag[i],cur=area[1];
 function applyRag(i,s){const t=document.getElementById('ragNote'),v=((t||{}).value||'').trim();
   if(!v){const e=document.getElementById('ragErr');if(e)e.hidden=false;if(t){t.classList.add('chg');t.focus();}return;}
   const d=byId(CUR.id),area=d.rag[i],cur=area[1];
-  d.rag[i][1]=s; setRag(i,s); // persist override + update DOM
+  d.rag[i][1]=s;                 // persist the override on the deal
+  RAG_OVR[d.id]=RAG_OVR[d.id]||{}; RAG_OVR[d.id][area[0]]=true;   // mark as manually overridden
   (NOTES[d.id]=NOTES[d.id]||[]).push({name:'Meridian Capital',initials:'MC',time:nowStamp(),stepId:'rag',tag:'RAG override',tx:`${area[0]}: ${RAGN[cur]} → ${RAGN[s]} — ${v}`});
-  closeOverlay();toast(`${area[0]} set to ${RAGN[s]}`);}
+  closeOverlay();
+  // re-render the whole RAG step (banner + counts + rows) preserving open rows, then refresh the spine
+  const open=[...document.querySelectorAll('.arow.open')].map(e=>+e.id.replace('ar',''));
+  tabRAG(d);
+  open.forEach(k=>{const el=document.getElementById('ar'+k);if(el)el.classList.add('open');});
+  const sp=document.getElementById('spine');if(sp)sp.outerHTML=renderSpine(d,CUR.step);
+  toast(`${area[0]} overridden to ${RAGN[s]}`);}
+const RAG_OVR={};
 
 /* ---------- SCORECARDS TAB ---------- */
 function tabScore(d){
@@ -2441,9 +2478,10 @@ function tabScore(d){
 const FCST={};
 function tabForecast(d){
   const id=d.id;
-  FCST[id]=FCST[id]||{basis:'cash',scen:'base',damp:2,recycling:(d.revTrend==='down'?25:90),
+  FCST[id]=FCST[id]||{basis:'cash',scen:'base',damp:2,mo:-0.05,othThr:0.16,varAdj:-0.04,fixAdj:0,recycling:(d.revTrend==='down'?25:90),
     sources:{Amazon:true,Shopify:true,Walmart:true,TikTok:true,Other:true}};
   const f=FCST[id];
+  const _br=baseRev(d), _rAct=_br.ff, _rFc=_br.data.length-_br.ff;   // real actual/forecast split for the revenue chart
   document.getElementById('pane').innerHTML=`
    ${stepSummary(d,'forecast')}
    <div class="fcrow">
@@ -2463,19 +2501,19 @@ function tabForecast(d){
                <label>Basis<select onchange="fcSet('${id}','basis',this.value)"><option value="cash"${f.basis==='cash'?' selected':''}>Cash revenues</option><option value="ecom"${f.basis==='ecom'?' selected':''}>E-commerce (platform)</option></select></label>
                <label>Choose forecast<select onchange="fcSet('${id}','scen',this.value)"><option value="base"${f.scen==='base'?' selected':''}>Baseline</option><option value="opt"${f.scen==='opt'?' selected':''}>Optimistic (+1%/mo)</option><option value="pess"${f.scen==='pess'?' selected':''}>Pessimistic (−2%/mo)</option></select></label>
                <label>Seasonality dampening <span class="muted">k=2 default</span><input type="number" min="0" max="100" value="${f.damp}" onchange="fcSet('${id}','damp',+this.value)"></label>
-               <label>MO adjustment<input class="editcell" value="-5%"></label>
-               <label>Other-revenue threshold<input class="editcell" value="16%"></label>
+               <label>MO adjustment<input class="editcell" value="-5%" onchange="fcPct('${id}','mo',this.value)"></label>
+               <label>Other-revenue threshold<input class="editcell" value="16%" onchange="fcPct('${id}','othThr',this.value)"></label>
                <label>Regular-inflow inclusion<input class="editcell" value="16%"></label>
              </div>
            </div>
-           <div class="fc-sub-h">Net revenue forecast — 24 mo actuals · 24 mo forecast</div>
+           <div class="fc-sub-h">Net revenue forecast — ${_rAct} mo actuals · ${_rFc} mo forecast</div>
            <div id="revchart"></div>
            <div class="muted small" id="revscenlab" style="margin:8px 0 4px"></div>
            <div class="fc-ctx-lbl" style="margin-top:20px">👁 Read-only — these inform your assumptions</div>
            <div class="grid3">
-             ${miniChart('Net bank revenue by source',C(seededSeries(41,18,d.preoffer/12,d.preoffer/18,0),'bars','#d9a441'),'')}
-             ${miniChart('Gross platform revenue by source',C(seededSeries(43,18,d.preoffer/12,d.preoffer/16,0),'bars','var(--brand-600)'),'')}
-             ${miniChart('Runrate comparison (e-revenue)',C(seededSeries(47,24,d.preoffer/12,d.preoffer/22,d.revTrend==='down'?-.2:.1),'line','var(--ink)'),d.revTrend==='down'?'declining':'')}
+             ${miniChart('Net bank revenue by source',C(seededSeries(41,18,d.preoffer/12,d.preoffer/18,0),'bars','#d9a441'),'',`Net revenue actually landing in the bank by source — the cash-basis input to the forecast. This is what the model trusts over gross platform figures.`)}
+             ${miniChart('Gross platform revenue by source',C(seededSeries(43,18,d.preoffer/12,d.preoffer/16,0),'bars','var(--brand-600)'),'',`Gross marketplace-reported revenue before fees and reserves. Sits above net bank revenue — the gap is Amazon/Shopify fees, refunds and held reserves.`)}
+             ${miniChart('Runrate comparison (e-revenue)',C(seededSeries(47,24,d.preoffer/12,d.preoffer/22,d.revTrend==='down'?-.2:.1),'line','var(--ink)'),d.revTrend==='down'?'declining':'',`E-commerce runrate vs the modelled trend. ${d.revTrend==='down'?'The runrate is rolling below trend — a decline signal the forecast reflects.':'Runrate is tracking the trend, supporting the forward view.'}`)}
            </div>
            <div class="fc-src"><span class="lbl">Revenue sources in the forecast</span>
              <span class="muted small"> — click to include / exclude; excluded streams fall to “other revenue” (lower weight)</span>
@@ -2492,8 +2530,8 @@ function tabForecast(d){
              <div class="anote">Collapsed by default — the cost model tracks revenue automatically.</div>
              <div class="afields">
                <label>Variable cost method<select onchange="drawCost(byId('${id}'))"><option>Seasonal</option><option>Linear</option></select></label>
-               <label>Variable cost adjustment<input class="editcell" value="-4%"></label>
-               <label>Fixed cost adjustment<input class="editcell" value="0%"></label>
+               <label>Variable cost adjustment<input class="editcell" value="-4%" onchange="fcPct('${id}','varAdj',this.value)"></label>
+               <label>Fixed cost adjustment<input class="editcell" value="0%" onchange="fcPct('${id}','fixAdj',this.value)"></label>
              </div>
            </div>
            <div class="fc-sub-h">Cost forecast — 24 mo actuals · 24 mo forecast</div>
@@ -2523,8 +2561,8 @@ function tabForecast(d){
            ${axedChart(C(seededSeries(57,42,d.preoffer/6,d.preoffer/10,d.revTrend==='down'?-.4:-.2),'line','var(--brand-700)',24),640,220,true)}
            <div class="fc-ctx-lbl" style="margin-top:22px">👁 Read-only — these inform the number</div>
            <div class="grid2">
-             ${miniChart('Uncapped / Marcus exposure',C(seededSeries(51,18,d.preoffer/8,d.preoffer/14,-.3),'line','var(--brand-600)'),'')}
-             ${miniChart('Financing transactions & forecast',C(seededSeries(53,18,d.preoffer/10,d.preoffer/12,0).map((v,i)=>i%3?v:-v),'bars','#8a5a00'),'')}
+             ${miniChart('Uncapped / Marcus exposure',C(seededSeries(51,18,d.preoffer/8,d.preoffer/14,-.3),'line','var(--brand-600)'),'',`Combined Uncapped + Marcus (data-source label) balance over time. Trending down as prior facilities amortise — headroom for the new advance.`)}
+             ${miniChart('Financing transactions & forecast',C(seededSeries(53,18,d.preoffer/10,d.preoffer/12,0).map((v,i)=>i%3?v:-v),'bars','#8a5a00'),'',`All financing in/out flows across lenders — drawdowns (positive) and repayments (negative). The rhythm shows whether repayments keep pace with new borrowing.`)}
            </div>
          </div>
        </div>
@@ -2580,7 +2618,10 @@ function realLabels(d,len){const m=d.realMonths||[];if(!m.length)return len?mont
   return out;}
 function baseRev(d){const rs=realSeries(d.realRev,d.realRevF,24,d.revTrend);
   return rs || {data:seededSeries(21,48,d.preoffer/12,d.preoffer/20,d.revTrend==='up'?.2:d.revTrend==='down'?-.25:0), ff:24};}
-function fcSet(id,key,val){FCST[id][key]=val;drawRev(id);}
+function fcSet(id,key,val){FCST[id][key]=val;drawRev(id);drawCost(byId(id));}
+// parse a "-5%" style input into a fraction, store it, and recompute the affected charts
+function fcPct(id,key,v){FCST[id][key]=(parseFloat(String(v).replace('%',''))||0)/100;drawRev(id);drawCost(byId(id));
+  toast('Assumption applied — forecast recomputed');}
 function srcChips(id){const s=FCST[id].sources;
   return Object.keys(s).map(k=>`<button class="srcchip ${s[k]?'on':''}" onclick="toggleSrc('${id}','${k}')">${s[k]?'✓ ':'+ '}${k}</button>`).join('');}
 function toggleSrc(id,k){FCST[id].sources[k]=!FCST[id].sources[k];
@@ -2595,13 +2636,14 @@ function drawRev(id){const d=byId(id),f=FCST[id];
     if(i<ff) return v;                        // real actuals — never distorted
     let x = f.scen==='opt'?v*(1+.01*(i-ff)):f.scen==='pess'?v*(1-.02*(i-ff)):v;
     x = x*(1-dk)+fmean*dk;                    // seasonality dampening → toward forecast mean
-    return x*(0.55+0.45*incl);               // excluded sources reduce forecast weight
+    return x*(0.55+0.45*incl)*(1+(f.mo||0)); // excluded sources + MO adjustment haircut on the forecast
   });
   const _rspec=C(adj,'bars','var(--brand-600)',ff);_rspec.labels=realLabels(d,adj.length);
   document.getElementById('revchart').innerHTML=axedChart(_rspec,640,230,true);
   const lab=document.getElementById('revscenlab');
-  if(lab)lab.textContent=`${f.basis==='cash'?'Cash basis':'E-commerce basis'} · ${({base:'baseline',opt:'optimistic',pess:'pessimistic'})[f.scen]} · dampening k=${f.damp}`;}
-function drawCost(d){const c=seededSeries(31,48,d.preoffer/12*.66,d.preoffer/26,0);
+  if(lab)lab.textContent=`${f.basis==='cash'?'Cash basis':'E-commerce basis'} · ${({base:'baseline',opt:'optimistic',pess:'pessimistic'})[f.scen]} · dampening k=${f.damp} · MO ${Math.round((f.mo||0)*100)}%`;}
+function drawCost(d){const f=FCST[d.id]||{};const adj=1+0.85*(f.varAdj||0)+0.15*(f.fixAdj||0);
+  const c=seededSeries(31,48,d.preoffer/12*.66,d.preoffer/26,0).map((v,i)=>i>=24?v*adj:v); // cost adjustments hit the forecast tail
   document.getElementById('costchart').innerHTML=axedChart(C(c,'bars','#d9a441',24),640,210,true);}
 function fcChart(adj){
   const w=560,h=150,n=adj.length,mx=Math.max(...adj)*1.12||1,bw=w/n*.62,gap=w/n;
@@ -2624,24 +2666,49 @@ function debtRows(d){return debtLoans(d).map((l,i)=>`<tr id="dl${i}"><td>${l[0]}
    <td class="num mono">${money0(l[2])}</td><td class="num mono">${money0(l[3])}</td>
    <td><span class="chip c-neutral" id="dls${i}">Included</span></td>
    <td style="white-space:nowrap"><button class="btn btn-outline btn-sm" onclick="toggleExclude(${i})">Exclude</button>
-     <button class="btn btn-outline btn-sm" onclick="alert('Refinance — folds this facility into the new offer (flow in polish pass)')">Refinance</button>
+     <button class="btn btn-outline btn-sm" onclick="openRefinance('${d.id}',${i})">Refinance</button>
      <button class="btn btn-outline btn-sm" onclick="openSchedule('${d.id}',${i})">Edit schedule</button></td></tr>`).join('');}
 function toggleExclude(i){const c=document.getElementById('dls'+i),on=c.textContent==='Included';
   c.textContent=on?'Excluded':'Included';c.className='chip '+(on?'c-error':'c-neutral');
   document.getElementById('dl'+i).style.opacity=on?'.5':'1';}
+// Refinance — fold a facility's outstanding balance into the new Uncapped offer (one consolidated repayment stream)
+function openRefinance(id,i){const d=byId(id),l=debtLoans(d)[i],newA=d.maxAmount||0,cons=newA+l[2];
+  openOverlay(`<div class="modal" style="max-width:520px"><div class="mh"><h3>Refinance — ${l[0]}</h3><div class="x" onclick="closeOverlay()">✕</div></div>
+   <div class="mb"><p class="muted small" style="margin:0 0 14px">Fold this facility's outstanding balance into the new Uncapped offer — one consolidated facility with a single repayment stream, replacing the external lender.</p>
+     <div class="pub-sum"><span class="muted small">Consolidation</span>
+       <div class="ref-rows">
+         <div class="ref-r"><span>${l[0]} outstanding</span><b>${money0(l[2])}</b></div>
+         <div class="ref-r"><span>New Uncapped advance</span><b>${money0(newA)}</b></div>
+         <div class="ref-r tot"><span>Consolidated facility</span><b>${money0(cons)}</b></div>
+       </div></div>
+     <label class="pub-lbl" for="refNote">Note <span class="muted" style="text-transform:none;font-weight:500">(optional)</span></label>
+     <textarea id="refNote" class="editcell" style="width:100%;min-height:62px;text-align:left" placeholder="Any conditions on the refinance…"></textarea>
+     <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-outline btn-sm" onclick="closeOverlay()">Cancel</button>
+       <button class="btn btn-primary btn-sm" onclick="applyRefinance('${id}',${i})">Refinance into new offer</button></div>
+   </div></div>`);}
+function applyRefinance(id,i){const d=byId(id),l=debtLoans(d)[i],t=document.getElementById('refNote'),v=((t||{}).value||'').trim();
+  const c=document.getElementById('dls'+i); if(c){c.textContent='Refinanced';c.className='chip c-info';}
+  const row=document.getElementById('dl'+i); if(row)row.style.opacity='.6';
+  (NOTES[id]=NOTES[id]||[]).push({name:'Meridian Capital',initials:'MC',time:nowStamp(),stepId:'forecast',tag:'Refinance',tx:`${l[0]} (${money0(l[2])}) refinanced into the new offer${v?' — '+v:''}`});
+  closeOverlay();toast(`${l[0]} folded into the new facility`);}
 
 /* modals */
 function openOverlay(html){const o=document.createElement('div');o.className='overlay';o.id='ovl';o.innerHTML=html;
   o.onclick=e=>{if(e.target===o)closeOverlay();};document.body.appendChild(o);}
 function closeOverlay(){const o=document.getElementById('ovl');if(o)o.remove();}
-function openSchedule(id,i){const l=debtLoans(byId(id))[i]; const out=Math.round(l[3]);
-  // history = actuals (inflow/outflow), forecast = editable (inflow/outflow), per provider
-  const hist=[['Apr ’26',0,-out],['May ’26',0,-out],['Jun ’26',out*4,-out]];
+function openSchedule(id,i){const d=byId(id),l=debtLoans(d)[i]; const out=Math.round(l[3]);
+  // Ravi's "outflow stopped" tell — a repayment stream that goes to £0 means the facility was repaid OR defaulted; flag it for the first facility of high-risk deals
+  const stopped=(d.rating==='F'||d.at_risk>0)&&i===0;
+  const hist = stopped
+    ? [['Apr ’26',0,-out],['May ’26',0,-out],['Jun ’26',0,0]]
+    : [['Apr ’26',0,-out],['May ’26',0,-out],['Jun ’26',out*4,-out]];
   const fmonths=['Jul ’26','Aug ’26','Sep ’26','Oct ’26','Nov ’26','Dec ’26'];
-  const histRows=hist.map(h=>`<tr><td>${h[0]}</td><td class="num">${h[1]?money0(h[1]):'£0'} / ${money0(h[2])}</td></tr>`).join('');
+  const histRows=hist.map((h,k)=>{const stop=stopped&&k===hist.length-1;
+    return `<tr class="${stop?'sch-stop':''}"><td>${h[0]}</td><td class="num">${h[1]?money0(h[1]):'£0'} / ${h[2]?money0(h[2]):'£0'}${stop?' <span class="stop-tag">outflow stopped</span>':''}</td></tr>`;}).join('');
   const fRows=fmonths.map(m=>`<tr><td>${m}</td><td class="num"><input class="editcell mini2" value="0" onchange="this.classList.add('chg')"> / <input class="editcell mini2" value="${-out}" onchange="this.classList.add('chg')"></td></tr>`).join('');
+  const warn = stopped? `<div class="sch-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;flex:0 0 15px"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><span><b>Repayment outflow stopped after May.</b> Before trusting the forecast, confirm whether this facility was <b>repaid</b> or has <b>defaulted</b> — a stopped outflow can mask a default.</span></div>` : '';
   openOverlay(`<div class="modal" style="max-width:640px"><div class="mh"><h3>Edit schedule — ${l[0]}</h3><div class="x" onclick="closeOverlay()">✕</div></div>
-   <div class="mb"><p class="muted small" style="margin:0 0 14px">History (actuals) is read-only · edit the forecast inflow / outflow below, per provider. Changed cells turn amber.</p>
+   <div class="mb"><p class="muted small" style="margin:0 0 14px">History (actuals) is read-only · edit the forecast inflow / outflow below, per provider. Changed cells turn amber.</p>${warn}
    <div class="sched2">
      <div class="schblk"><div class="schbt">History — actuals <span class="muted">read-only</span></div>
        <table class="grid flat"><thead><tr><th>Month</th><th class="num">Inflow / Outflow</th></tr></thead><tbody>${histRows}</tbody></table></div>
@@ -2828,9 +2895,10 @@ function pickDec(b){b.parentNode.querySelectorAll('button').forEach(x=>x.classLi
 function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent='✓ '+msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2600);}
 let GAL={list:[],idx:0};
 function expandChart(id){
-  // scope the gallery to the sibling charts only — a RAG area's own charts (.abody), else the containing card
+  // scope the gallery to the sibling charts only — a RAG area's own charts (.abody), else the containing card.
+  // NB: a minic is itself a .card, so start closest('.card') from the PARENT to avoid matching the chart itself.
   const el=document.querySelector(`#pane .minic[data-cid="${id}"]`);
-  const scope=(el&&(el.closest('.abody')||el.closest('.card')))||document.querySelector('#pane');
+  const scope=(el&&(el.closest('.abody')||(el.parentElement&&el.parentElement.closest('.card'))))||document.querySelector('#pane');
   GAL.list=[...scope.querySelectorAll('.minic')].map(e=>e.dataset.cid).filter(x=>CHARTS[x]);
   if(!GAL.list.length)GAL.list=[id];
   GAL.idx=Math.max(0,GAL.list.indexOf(id));
@@ -2849,8 +2917,9 @@ function galleryRender(){const c=CHARTS[GAL.list[GAL.idx]],m=document.getElement
        <div class="galmain">${axedChart(c,900,410,true)}</div>
        ${multi?`<button class="galnav" ${GAL.idx===GAL.list.length-1?'disabled':''} onclick="galleryNav(1)" title="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>`:''}
      </div>
+     ${(c.forecastFrom!=null&&c.forecastFrom>0)?`<div class="gal-prov"><span class="pv"><span class="pv-swatch solid"></span>Bank-verified actuals</span><span class="pv"><span class="pv-swatch dash"></span>Modelled forecast</span><span class="pv-note">solid = reconciled bank &amp; marketplace data · dashed tail = model projection</span></div>`:''}
      ${c.ai?`<div class="gal-ai"><span class="ais-badge">${AI_STAR}Engine</span><div class="gal-ai-tx"><span class="gal-ai-h">Analysis</span> ${c.ai}</div></div>`:''}
-     ${multi?`<div class="galthumbs">${GAL.list.map((cid,i)=>`<button class="galthumb ${i===GAL.idx?'on':''}" onclick="gallerySet(${i})"><div class="gtlab">${CHARTS[cid].title}</div>${axedChart(CHARTS[cid],240,74,false)}</button>`).join('')}</div>`:''}
+     ${GAL.list.length>1?`<div class="galthumbs-lbl">Related charts in this section</div><div class="galthumbs">${GAL.list.map((cid,i)=>`<button class="galthumb ${i===GAL.idx?'on':''}" onclick="gallerySet(${i})"><div class="gtlab">${CHARTS[cid].title}</div>${axedChart(CHARTS[cid],240,74,false)}</button>`).join('')}</div>`:''}
    </div>`;
 }
 document.addEventListener('keydown',function(e){if(!document.getElementById('chartmodal'))return;
