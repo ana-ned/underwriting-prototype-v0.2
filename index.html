@@ -1028,9 +1028,6 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
     <div class="topbar">
       <div class="crumbs" id="crumbs"></div>
       <div class="spacer"></div>
-      <span class="proto">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
-        Demo prototype</span>
       <div class="usr"><div class="avatar">MC</div><span>Meridian Capital</span></div>
     </div>
     <div class="content" id="content"></div>
@@ -1990,7 +1987,7 @@ function stepSummary(d,step){
   }
   if(step==='rag'){
     const c={g:0,a:0,r:0};d.rag.forEach(x=>c[x[1]]++);const fl=d.rag.filter(x=>x[1]!=='g'),clear=!fl.length;
-    return aiSummaryCard({title:'RAG checks summary', metric:`${c.g} green · ${c.a} amber · ${c.r} red`,
+    return aiSummaryCard({title:'RAG checks summary', metric:`${c.r} red · ${c.a} amber · ${c.g} green`,
       flag:clear?'All areas green':`${fl.length} flagged`, flagCls:clear?'ok':(c.r?'bad':'warn'), flagIcon:clear?AI_CHECK:AI_ALERT,
       body:`Seven risk areas scored red / amber / green from the locked financial data. ${clear?'Every area sits within tolerance – nothing to escalate here.':`The flags cluster around ${fl.slice(0,3).map(x=>x[0].toLowerCase()).join(', ')} – click a row for the backing charts, or override the status with the R/A/G toggle.`}`,
       chips:fl.slice(0,4).map(x=>({tint:x[1]==='r'?'#d9534f':'#e0a400',icon:x[1]==='r'?AI_ALERT:ICON.doc,label:x[0]}))});
@@ -2226,8 +2223,7 @@ function tabBackground(d){
     ? `<div>${linked.map(l=>`<div class="linkrow"><div><div class="lo-n">${l[0]}</div><div class="lo-id mono">${l[1]}</div></div><div class="lo-rel">${l[2]}</div><div class="lo-exp">${expchip(l[3],l[4])}</div></div>`).join('')}</div>`
     : `<div class="bg-clean"><span class="chip c-success"><span class="dot"></span>Clear</span> No linked entities or shared-director exposure on file.</div>`;
   document.getElementById('pane').innerHTML=`
-   ${aiWebFull(d)}
-   ${companySnapshotCard(d, false)}
+   ${companySnapshotCard(d, true)}
    ${creditBackgroundCard(d)}
    <div class="grid2" style="margin-top:14px">
      <div class="card" data-focus="bg-identity"><div class="card-h"><h3>Identity &amp; ownership verification</h3><span class="sub">who they say they are – triangulated</span></div>
@@ -2429,12 +2425,18 @@ function tabRAG(d){
   document.getElementById('pane').innerHTML=`
    ${stepSummary(d,'rag')}
    <div class="ctlbar"><span class="muted small">Precomputed at data-lock · click a row for the backing charts · override any status with the R/A/G toggle</span>
-     <div style="margin-left:auto;display:flex;gap:8px">
-       <span class="chip c-success"><span class="dot"></span>${counts.g} Green</span>
+     <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+       <button class="btn btn-outline btn-sm" id="ragExpandBtn" onclick="toggleAllRag()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-right:5px;vertical-align:-2px"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>Expand all</button>
+       <span class="chip c-error"><span class="dot"></span>${counts.r} Red</span>
        <span class="chip c-warning"><span class="dot"></span>${counts.a} Amber</span>
-       <span class="chip c-error"><span class="dot"></span>${counts.r} Red</span></div></div>
+       <span class="chip c-success"><span class="dot"></span>${counts.g} Green</span></div></div>
    <div class="acc">${d.rag.map((x,i)=>ragRow(d,x,i)).join('')}</div>`;
 }
+// Morgan's "expand all" – open every RAG backing-chart row at once (toggles to "Collapse all")
+function toggleAllRag(){const rows=[...document.querySelectorAll('.acc .arow')];if(!rows.length)return;
+  const expand=rows.some(r=>!r.classList.contains('open'));
+  rows.forEach(r=>r.classList.toggle('open',expand));
+  const b=document.getElementById('ragExpandBtn');if(b)b.innerHTML=(expand?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-right:5px;vertical-align:-2px"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>Collapse all':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-right:5px;vertical-align:-2px"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>Expand all');}
 function ragRow(d,x,i){
   const [name,st,detail]=x;
   return `<div class="arow ${st}" id="ar${i}" data-focus="${name}">
