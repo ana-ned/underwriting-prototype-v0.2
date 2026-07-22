@@ -1510,7 +1510,9 @@ function axedChart(spec,w,h,full){
   for(let t=0;t<=nT;t++){const val=mn+t*sc.step,yy=Y(val).toFixed(1);
     grid+=`<line x1="${padL}" y1="${yy}" x2="${w-padR}" y2="${yy}" stroke="var(--line2)" stroke-dasharray="2 5"/><text x="${padL-8}" y="${(Y(val)+3).toFixed(1)}" text-anchor="end" font-size="${full?11:9}" fill="var(--text-3)" font-weight="500">${pfmt(val)}</text>`;}
   const labs=(spec.labels&&spec.labels.length===n)?spec.labels:monthSeq(n),step=Math.max(1,Math.ceil(n/Math.max(3,Math.round(w/(full?80:110))))); let xl='';
-  labs.forEach((L,i)=>{if(i%step===0){const anc=i===0?'start':(i>=n-1?'end':'middle');xl+=`<text x="${X(i).toFixed(1)}" y="${(h-padB+(full?15:11)).toFixed(1)}" text-anchor="${anc}" font-size="${full?10:8}" fill="var(--text-3)">${L}</text>`;}});
+  const isBars=type==='bars';
+  const Xlab=i=>isBars?(padL+i*(iw/n)+(iw/n)/2):X(i); // bar labels centred under each bar
+  labs.forEach((L,i)=>{if(i%step===0){const anc=isBars?'middle':(i===0?'start':(i>=n-1?'end':'middle'));xl+=`<text x="${Xlab(i).toFixed(1)}" y="${(h-padB+(full?15:11)).toFixed(1)}" text-anchor="${anc}" font-size="${full?10:8}" fill="var(--text-3)">${L}</text>`;}});
   const zero= mn<0?`<line x1="${padL}" y1="${Y(0).toFixed(1)}" x2="${w-padR}" y2="${Y(0).toFixed(1)}" stroke="var(--border)"/>`:'';
   const defs=`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity="0.20"/><stop offset="1" stop-color="${color}" stop-opacity="0.01"/></linearGradient></defs>`;
   let s='';
