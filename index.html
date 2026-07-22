@@ -1299,8 +1299,9 @@ function cRunwayChart(id){const D=CD(id),d=byId(id);if(!D||!D.model)return null;
     {name:'Liquidity',data:liq,color:'#111'}],forecastFrom:ff,legend:true,labels:cdLabels(M)};}
 // 2. Bank balance history – end-of-month balance line (Model bank balance actual→forecast)
 function cBankHistory(id){const D=CD(id);if(!D||!D.model)return null;const ff=ffOf(D);
-  const bal=D.months.map((m,i)=> i<ff?D.model.bankBalance[i]:D.model.bankBalanceForecast[i]);
-  return {lines:[{name:'End-of-month balance',data:bal,color:'#111',dashed:true,dots:true,fill:'#128081',fillOp:0.12}],forecastFrom:ff,legend:false,labels:cdLabels(D.months)};}
+  // Actuals only – no forecast (Ravi: bank balance history should not project forward). Trim to actual months.
+  const bal=D.model.bankBalance.slice(0,ff);
+  return {lines:[{name:'End-of-month balance',data:bal,color:'#111',dashed:true,dots:true,fill:'#128081',fillOp:0.12}],legend:false,labels:cdLabels(D.months.slice(0,ff))};}
 // 3. Revenue forecast – stacked Revenue / Other revenue / Regular inflows, actual then forecast (lighter)
 function cRevForecastStack(id){const D=CD(id);if(!D||!D.model)return null;const M=D.model,mo=D.months,ff=ffOf(D);
   const A=(arr,act)=>mo.map((m,i)=> (act?i<ff:i>=ff)?((arr&&arr[i])||0):0);
@@ -1315,15 +1316,21 @@ function cRevForecastStack(id){const D=CD(id);if(!D||!D.model)return null;const 
   if(!series.length)return null;
   return {series,legend:true,labels:cdLabels(mo)};}
 // 4. Inventory valuation – stacked bands + total line, actuals only (real Fee-Discounted total; bands modelled)
-function cInventoryChart(id){const D=CD(id);if(!D||!D.model)return null;const M=D.model,mo=D.months,ff=ffOf(D);
-  const inv=mo.map((m,i)=> i<ff?(M.feeInventory[i]||0):null);
-  const band=f=>inv.map(v=>v==null?0:Math.round(v*f));
+function cInventoryChart(id){const D=CD(id);if(!D||!D.model)return null;const M=D.model,mo=D.months;
+  const fi=M.feeInventory||[];
+  // Trim to the months that actually carry inventory data – so the bars stretch across the full
+  // width with no trailing white space (Ravi: "should just stop after the last one").
+  let lo=fi.findIndex(v=>typeof v==='number'&&v); let hi=fi.length-1; while(hi>=0&&!(typeof fi[hi]==='number'&&fi[hi]))hi--;
+  if(lo<0||hi<lo)return null;
+  const monthsT=mo.slice(lo,hi+1);
+  const inv=monthsT.map((m,k)=>{const v=fi[lo+k];return typeof v==='number'?Math.round(v):0;});
+  const band=f=>inv.map(v=>Math.round(v*f));
   return {series:[
     {name:'FBA',data:band(.55),color:'#2f7a3d'},
     {name:'Inbound',data:band(.22),color:'#8fce8f'},
     {name:'In transit',data:band(.14),color:'#e6a13a'},
     {name:'Reserved',data:band(.09),color:'#d9534f'}],
-    lines:[{name:'Total valuation',data:inv,color:'#111',dots:true}],legend:true,labels:cdLabels(mo)};}
+    lines:[{name:'Total valuation',data:inv,color:'#111',dots:true}],legend:true,labels:cdLabels(monthsT)};}
 // 5. Debt recycling – cumulative debt cashflows (red area, ±) + T3M revenue (dots), actual→forecast
 function cDebtRecycling(id){const D=CD(id);if(!D||!D.model)return null;const M=D.model,mo=D.months,ff=ffOf(D);
   const has=a=>(M[a]||[]).some(v=>v);
@@ -1354,9 +1361,9 @@ function cLenderExposure(id,stack){const D=CD(id);if(!D||!D.debtByProvider||!D.d
   keep=keep.slice(0,6);
   const extCols=['#e0a41e','#3f7fd6','#5aa469','#9b6cff','#e0473f']; let ei=0; // teal reserved for Uncapped
   const series=keep.map(s=>({name:s.name,data:s.data,color:s.name==='Uncapped'?'#128081':extCols[(ei++)%extCols.length]}));
-  // RAG → cumulative stacked (Ravi); Overview → overlapping transparent (the approved style)
-  return stack?{series,stackFill:true,legend:true,labels:cdLabels(allm)}
-             :{series,stackArea:true,legend:true,labels:cdLabels(allm)};}
+  // Cumulative STACKED AREA (same on Overview + RAG): each lender stacks on top of the one below –
+  // red sits above blue, no overlapping/mixing gradients (Ravi's "stacking on top of each other").
+  return {series,stackFill:true,legend:true,labels:cdLabels(allm)};}
 // Runrate comparison – this-year vs last-year T3M revenue runrate (real Model revenue)
 function cRunrateCompare(id){const D=CD(id);if(!D||!D.model)return null;const M=D.model,mo=D.months,ff=ffOf(D);
   const rev=mo.map((m,i)=> i<ff?M.revenueActual[i]:M.revenueForecast[i]);
@@ -1421,17 +1428,22 @@ function cNetAssets(id){const D=CD(id);if(!D)return null;
   ].filter(s=>s.data.some(v=>v));
   if(!series.length)return null;
   return {series,lines:[{name:'Net assets',data:net,color:'#111',dots:true}],legend:true,labels:cdLabels(allm)};}
-// Where money goes – total monthly outflows (variable + fixed + tax costs), actual→forecast
+// Where money goes – total monthly outflows (variable + fixed + tax costs), actuals only (no forecast)
 function cWhereMoney(id){const D=CD(id);if(!D||!D.model)return null;const M=D.model,mo=D.months,ff=ffOf(D);
   const g=(a,i)=>(a&&typeof a[i]==='number')?a[i]:0;
-  const out=mo.map((m,i)=>{const v=i<ff?g(M.variableCosts,i):g(M.variableForecast,i), f=i<ff?g(M.fixedCosts,i):g(M.fixedForecast,i), t=g(M.taxes,i);
-    return Math.round(Math.abs(v)+Math.abs(f)+Math.abs(t));});
-  if(!out.some((v,i)=>i<ff&&v))return null;
-  return {data:out,type:'bars',color:'#3f7fd6',forecastFrom:ff,labels:cdLabels(mo)};}
+  // Actuals only – no forecast (Ravi). Trim to the actual months so bars stretch across, no white space.
+  const monthsT=mo.slice(0,ff);
+  const out=monthsT.map((m,i)=>Math.round(Math.abs(g(M.variableCosts,i))+Math.abs(g(M.fixedCosts,i))+Math.abs(g(M.taxes,i))));
+  if(!out.some(v=>v))return null;
+  // Label the series by the bank account the outflows run through (per demo spec – e.g. "•••083"). Illustrative tail.
+  const acct='•••'+String(100+([...String(id)].reduce((s,c)=>s+c.charCodeAt(0),0))%900);
+  return {series:[{name:acct,data:out,color:'#3f7fd6'}],legend:true,labels:cdLabels(monthsT)};}
 // Bank data – days of history harvested per connected bank (bank names anonymised)
+const BANK_NAMES=['Chase','TD Bank','Bank of America','Wells Fargo','Citi','Capital One'];
 function cBankData(id){const D=CD(id);if(!D||!D.bankHistory||!D.bankHistory.length)return null;
   const bh=D.bankHistory;
-  return {data:bh.map(b=>b.days),type:'bars',color:'#3f7fd6',labels:bh.map(b=>b.name)};}
+  // Y-axis = DAYS of history (not £); label banks by name, not "Bank N" (Ravi).
+  return {data:bh.map(b=>b.days),type:'bars',color:'#3f7fd6',days:true,labels:bh.map((b,i)=>BANK_NAMES[i%BANK_NAMES.length])};}
 // Tax behaviour – Amazon tax / other tax / VAT out / VAT in per month (real Tax Behaviour tab)
 function cTaxBehaviour(id){const D=CD(id);if(!D||!D.taxBehaviour||!D.taxBehaviour.months.length)return null;
   const t=D.taxBehaviour;
@@ -1489,7 +1501,7 @@ function axedChart(spec,w,h,full){
   if(spec.series||spec.lines)return multiChart(spec,w,h,full);
   const data=spec.data||[],type=spec.type||'line',color=spec.color||'var(--brand-600)',ff=(spec.forecastFrom==null?-1:spec.forecastFrom);
   const n=data.length||1; let dmx=Math.max(...data,0),dmn=Math.min(...data,0); if(dmx===dmn)dmx=dmn+1;
-  const pfmt=spec.percent?(v=>(Math.abs(v-Math.round(v))<0.05?Math.round(v):v.toFixed(1))+'%'):fmtK;
+  const pfmt=spec.percent?(v=>(Math.abs(v-Math.round(v))<0.05?Math.round(v):v.toFixed(1))+'%'):spec.days?(v=>Math.round(v)+'d'):fmtK;
   const sc=niceScale(dmn,dmx,full?4:3), mn=sc.min, mx=sc.max;
   const padL=48,padR=12,padT=10,padB=full?38:22, iw=w-padL-padR, ih=h-padT-padB, gid='gr'+(GRAD++);
   const X=i=> padL+(n>1? i*(iw/(n-1)) : iw/2);
@@ -1520,7 +1532,9 @@ function axedChart(spec,w,h,full){
     if(spec.markers&&spec.markers.length){spec.markers.forEach(mk=>{const px=X(mk[0]),py=Y(mk[1]);s+=`<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${full?3:2}" fill="#111"/>`;});}
     else{const last=pts[pts.length-1]; s+=`<circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="${full?4:2.8}" fill="${color}" stroke="#fff" stroke-width="1.5"/>`;}
   }
-  return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;display:block">${grid}${zero}${s}${xl}</svg>`;
+  const fillS=(spec._fill&&!full)?'width:100%;height:100%;display:block;flex:1;min-height:0':'width:100%;height:auto;display:block';
+  const par=(spec._fill&&!full)?' preserveAspectRatio="none"':'';
+  return `<svg viewBox="0 0 ${w} ${h}" style="${fillS}"${par}>${grid}${zero}${s}${xl}</svg>`;
 }
 function multiChart(spec,w,h,full){
   const series=spec.series||[], lines=spec.lines||[], ff=(spec.forecastFrom==null?-1:spec.forecastFrom), showLeg=false; // legend now rendered as a unified HTML block below the chart
@@ -1558,8 +1572,8 @@ function multiChart(spec,w,h,full){
       s+=`<path d="${lin(top)}" fill="none" stroke="${sr.color}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>`;});
     s='<defs>'+gdefs+'</defs>'+s;
   } else if(spec.stackFill){
-    // Cumulative stacked filled areas — bands stack bottom→top to the total, each a distinct
-    // solid colour (like the demo spec). Smooth top edges; forecast gap shown faded.
+    // Cumulative stacked areas — bands stack bottom→top. Ravi's style: LIGHT transparent fill per
+    // lender + a saturated line along the top edge dividing each area from the one above.
     const lin=pts=>'M'+pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' L');
     const cum=new Array(n).fill(0);
     series.forEach(sr=>{
@@ -1567,7 +1581,8 @@ function multiChart(spec,w,h,full){
       sr.data.forEach((v,i)=>{cum[i]+=(v||0);});
       const hi=cum.map((c,i)=>[X(i),Y(c)]);
       const d=lin(hi)+' L'+lo.slice().reverse().map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' L')+' Z';
-      s+=`<path d="${d}" fill="${sr.color}" opacity="0.9" stroke="${sr.color}" stroke-width="0.6" stroke-linejoin="round"/>`;});
+      s+=`<path d="${d}" fill="${sr.color}" opacity="0.26" stroke="none"/>`;              // light transparent fill
+      s+=`<path d="${lin(hi)}" fill="none" stroke="${sr.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;});  // saturated dividing line on top
   } else if(spec.diverging){
     // bars from the zero baseline: same-sign series STACK (positives up, negatives down)
     const z=Y(Math.max(mn,0)), gap=iw/n, bw=Math.min(gap*.55,20);
@@ -1598,7 +1613,9 @@ function multiChart(spec,w,h,full){
       const sw=isLine?`<line x1="${lx}" y1="${ly-4}" x2="${lx+14}" y2="${ly-4}" stroke="${it.color}" stroke-width="2.5" ${it.dashed?'stroke-dasharray="4 3"':''}/>`:`<rect x="${lx}" y="${ly-9}" width="11" height="9" rx="2" fill="${it.color}"/>`;
       const tx=`<text x="${lx+(isLine?18:15)}" y="${ly}" font-size="10" fill="var(--text-2)">${it.name}</text>`;
       lx+=(isLine?18:15)+it.name.length*5.8+18; return sw+tx;}).join('');}
-  return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;display:block">${grid}${s}${fdiv}${xl}${leg}</svg>`;
+  const fillS=(spec._fill&&!full)?'width:100%;height:100%;display:block;flex:1;min-height:0':'width:100%;height:auto;display:block';
+  const par=(spec._fill&&!full)?' preserveAspectRatio="none"':'';
+  return `<svg viewBox="0 0 ${w} ${h}" style="${fillS}"${par}>${grid}${s}${fdiv}${xl}${leg}</svg>`;
 }
 // Unified legend – one grey box under every expanded chart: series/line swatches + (when present) the
 // actual-vs-forecast convention. Replaces the old in-SVG legend and the separate provenance strip.
@@ -2682,16 +2699,16 @@ function tabOverview(d){
       <div class="card-b trends-grid">
         ${miniChart('Cash runway',cRunwayChart(d.id)||cCash(d.id)||CASH_SPEC,(cRunway(d.id)??d.runway)+' mo runway',
           `Liquidity over time: existing Uncapped balance (dashed blue) drawing down, the proposed new facility (red) drawn then amortised, and total liquidity with (dashed) and without the new facility. The cash the deal rolls up to.`)}
-        ${miniChart('Bank balance history',cBankHistory(d.id)||cCash(d.id)||CASH_SPEC,'end-of-month',
-          `End-of-month bank balance (real, actual → forecast). The trend behind the runway – how the cash buffer has moved and where the model projects it.`)}
+        ${miniChart('Cash balance',cCashDaily(d.id)||cCash(d.id)||CASH_SPEC,'daily · end-of-month dots',
+          `Real daily bank balance (the day-to-day volatility) with black end-of-month markers – the liquidity buffer behind the days-of-cash-cover signal.`)}
         ${miniChart('Revenue forecast',cRevForecastStack(d.id)||cRevenue(d.id)||REV_SPEC,'actual → forecast',
           `Monthly revenue as stacked bars – Revenue + Other revenue + Regular inflows (real actuals, then the model's forecast in lighter shades).`)}
-        ${miniChart('Inventory valuation',cInventoryChart(d.id)||cInventory(d.id)||INV_SPEC,'actuals · no forecast',
+        ${miniChart('Amazon inventory valuation',cInventoryChart(d.id)||cInventory(d.id)||INV_SPEC,'actuals · stacked',
           `Fee-discounted Amazon inventory value per month, stacked by location (FBA, inbound, in transit, reserved). Real actuals only – inventory isn't forecast forward.`)}
-        ${miniChart('Debt recycling',cDebtRecycling(d.id)||emptyChartSpec('No external debt on file'),'',
-          `Cumulative debt cashflows (red, net of drawdowns/repayments – dips below zero as they repay) against T3M revenue (dots). Shows whether they can re-borrow – the recycling signal.`)}
-        ${miniChart('Lender exposure',cLenderExposure(d.id)||emptyChartSpec('No debt facilities on file'),'by lender',
-          `Outstanding balance over time per lender (overlaid, semi-transparent) – our own Uncapped exposure plus each external lender, built from real drawdowns and repayments (actuals only). External lenders are anonymised.`)}
+        ${miniChart('Debt recycling',cDebtRecycling(d.id)||emptyChartSpec('No external debt on file'),'recycling signal',
+          `Cumulative debt cashflows (red, net of drawdowns/repayments) against T3M revenue (dots) – shows whether they can re-borrow.`)}
+        ${miniChart('Uncapped / Marcus',cLenderExposure(d.id)||emptyChartSpec('No debt facilities on file'),'by lender',
+          `Outstanding balance over time per lender (stacked area – each lender sits on top of the one below) – our own Uncapped exposure plus each external lender, built from real drawdowns and repayments (actuals only). External lenders are anonymised.`)}
       </div>
     </div>`;
 }
@@ -2714,10 +2731,14 @@ function debtSpec(d){
   const tail=Array.from({length:18},(_,i)=> i<2? Math.round(peak*(i+1)/2) : Math.max(0,Math.round(peak*(1-(i-2)/16))));
   return C(hist.concat(tail),'line','var(--error)',ff);
 }
-function miniChart(title,spec,tag,ai,w,h){const id='ch'+(chartN++);CHARTS[id]=Object.assign({title:title,ai:ai||''},spec);
-  return `<div class="card minic" data-cid="${id}" style="box-shadow:none;cursor:zoom-in" onclick="expandChart('${id}')" title="click to expand"><div class="card-b" style="padding:11px 12px">
-  <div style="display:flex;justify-content:space-between;align-items:baseline"><div class="lbl">${title}</div>${tag?`<span class="muted small">${tag}</span>`:''}</div>
-  <div class="cbody" style="margin-top:6px">${axedChart(spec,w||460,h||150,false)}</div></div></div>`;}
+function miniChart(title,spec,tag,ai,w,h,fill){const id='ch'+(chartN++);CHARTS[id]=Object.assign({title:title,ai:ai||''},spec);
+  if(fill)spec=Object.assign({},spec,{_fill:true}); // stretch the chart SVG to fill the card height
+  const cardS=fill?'box-shadow:none;cursor:zoom-in;display:flex;flex-direction:column':'box-shadow:none;cursor:zoom-in';
+  const bodyS=fill?'padding:11px 12px;display:flex;flex-direction:column;flex:1;min-height:0':'padding:11px 12px';
+  const cbodyS=fill?'margin-top:6px;flex:1;min-height:0;display:flex':'margin-top:6px';
+  return `<div class="card minic" data-cid="${id}" style="${cardS}" onclick="expandChart('${id}')" title="click to expand"><div class="card-b" style="${bodyS}">
+  <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><div class="lbl" style="min-width:0">${title}</div>${tag?`<span class="muted small" style="white-space:nowrap;flex:0 0 auto">${tag}</span>`:''}</div>
+  <div class="cbody" style="${cbodyS}">${axedChart(spec,w||460,h||150,false)}</div></div></div>`;}
 
 /* ---------- RAG TAB (accordion) ---------- */
 function tabRAG(d){
@@ -2809,8 +2830,8 @@ function ragCharts(d,name,i){
   }
   if(name==='Debt'){
     return G(
-      mc('Lender exposure',cLenderExposure(d.id,true)||emptyChartSpec('No debt facilities on file'),'by lender',`Outstanding balance per lender over time (stacked, actuals only) – our own Uncapped exposure plus each external lender (anonymised).`)+
-      mc('Cumulative debt cashflows vs T3M',cDebtRecycling(d.id)||emptyChartSpec('No external debt on file'),'recycling signal',`Cumulative debt cashflows (red, net of drawdowns/repayments) against T3M revenue (dots) – shows whether they can re-borrow.`)+
+      mc('Uncapped / Marcus',cLenderExposure(d.id)||emptyChartSpec('No debt facilities on file'),'by lender',`Outstanding balance per lender over time (stacked area, actuals only) – our own Uncapped exposure plus each external lender (anonymised).`)+
+      mc('Debt recycling',cDebtRecycling(d.id)||emptyChartSpec('No external debt on file'),'recycling signal',`Cumulative debt cashflows (red, net of drawdowns/repayments) against T3M revenue (dots) – shows whether they can re-borrow.`)+
       mc('Debt transactions & forecast',cDebtTransactions(d.id)||emptyChartSpec('No debt transactions on file'),'drawdowns vs repayments',`Monthly drawdowns (up) and repayments (down) – real actuals then the model's forecast (lighter). A repayment stream dropping to £0 is the "outflow stopped" tell.`));
   }
   if(name==='Assets'){
@@ -2837,14 +2858,14 @@ function ragCharts(d,name,i){
     return G(
       mc('Cash revenue by source',cRevBySource(d.id)||srcSpec2,d.source,`Real cash received by platform per month – confirms the marketplace feeds are landing and reconciled.`)+
       mc('Where money goes',cWhereMoney(d.id)||C(S(i+31,24,P/2,P/8,0),'bars','#3f7fd6'),'monthly outflows',`Total monthly outflows (variable + fixed + tax) – the spend side, confirming the outflow feed is complete.`)+
-      mc('Bank data harvested',cBankData(d.id)||C([600],'bars','#3f7fd6'),'days per bank',`Days of bank history harvested per connected account (banks anonymised) – the depth of history the model can rely on.`));
+      mc('Bank data harvested',cBankData(d.id)||C([600],'bars','#3f7fd6'),'days per bank',`Days of bank history harvested per connected bank account – the depth of history the model can rely on. Bank names are illustrative.`));
   }
   if(name==='Product'){
     const asinBars=Array.from({length:14},(_,k)=>Math.round((P/8)*Math.pow(0.82,k))+2);
     const conc=(CD(d.id)&&CD(d.id).asins)||[];
     // One row: Revenue by ASIN (left) + Top products list (right, 2 columns 3+2, real photos)
     return `<div style="display:grid;grid-template-columns:0.8fr 1.2fr;gap:14px;align-items:stretch">`+
-      mc('Revenue by ASIN',cAsinStacked(d.id)||cAsin(d.id)||C(asinBars,'bars','var(--brand-600)'),'monthly · by listing',`Real monthly revenue stacked by top listing (each colour a listing, rest grouped as Other). ${(conc[0])?'The top listing is '+Math.round(conc[0].pct||0)+'% of revenue – concentration is the key resilience watch-item.':'Concentration across the catalogue is the key watch-item.'}`)+
+      miniChart('Revenue by ASIN',cAsinStacked(d.id)||cAsin(d.id)||C(asinBars,'bars','var(--brand-600)'),'monthly · by listing',`Real monthly revenue stacked by top listing (each colour a listing, rest grouped as Other). ${(conc[0])?'The top listing is '+Math.round(conc[0].pct||0)+'% of revenue – concentration is the key resilience watch-item.':'Concentration across the catalogue is the key watch-item.'}`,460,150,true)+
       `<div class="card minic" style="box-shadow:none"><div class="card-b" style="padding:11px 12px"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px"><div class="lbl">Top products</div><span class="muted small">by revenue</span></div><div class="prod-2col">${topProductRows(d)}</div></div></div>`+
     `</div>`;
   }
@@ -2955,7 +2976,8 @@ const FCST={};
 function cashForecastCard(d){
   const rw=(cRunway(d.id)??d.runway);
   const ok=rw>=6, thin=rw>=3;
-  const spec=cCash(d.id)||C(seededSeries(3,24,(d.preoffer||300000)*.34,(d.preoffer||300000)*.1,d.revTrend==='down'?-.4:-.1),'line','var(--brand-600)');
+  // Same chart as the Overview "Cash runway" (Ravi: exactly the same chart)
+  const spec=cRunwayChart(d.id)||cCash(d.id)||C(seededSeries(3,24,(d.preoffer||300000)*.34,(d.preoffer||300000)*.1,d.revTrend==='down'?-.4:-.1),'line','var(--brand-600)');
   const cur=cCash(d.id)?_nz(cCash(d.id).data).slice(-1)[0]:Math.round((d.preoffer||300000)*.34);
   return `<div class="card fc-out" style="margin-bottom:14px">
     <div class="card-h"><h3>Cash-flow forecast</h3><span class="sub">the output we forecast to – read-only</span>
