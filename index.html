@@ -1370,13 +1370,23 @@ function cCashWaterfall(id){const D=CD(id);if(!D||!D.model)return null;const M=D
   return {waterfall:steps};}
 // Net assets – total assets over time = inventory value + bank cash + Amazon-held balance (real)
 function cNetAssets(id){const D=CD(id);if(!D)return null;
-  const inv=D.inventory||{months:[],value:[]}, bk=D.bank||{months:[],balance:[]}, as=D.assets||{months:[],open:[],deferred:[]};
+  const inv=D.inventory||{months:[],value:[]}, bk=D.bank||{months:[],balance:[]}, as=D.assets||{months:[],open:[],deferred:[]}, lt=D.loanTape||{months:[],outstanding:[]};
   const allm=[...new Set([...(inv.months||[]),...(bk.months||[]),...(as.months||[])])].sort();
   if(!allm.length)return null;
   const at=(o,key,m)=>{const i=(o.months||[]).indexOf(m);return i>=0&&typeof o[key][i]==='number'?o[key][i]:0;};
-  const total=allm.map(m=> at(inv,'value',m)+at(bk,'balance',m)+at(as,'open',m)+at(as,'deferred',m));
-  if(!total.some(v=>v))return null;
-  return {data:total,type:'line',color:'#128081',labels:cdLabels(allm)};}
+  const bank=allm.map(m=>Math.round(at(bk,'balance',m)));
+  const amazon=allm.map(m=>Math.round(at(as,'open',m)+at(as,'deferred',m)));
+  const invV=allm.map(m=>Math.round(at(inv,'value',m)));
+  const debt=allm.map(m=>{const i=(lt.months||[]).indexOf(m);return i>=0&&typeof lt.outstanding[i]==='number'?lt.outstanding[i]:0;});
+  // Net assets = asset components − Uncapped/lender balance (the line sits below the stack by the debt)
+  const net=allm.map((m,i)=>bank[i]+amazon[i]+invV[i]-debt[i]);
+  const series=[
+    {name:'Bank balance',data:bank,color:'#2f7a3d'},
+    {name:'Amazon balance',data:amazon,color:'#e0a41e'},
+    {name:'Fee-discounted inventory',data:invV,color:'#3f7fd6'}
+  ].filter(s=>s.data.some(v=>v));
+  if(!series.length)return null;
+  return {series,lines:[{name:'Net assets',data:net,color:'#111',dots:true}],legend:true,labels:cdLabels(allm)};}
 // Where money goes – total monthly outflows (variable + fixed + tax costs), actual→forecast
 function cWhereMoney(id){const D=CD(id);if(!D||!D.model)return null;const M=D.model,mo=D.months,ff=ffOf(D);
   const g=(a,i)=>(a&&typeof a[i]==='number')?a[i]:0;
@@ -2663,17 +2673,22 @@ function ragRow(d,x,i){
     <div class="abody">${ragCharts(d,name,i)}</div></div>`;
 }
 // Real backing-chart sets per RAG area – mapped from the Amazon Model 2.0 tabs (Model / Debt Summary / Account Status / Inventory / Revenue by Source)
-// Top-3 ASIN thumbnail tiles (placeholder images – real product photos aren't in the anonymised data)
+// Top-3 ASIN thumbnail tiles with dummy product renders (self-contained inline SVG)
+const PRODUCT_IMGS=[
+  // supplement / nutrition tub
+  `<svg viewBox="0 0 100 100" style="width:100%;height:100%"><defs><linearGradient id="pa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f7f6"/><stop offset="1" stop-color="#dde5e2"/></linearGradient></defs><rect width="100" height="100" fill="url(#pa)"/><ellipse cx="50" cy="86" rx="26" ry="5" fill="#000" opacity="0.06"/><rect x="32" y="34" width="36" height="50" rx="5" fill="#1ebdc0"/><rect x="30" y="28" width="40" height="10" rx="4" fill="#149a9c"/><rect x="34" y="48" width="32" height="22" rx="3" fill="#fff" opacity="0.9"/><rect x="38" y="53" width="24" height="4" rx="2" fill="#1ebdc0"/><rect x="40" y="61" width="20" height="3" rx="1.5" fill="#9fb0b3"/></svg>`,
+  // cosmetic pump bottle
+  `<svg viewBox="0 0 100 100" style="width:100%;height:100%"><defs><linearGradient id="pb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7f5f4"/><stop offset="1" stop-color="#e6ddd8"/></linearGradient></defs><rect width="100" height="100" fill="url(#pb)"/><ellipse cx="50" cy="87" rx="20" ry="4" fill="#000" opacity="0.06"/><rect x="46" y="18" width="8" height="12" rx="2" fill="#8a5a44"/><rect x="43" y="28" width="14" height="8" rx="2" fill="#c98b6b"/><rect x="38" y="36" width="24" height="48" rx="6" fill="#e7c9b6"/><rect x="42" y="52" width="16" height="18" rx="2" fill="#fff" opacity="0.85"/><rect x="45" y="58" width="10" height="3" rx="1.5" fill="#c98b6b"/></svg>`,
+  // boxed product / carton
+  `<svg viewBox="0 0 100 100" style="width:100%;height:100%"><defs><linearGradient id="pc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f6f8"/><stop offset="1" stop-color="#dfe3ea"/></linearGradient></defs><rect width="100" height="100" fill="url(#pc)"/><ellipse cx="50" cy="86" rx="28" ry="5" fill="#000" opacity="0.06"/><path d="M30 40 L50 32 L70 40 L70 76 L50 84 L30 76 Z" fill="#3f7fd6"/><path d="M30 40 L50 48 L70 40 L70 76 L50 84 L30 76 Z" fill="#356fbe" opacity="0.55"/><path d="M50 48 L70 40 L70 76 L50 84 Z" fill="#2b5a9c" opacity="0.5"/><rect x="37" y="52" width="18" height="4" rx="2" fill="#fff" opacity="0.85"/><rect x="37" y="60" width="12" height="3" rx="1.5" fill="#fff" opacity="0.55"/></svg>`];
 function asinThumbs(d){
   const D=CD(d.id), asins=(D&&D.asins)||[];
   if(!asins.length)return `<div class="card minic" style="box-shadow:none"><div class="card-b" style="padding:11px 12px"><div class="lbl">Top 3 products</div>${emptyChartSvg('No ASIN data on file',460,120)}</div></div>`;
   const top=asins.slice(0,3);
-  const box=`<div style="aspect-ratio:1;background:linear-gradient(135deg,#eef1f0,#dfe6e3);border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:6px"><svg viewBox="0 0 24 24" fill="none" stroke="#9fb0b3" stroke-width="1.5" style="width:24px;height:24px"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg></div>`;
-  const tiles=top.map(a=>`<div style="flex:1;min-width:0;text-align:center">${box}<div class="mono" style="font-weight:700;font-size:11px">${a.sku}</div><div class="muted" style="font-size:10px">${money0(a.revenue)}${a.pct!=null?' · '+a.pct+'%':''}</div></div>`).join('');
+  const tiles=top.map((a,k)=>`<div style="flex:1;min-width:0;text-align:center"><div style="aspect-ratio:1;border-radius:8px;overflow:hidden;margin-bottom:6px;border:1px solid var(--line2)">${PRODUCT_IMGS[k%PRODUCT_IMGS.length]}</div><div class="mono" style="font-weight:700;font-size:11px">${a.sku}</div><div class="muted" style="font-size:10px">${money0(a.revenue)}${a.pct!=null?' · '+a.pct+'%':''}</div></div>`).join('');
   return `<div class="card minic" style="box-shadow:none"><div class="card-b" style="padding:11px 12px">
     <div style="display:flex;justify-content:space-between;align-items:baseline"><div class="lbl">Top 3 products</div><span class="muted small">by revenue</span></div>
-    <div style="display:flex;gap:10px;margin-top:10px">${tiles}</div>
-    <div class="muted" style="font-size:10px;margin-top:8px">Product images unavailable in anonymised data – placeholders shown.</div></div></div>`;
+    <div style="display:flex;gap:10px;margin-top:10px">${tiles}</div></div></div>`;
 }
 function ragCharts(d,name,i){
   const P=d.preoffer||300000, up=d.revTrend==='up', down=d.revTrend==='down';
@@ -2708,7 +2723,7 @@ function ragCharts(d,name,i){
     const invVal=S(i+2,42,P/9,P/24,down?-.15:.06).map((v,k)=>v*(1+0.24*Math.sin(k/12*6.283+1.1)));
     const coverFallback=C(Array.from({length:12},(_,k)=>+(Math.max(.5,cover*(0.8+0.4*Math.sin(k/3)))).toFixed(1)),'bars','#128081');
     return G(
-      mc('Net assets',cNetAssets(d.id)||cCash(d.id)||C(S(i+7,24,P*.5,P*.1,down?-.3:.05),'line','#128081'),'inventory + cash + Amazon',`Total assets over time – fee-discounted inventory value + bank cash + Amazon-held balance. The headline asset base behind the deal.`)+
+      mc('Net assets',cNetAssets(d.id)||cCash(d.id)||C(S(i+7,24,P*.5,P*.1,down?-.3:.05),'line','#128081'),'components + net line',`Asset base broken into its parts – bank balance, Amazon-held balance and fee-discounted inventory (stacked), with the Net assets line (net of the Uncapped/lender balance) on top.`)+
       mc('Inventory valuation',cInventory(d.id)||C(invVal,'bars','#128081'),'actuals · no forecast',`Fee-discounted inventory value per month (real actuals). No forward forecast – inventory isn't projected.`)+
       mc('Amazon reserve',cAssets(d.id)||coverFallback,'payout liquidity',`Amazon-held balance – Open (available now) and Deferred (pending / reserved). The real payout liquidity sitting inside Amazon.`));
   }
