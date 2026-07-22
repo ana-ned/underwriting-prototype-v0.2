@@ -2150,10 +2150,14 @@ function glanceTiles(d){
   const rr=(d.realRev||[]).filter(x=>typeof x==='number');
   const rev12 = rr.length? rr.slice(-12).reduce((s,x)=>s+x,0) : d.preoffer*5;
   const rev3  = rr.length? rr.slice(-3).reduce((s,x)=>s+x,0)  : Math.round(rev12/4);
-  const cash=Math.round(rr.length? rev12*0.06 : d.preoffer*0.34);
-  const inv=Math.round(rr.length? rev12*0.14 : d.preoffer*0.72);
-  const debt=(d.debt_total!=null)? d.debt_total : debtLoans(d).reduce((s,l)=>s+l[2],0);
-  const nf=(d.debt_count!=null)? d.debt_count : debtLoans(d).length;
+  // Tiles read from the SAME real data as the charts (not % -of-revenue proxies), so they never contradict.
+  const _cc=cCash(d.id); const cash=_cc?Math.round(_nz(_cc.data).slice(-1)[0]||0):Math.round(rr.length? rev12*0.06 : d.preoffer*0.34);
+  const _D=CD(d.id), _fi=_D&&_D.model&&_nz(_D.model.feeInventory);
+  const inv=(_fi&&_fi.length)?Math.round(_fi[_fi.length-1]):Math.round(rr.length? rev12*0.14 : d.preoffer*0.72);
+  // Current debt outstanding + active facilities from debtByProvider (same source as the lender-exposure chart)
+  let debt,nf; const _dp=(_D&&_D.debtByProvider)||[];
+  if(_dp.length){let cur=0,act=0;_dp.forEach(p=>{let b=0;for(let i=0;i<p.months.length;i++)b+=(p.actualIn[i]||0)+(p.actualOut[i]||0);const c=Math.max(0,Math.round(b));cur+=c;if(c>5000)act++;});debt=cur;nf=act;}
+  else {debt=(d.debt_total!=null)?d.debt_total:debtLoans(d).reduce((s,l)=>s+l[2],0); nf=(d.debt_count!=null)?d.debt_count:debtLoans(d).length;}
   const invCap=d.inv_cover? (d.inv_cover+' months of cover') : (d.source==='Amazon'?'62 days of cover':'–');
   const score={A:88,B:74,C:58,D:46,E:34,F:22}[d.rating]||60, up=d.revTrend==='up', down=d.revTrend==='down';
   // one simple mini bar-chart – bars ascend for positive, descend for negative; colour follows status
