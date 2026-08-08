@@ -453,6 +453,18 @@ table.txgrid tbody tr.flagged:hover td{background:#fff4e0}
 .pub-sum{background:var(--grey-1);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:16px}
 .pub-sum-v{font-weight:700;font-size:15px;margin-top:6px;display:flex;align-items:center;gap:9px}
 .pub-lbl{display:block;font-size:12px;font-weight:700;color:var(--text-2);margin-bottom:6px}
+/* RAG review-gate popup */
+.rr-intro{font-size:12.5px;color:var(--text-2);margin:0 0 12px;padding:9px 12px;background:var(--grey-1,#f5f6f8);border-radius:8px}
+.rr-list{display:flex;flex-direction:column;gap:10px;max-height:52vh;overflow:auto}
+.rr-row{border:1px solid var(--divider,#e7e9ee);border-radius:10px;padding:10px 12px}
+.rr-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.rr-name{font-weight:700;font-size:13.5px}
+.rr-chg{display:inline-flex;align-items:center;gap:6px}
+.rr-clear{font-size:12px;color:var(--text-3);margin-top:4px}
+.rr-note-ro{font-size:12.5px;color:var(--text-2);margin-top:8px;border-left:3px solid var(--brand-500,#1ebdc0);padding:2px 0 2px 9px}
+.rr-note-lbl{font-weight:700;color:var(--text-3);font-size:11px;text-transform:uppercase;letter-spacing:.03em;margin-right:4px}
+.rr-in{width:100%;min-height:60px;margin-top:8px;border:1px solid var(--divider,#e7e9ee);border-radius:8px;padding:8px 10px;font:inherit;font-size:13px;resize:vertical}
+.rr-count{margin-right:auto}
 .pub-lbl .req{color:var(--error);font-weight:700;text-transform:uppercase;font-size:10px;letter-spacing:.04em;margin-left:5px}
 .pub-err{color:var(--error);font-size:12.5px;font-weight:600;margin-top:9px}
 .ovr-tag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#7c5cff;background:#f2eefc;border:1px solid #E7DFFF;border-radius:4px;padding:1px 6px;margin-left:7px;vertical-align:middle}
@@ -505,6 +517,8 @@ table.txgrid tbody tr.flagged:hover td{background:#fff4e0}
 .snum.clean svg{width:16px;height:16px}
 .snum.red{background:var(--error-bg);color:var(--error)} /* light red bg, bright red font */
 .snum.done{background:var(--brand-600);color:#fff}
+.snum.view{background:transparent;color:var(--brand-600)} /* overview = read-only landing, home icon */
+.snum.view svg{width:15px;height:15px}
 /* review-progress ring in the verdict bar */
 .prog-val{display:flex;align-items:center;gap:8px}
 .pring{flex:0 0 20px}
@@ -2050,7 +2064,7 @@ function renderDeal(id,step){
       </div>
     </div>`;
   (STEPS.find(s=>s.id===step).fn)(d);
-  document.getElementById('pane').insertAdjacentHTML('beforeend', step==='decision'?decisionBar(d):confirmBar(d,step));
+  document.getElementById('pane').insertAdjacentHTML('beforeend', step==='decision'?decisionBar(d):(step==='overview'?overviewBar(d):confirmBar(d,step)));
   initNoteDrag();
   if(NOTE_OPEN)openNoteWin();
   if(!FOCUS)window.scrollTo(0,0);   // land at the top of each step (focus jumps override below)
@@ -2072,12 +2086,15 @@ function logoSvg(d){
     `<path d="M50 22 L80 44 L80 77 Q80 80 77 80 L23 80 Q20 80 20 77 L20 44 Z" fill="#fff"/>`+
     `<text x="50" y="70" font-family="Inter,Arial,sans-serif" font-size="32" font-weight="800" fill="${col}" text-anchor="middle">${d.org[0]}</text></svg>`;
 }
+const HOME_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>';
 function renderSpine(d,current){const F=stepFlags(d);
   return `<nav class="spine" id="spine">${STEPS.map((s,idx)=>{
     const f=F[s.id]||{n:0}, cur=s.id===current, done=stepDone(d,s.id);
-    // circle = problem count in red when there are issues · plain grey circle when clean · teal ✓ once reviewed. No lines.
-    const cls=done?'done':(f.n>0?'red':'clean');
-    const inner=done?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>':(f.n>0?f.n:DOT_RING);
+    // Overview is a read-only landing view, not a reviewable step → home icon, no ring/tick.
+    // Other steps: problem count in red when issues · grey ring when clean · teal ✓ once reviewed.
+    const isOverview=s.id==='overview';
+    const cls=isOverview?'view':(done?'done':(f.n>0?'red':'clean'));
+    const inner=isOverview?HOME_ICON:(done?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>':(f.n>0?f.n:DOT_RING));
     const step=`<button class="sstep ${cur?'cur':''}" onclick="go('#/deal/${d.id}/${s.id}')">
       <span class="snum ${cls}">${inner}</span>
       <span class="slabel">${s.t}</span></button>`;
@@ -2086,16 +2103,24 @@ function renderSpine(d,current){const F=stepFlags(d);
 }
 const CONFIRMED={};
 function stepDone(d,stepId){return !!(CONFIRMED[d.id]&&CONFIRMED[d.id][stepId]);}
-function confirmedCount(d){return STEPS.filter(s=>stepDone(d,s.id)).length;}
+// Overview is a read-only landing view, not a reviewable step – exclude it from progress.
+const REVIEW_STEPS=STEPS.filter(s=>s.id!=='overview');
+function confirmedCount(d){return REVIEW_STEPS.filter(s=>stepDone(d,s.id)).length;}
 function progRing(pct){const r=8,c=2*Math.PI*r,off=c*(1-pct/100);
   return `<svg class="pring" viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="8" fill="none" stroke="#cdd6d9" stroke-width="2.2"/><circle cx="10" cy="10" r="8" fill="none" stroke="var(--brand-600)" stroke-width="2.2" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 10 10)" stroke-linecap="round"/></svg>`;}
-function progressCellInner(d){const done=confirmedCount(d),total=STEPS.length,pct=Math.round(done/total*100);
+function progressCellInner(d){const done=confirmedCount(d),total=REVIEW_STEPS.length,pct=Math.round(done/total*100);
   return `<span class="lbl">Review progress</span><span class="val prog-val">${progRing(pct)}<span>${done}/${total} steps</span></span>`;}
+// Overview keeps the bottom bar for consistency, but it's a "start review" CTA (no review to mark – it's read-only).
+function overviewBar(d){const next=REVIEW_STEPS[0];
+  return `<div class="confirm-bar" id="confirmbar"><span class="cb-msg">Read the overview?<span class="cb-sub"> – start the guided review, step by step.</span></span><div class="cb-act"><button class="btn btn-primary btn-sm" onclick="go('#/deal/${d.id}/${next.id}')">Start review<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;margin-left:6px;vertical-align:-2px"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div></div>`;}
 function confirmBar(d,step){const done=stepDone(d,step);
   return `<div class="confirm-bar ${done?'done':''}" id="confirmbar">${done
     ?`<span class="cb-done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>You reviewed this step</span><div class="cb-act"><button class="btn btn-outline btn-sm" onclick="confirmStep('${d.id}')">Undo</button></div>`
     :`<span class="cb-msg">Reviewed everything on this step?<span class="cb-sub"> – confirm to mark it done and move your progress forward.</span></span><div class="cb-act"><button class="btn btn-primary btn-sm" onclick="confirmStep('${d.id}')">Mark as reviewed</button></div>`}</div>`;}
-function confirmStep(id){const d=byId(id),st=CUR.step;CONFIRMED[id]=CONFIRMED[id]||{};CONFIRMED[id][st]=!CONFIRMED[id][st];
+function confirmStep(id){const d=byId(id),st=CUR.step;
+  // RAG review gate: marking reviewed requires a note on every flagged item first
+  if(st==='rag' && !stepDone(d,st)){ return openRagReview(d); }
+  CONFIRMED[id]=CONFIRMED[id]||{};CONFIRMED[id][st]=!CONFIRMED[id][st];
   if(CONFIRMED[id][st]){ // just marked reviewed → advance to the next step
     const idx=STEPS.findIndex(s=>s.id===st);
     if(idx>=0 && idx<STEPS.length-1){ toast('Reviewed – moving to '+STEPS[idx+1].t); go('#/deal/'+id+'/'+STEPS[idx+1].id); return; }
@@ -2104,6 +2129,13 @@ function confirmStep(id){const d=byId(id),st=CUR.step;CONFIRMED[id]=CONFIRMED[id
   const pc=document.getElementById('progcell');if(pc)pc.innerHTML=progressCellInner(d);
   const cb=document.getElementById('confirmbar');if(cb)cb.outerHTML=confirmBar(d,st);
   toast(CONFIRMED[id][st]?'Step marked as reviewed':'Marked not reviewed');}
+// mark a step reviewed + advance (used by the RAG review popup after notes are captured)
+function commitStepReviewed(id,st){const d=byId(id);CONFIRMED[id]=CONFIRMED[id]||{};CONFIRMED[id][st]=true;
+  const idx=STEPS.findIndex(s=>s.id===st);
+  if(idx>=0 && idx<STEPS.length-1){ toast('Reviewed – moving to '+STEPS[idx+1].t); go('#/deal/'+id+'/'+STEPS[idx+1].id); return; }
+  const sp=document.getElementById('spine');if(sp)sp.outerHTML=renderSpine(d,st);
+  const pc=document.getElementById('progcell');if(pc)pc.innerHTML=progressCellInner(d);
+  const cb=document.getElementById('confirmbar');if(cb)cb.outerHTML=confirmBar(d,st);}
 function railTab(k){CUR.rail=k;
   document.querySelectorAll('.rail-tabs .rt').forEach(b=>b.classList.toggle('on',b.dataset.rt===k));
   const d=byId(CUR.id), host=document.getElementById('rail-body'); if(!host)return;
@@ -2930,8 +2962,10 @@ function confirmRag(i,s){const d=byId(CUR.id),area=d.rag[i],cur=area[1];
 function applyRag(i,s){const t=document.getElementById('ragNote'),v=((t||{}).value||'').trim();
   if(!v){const e=document.getElementById('ragErr');if(e)e.hidden=false;if(t){t.classList.add('chg');t.focus();}return;}
   const d=byId(CUR.id),area=d.rag[i],cur=area[1];
+  RAG_OVR[d.id]=RAG_OVR[d.id]||{};
+  const orig=(RAG_OVR[d.id][area[0]]&&RAG_OVR[d.id][area[0]].from)||cur; // keep the original status across repeated overrides
   d.rag[i][1]=s;                 // persist the override on the deal
-  RAG_OVR[d.id]=RAG_OVR[d.id]||{}; RAG_OVR[d.id][area[0]]=true;   // mark as manually overridden
+  RAG_OVR[d.id][area[0]]={from:orig,to:s,reason:v};   // structured override – used by the review popup
   (NOTES[d.id]=NOTES[d.id]||[]).push({name:'Meridian Capital',initials:'MC',time:nowStamp(),stepId:'rag',tag:'RAG override',tx:`${area[0]}: ${RAGN[cur]} → ${RAGN[s]} – ${v}`});
   closeOverlay();
   // re-render the whole RAG step (banner + counts + rows) preserving open rows, then refresh the spine
@@ -2941,6 +2975,53 @@ function applyRag(i,s){const t=document.getElementById('ragNote'),v=((t||{}).val
   const sp=document.getElementById('spine');if(sp)sp.outerHTML=renderSpine(d,CUR.step);
   toast(`${area[0]} overridden to ${RAGN[s]}`);}
 const RAG_OVR={};
+const RAG_ACK={}; // {dealId:{area:note}} – "your read on this flag" captured at the review gate
+
+// An amber/red area is "explained" if it has an override reason OR an acceptance note.
+function ragExplained(d,area){const ov=RAG_OVR[d.id]&&RAG_OVR[d.id][area[0]];
+  return (ov&&ov.reason)||(RAG_ACK[d.id]&&RAG_ACK[d.id][area[0]]);}
+function ragNeedsNote(d){return d.rag.filter(a=>a[1]!=='g'&&!ragExplained(d,a));}
+
+// Review gate: before marking the RAG step reviewed, every flagged item needs a note (decision-neutral).
+function openRagReview(d){
+  const rows=d.rag.map((a,i)=>{const [name,st]=a; const ov=RAG_OVR[d.id]&&RAG_OVR[d.id][name];
+    const dot=`<span class="chip ${ragChipCls(st)}"><span class="dot"></span>${RAGN[st]}</span>`;
+    const change=(ov&&ov.from&&ov.from!==ov.to)?`<span class="rr-chg"><span class="chip ${ragChipCls(ov.from)}"><span class="dot"></span>${RAGN[ov.from]}</span><span class="muted">→</span><span class="chip ${ragChipCls(ov.to)}"><span class="dot"></span>${RAGN[ov.to]}</span></span>`:'';
+    if(st==='g'&&!change)return `<div class="rr-row"><div class="rr-head"><span class="rr-name">${name}</span>${dot}</div><div class="rr-clear">Clear – no note needed</div></div>`;
+    const existing=(ov&&ov.reason)||'';
+    const ackVal=(RAG_ACK[d.id]&&RAG_ACK[d.id][name])||'';
+    const noteShown=existing||ackVal;
+    // green-but-downgraded, or flagged-with-explanation → show the note read-only (editable); flagged-unexplained → required input
+    const body=noteShown
+      ? `<div class="rr-note-ro"><span class="rr-note-lbl">${existing?'Override reason':'Your read'}</span> ${noteShown}</div>`
+      : `<textarea class="rr-in" data-area="${name}" placeholder="Your read on this flag – e.g. confirmed with collections, known bank error, watch-item, or leaning against. Saved to the deal history." oninput="ragReviewCheck()"></textarea>`;
+    return `<div class="rr-row"><div class="rr-head"><span class="rr-name">${name}</span>${change||dot}</div>${body}</div>`;
+  }).join('');
+  const need=ragNeedsNote(d).length;
+  openOverlay(`<div class="modal" style="max-width:560px"><div class="mh"><h3>Review RAG checks – ${d.org}</h3><div class="x" onclick="closeOverlay()">✕</div></div>
+   <div class="mb">
+     <div class="rr-intro">Add your read on each flagged item before continuing. This records your reasoning – it doesn't approve or reject the deal.</div>
+     <div class="rr-list">${rows}</div>
+     <div style="margin-top:14px;display:flex;gap:8px;align-items:center;justify-content:flex-end">
+       <span class="rr-count muted small" id="rrCount">${need?need+' flag'+(need!=1?'s':'')+' still need a note':'All flags noted'}</span>
+       <button class="btn btn-outline btn-sm" onclick="closeOverlay()">Cancel</button>
+       <button class="btn btn-primary btn-sm" id="rrConfirm" onclick="commitRagReview('${d.id}')" ${need?'disabled':''}>Mark as reviewed</button></div>
+   </div></div>`);
+}
+function ragReviewCheck(){const d=byId(CUR.id);
+  // pull current textarea values into RAG_ACK, then re-evaluate the gate
+  document.querySelectorAll('.rr-in').forEach(t=>{const a=t.dataset.area,v=t.value.trim();RAG_ACK[d.id]=RAG_ACK[d.id]||{};if(v)RAG_ACK[d.id][a]=v;else if(RAG_ACK[d.id])delete RAG_ACK[d.id][a];});
+  const need=ragNeedsNote(d).length, btn=document.getElementById('rrConfirm'), c=document.getElementById('rrCount');
+  if(btn)btn.disabled=need>0;
+  if(c)c.textContent=need?need+' flag'+(need!=1?'s':'')+' still need a note':'All flags noted';}
+function commitRagReview(id){const d=byId(id);ragReviewCheck();
+  if(ragNeedsNote(d).length)return;
+  // save the acceptance notes to the deal history (override reasons are already logged)
+  (RAG_ACK[id]?Object.keys(RAG_ACK[id]):[]).forEach(area=>{
+    const note=RAG_ACK[id][area]; const a=d.rag.find(x=>x[0]===area);
+    (NOTES[id]=NOTES[id]||[]).push({name:'Meridian Capital',initials:'MC',time:nowStamp(),stepId:'rag',tag:'RAG review · '+area,tx:`${RAGN[(a&&a[1])||'a']} – ${note}`});});
+  closeOverlay();
+  commitStepReviewed(id,'rag');}
 
 /* ---------- SCORECARDS TAB ---------- */
 function tabScore(d){
