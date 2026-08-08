@@ -455,15 +455,17 @@ table.txgrid tbody tr.flagged:hover td{background:#fff4e0}
 .pub-lbl{display:block;font-size:12px;font-weight:700;color:var(--text-2);margin-bottom:6px}
 /* RAG review-gate popup */
 .rr-intro{font-size:12.5px;color:var(--text-2);margin:0 0 12px;padding:9px 12px;background:var(--grey-1,#f5f6f8);border-radius:8px}
-.rr-list{display:flex;flex-direction:column;gap:10px;max-height:52vh;overflow:auto}
-.rr-row{border:1px solid var(--divider,#e7e9ee);border-radius:10px;padding:10px 12px}
-.rr-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.rr-list{display:flex;flex-direction:column;gap:10px;max-height:56vh;overflow:auto}
+.rr-row{display:grid;grid-template-columns:180px 1fr;gap:16px;align-items:center;border:1px solid var(--divider,#e7e9ee);border-radius:10px;padding:11px 14px}
+.rr-left{display:flex;flex-direction:column;gap:7px;align-items:flex-start}
 .rr-name{font-weight:700;font-size:13.5px}
-.rr-chg{display:inline-flex;align-items:center;gap:6px}
-.rr-clear{font-size:12px;color:var(--text-3);margin-top:4px}
-.rr-note-ro{font-size:12.5px;color:var(--text-2);margin-top:8px;border-left:3px solid var(--brand-500,#1ebdc0);padding:2px 0 2px 9px}
-.rr-note-lbl{font-weight:700;color:var(--text-3);font-size:11px;text-transform:uppercase;letter-spacing:.03em;margin-right:4px}
-.rr-in{width:100%;min-height:60px;margin-top:8px;border:1px solid var(--divider,#e7e9ee);border-radius:8px;padding:8px 10px;font:inherit;font-size:13px;resize:vertical}
+.rr-tags{display:flex;flex-direction:column;gap:5px;align-items:flex-start}
+.chip.strike{text-decoration:line-through;opacity:.5}
+.rr-right{min-width:0}
+.rr-clear{font-size:12.5px;color:var(--text-3)}
+.rr-note-ro{border:1px solid var(--divider,#e7e9ee);border-radius:8px;padding:8px 10px;background:var(--grey-1,#f5f6f8);font-size:13px;color:var(--text-2)}
+.rr-note-lbl{display:block;font-weight:700;color:var(--text-3);font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:3px}
+.rr-in{width:100%;min-height:58px;border:1px solid var(--divider,#e7e9ee);border-radius:8px;padding:8px 10px;font:inherit;font-size:13px;resize:vertical}
 .rr-count{margin-right:auto}
 .pub-lbl .req{color:var(--error);font-weight:700;text-transform:uppercase;font-size:10px;letter-spacing:.04em;margin-left:5px}
 .pub-err{color:var(--error);font-size:12.5px;font-weight:600;margin-top:9px}
@@ -2064,7 +2066,7 @@ function renderDeal(id,step){
       </div>
     </div>`;
   (STEPS.find(s=>s.id===step).fn)(d);
-  document.getElementById('pane').insertAdjacentHTML('beforeend', step==='decision'?decisionBar(d):(step==='overview'?overviewBar(d):confirmBar(d,step)));
+  renderStepBar(d,step);
   initNoteDrag();
   if(NOTE_OPEN)openNoteWin();
   if(!FOCUS)window.scrollTo(0,0);   // land at the top of each step (focus jumps override below)
@@ -2086,7 +2088,7 @@ function logoSvg(d){
     `<path d="M50 22 L80 44 L80 77 Q80 80 77 80 L23 80 Q20 80 20 77 L20 44 Z" fill="#fff"/>`+
     `<text x="50" y="70" font-family="Inter,Arial,sans-serif" font-size="32" font-weight="800" fill="${col}" text-anchor="middle">${d.org[0]}</text></svg>`;
 }
-const HOME_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>';
+const HOME_ICON='<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg>';
 function renderSpine(d,current){const F=stepFlags(d);
   return `<nav class="spine" id="spine">${STEPS.map((s,idx)=>{
     const f=F[s.id]||{n:0}, cur=s.id===current, done=stepDone(d,s.id);
@@ -2129,6 +2131,11 @@ function confirmStep(id){const d=byId(id),st=CUR.step;
   const pc=document.getElementById('progcell');if(pc)pc.innerHTML=progressCellInner(d);
   const cb=document.getElementById('confirmbar');if(cb)cb.outerHTML=confirmBar(d,st);
   toast(CONFIRMED[id][st]?'Step marked as reviewed':'Marked not reviewed');}
+// Always (re)append the correct bottom bar to the pane – tab re-renders (overrides etc.) wipe it otherwise.
+function renderStepBar(d,step){step=step||CUR.step;const c=document.getElementById('content');if(!c)return;
+  const old=document.getElementById('confirmbar');if(old)old.remove();
+  // append to #content (not #pane) so tab re-renders never wipe it, and it has a tall sticky parent
+  c.insertAdjacentHTML('beforeend', step==='decision'?decisionBar(d):(step==='overview'?overviewBar(d):confirmBar(d,step)));}
 // mark a step reviewed + advance (used by the RAG review popup after notes are captured)
 function commitStepReviewed(id,st){const d=byId(id);CONFIRMED[id]=CONFIRMED[id]||{};CONFIRMED[id][st]=true;
   const idx=STEPS.findIndex(s=>s.id===st);
@@ -2970,7 +2977,7 @@ function applyRag(i,s){const t=document.getElementById('ragNote'),v=((t||{}).val
   closeOverlay();
   // re-render the whole RAG step (banner + counts + rows) preserving open rows, then refresh the spine
   const open=[...document.querySelectorAll('.arow.open')].map(e=>+e.id.replace('ar',''));
-  tabRAG(d);
+  tabRAG(d); renderStepBar(d);
   open.forEach(k=>{const el=document.getElementById('ar'+k);if(el)el.classList.add('open');});
   const sp=document.getElementById('spine');if(sp)sp.outerHTML=renderSpine(d,CUR.step);
   toast(`${area[0]} overridden to ${RAGN[s]}`);}
@@ -2984,21 +2991,23 @@ function ragNeedsNote(d){return d.rag.filter(a=>a[1]!=='g'&&!ragExplained(d,a));
 
 // Review gate: before marking the RAG step reviewed, every flagged item needs a note (decision-neutral).
 function openRagReview(d){
+  const chip=(s,extra)=>`<span class="chip ${ragChipCls(s)}${extra||''}"><span class="dot"></span>${RAGN[s]}</span>`;
   const rows=d.rag.map((a,i)=>{const [name,st]=a; const ov=RAG_OVR[d.id]&&RAG_OVR[d.id][name];
-    const dot=`<span class="chip ${ragChipCls(st)}"><span class="dot"></span>${RAGN[st]}</span>`;
-    const change=(ov&&ov.from&&ov.from!==ov.to)?`<span class="rr-chg"><span class="chip ${ragChipCls(ov.from)}"><span class="dot"></span>${RAGN[ov.from]}</span><span class="muted">→</span><span class="chip ${ragChipCls(ov.to)}"><span class="dot"></span>${RAGN[ov.to]}</span></span>`:'';
-    if(st==='g'&&!change)return `<div class="rr-row"><div class="rr-head"><span class="rr-name">${name}</span>${dot}</div><div class="rr-clear">Clear – no note needed</div></div>`;
-    const existing=(ov&&ov.reason)||'';
-    const ackVal=(RAG_ACK[d.id]&&RAG_ACK[d.id][name])||'';
-    const noteShown=existing||ackVal;
-    // green-but-downgraded, or flagged-with-explanation → show the note read-only (editable); flagged-unexplained → required input
-    const body=noteShown
-      ? `<div class="rr-note-ro"><span class="rr-note-lbl">${existing?'Override reason':'Your read'}</span> ${noteShown}</div>`
-      : `<textarea class="rr-in" data-area="${name}" placeholder="Your read on this flag – e.g. confirmed with collections, known bank error, watch-item, or leaning against. Saved to the deal history." oninput="ragReviewCheck()"></textarea>`;
-    return `<div class="rr-row"><div class="rr-head"><span class="rr-name">${name}</span>${change||dot}</div>${body}</div>`;
+    const changed=ov&&ov.from&&ov.from!==ov.to;
+    // status: single chip, or (on override) previous chip struck through above the new one, stacked vertically
+    const statusBlock=changed?`<div class="rr-tags">${chip(ov.from,' strike')}${chip(ov.to)}</div>`:chip(st);
+    let right;
+    if(st==='g'&&!changed){ right=`<div class="rr-clear">Clear – no note needed</div>`; }
+    else{
+      const existing=(ov&&ov.reason)||'', ackVal=(RAG_ACK[d.id]&&RAG_ACK[d.id][name])||'', noteShown=existing||ackVal;
+      right=noteShown
+        ? `<div class="rr-note-ro"><span class="rr-note-lbl">${existing?'Override reason':'Your read'}</span>${noteShown}</div>`
+        : `<textarea class="rr-in" data-area="${name}" placeholder="Your read on this flag – e.g. confirmed with collections, known bank error, watch-item, or leaning against." oninput="ragReviewCheck()"></textarea>`;
+    }
+    return `<div class="rr-row"><div class="rr-left"><div class="rr-name">${name}</div>${statusBlock}</div><div class="rr-right">${right}</div></div>`;
   }).join('');
   const need=ragNeedsNote(d).length;
-  openOverlay(`<div class="modal" style="max-width:560px"><div class="mh"><h3>Review RAG checks – ${d.org}</h3><div class="x" onclick="closeOverlay()">✕</div></div>
+  openOverlay(`<div class="modal" style="max-width:720px"><div class="mh"><h3>Review RAG checks – ${d.org}</h3><div class="x" onclick="closeOverlay()">✕</div></div>
    <div class="mb">
      <div class="rr-intro">Add your read on each flagged item before continuing. This records your reasoning – it doesn't approve or reject the deal.</div>
      <div class="rr-list">${rows}</div>
@@ -3070,7 +3079,7 @@ function applyScoreOverride(id){const sel=document.getElementById('ovrRating'),t
   const d=byId(id),old=d.rating;
   d.rating=nr; SCORE_OVR[id]=true;
   (NOTES[id]=NOTES[id]||[]).push({name:'Meridian Capital',initials:'MC',time:nowStamp(),stepId:'scorecards',tag:'Rating override',tx:`Final rating ${old} → ${nr}${old===nr?' (re-affirmed)':''} – ${v}`});
-  closeOverlay(); tabScore(d);
+  closeOverlay(); tabScore(d); renderStepBar(d);
   const sp=document.getElementById('spine');if(sp)sp.outerHTML=renderSpine(d,CUR.step);
   toast(`Final rating set to ${nr}`);}
 
