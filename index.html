@@ -850,6 +850,35 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .fc-src{margin-top:16px;border-top:1px dashed var(--cell);padding-top:13px}
 .srcchip{border:1px solid var(--border);background:#fff;border-radius:4px;padding:4px 11px;font-family:inherit;font-size:12px;font-weight:600;color:var(--text-2);cursor:pointer;margin:0 6px 6px 0}
 .srcchip.on{border-color:var(--brand-300);background:var(--brand-100);color:var(--brand-700)}
+/* per-channel weight controls – live below the Net revenue forecast chart */
+.fc-src-h{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px}
+.src-reset{margin-left:auto;display:inline-flex;align-items:center;gap:5px;font-family:inherit;font-size:12px;font-weight:700;color:var(--brand-700);background:#fff;border:1px solid var(--border);border-radius:7px;padding:5px 10px;cursor:pointer;transition:background .12s,border-color .12s,opacity .12s}
+.src-reset svg{width:13px;height:13px}
+.src-reset:hover:not(:disabled){background:var(--brand-100);border-color:var(--brand-300)}
+.src-reset:disabled{opacity:.4;cursor:default}
+.srcgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.srcw-ctl input[type=range]{height:20px;-webkit-appearance:none;appearance:none;background:transparent}
+/* green fill left of the thumb, grey to the right – driven by the inline --p custom property */
+.srcw-ctl input[type=range]::-webkit-slider-runnable-track{height:5px;border-radius:99px;background:linear-gradient(to right,var(--brand-600) var(--p,0%),var(--border) var(--p,0%))}
+.srcw-ctl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;margin-top:-5.5px;border-radius:50%;background:var(--brand-600);border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.25);cursor:grab}
+.srcw-ctl input[type=range]:active::-webkit-slider-thumb{cursor:grabbing}
+.srcw-ctl input[type=range]::-moz-range-track{height:5px;border-radius:99px;background:var(--border)}
+.srcw-ctl input[type=range]::-moz-range-progress{height:5px;border-radius:99px;background:var(--brand-600)}
+.srcw-ctl input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--brand-600);border:2px solid #fff;cursor:grab}
+/* kill the native number spinners – they were clipping the digits */
+.srcw-num input::-webkit-outer-spin-button,.srcw-num input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.srcw-num input{-moz-appearance:textfield;appearance:textfield}
+.srcw{border:1px solid var(--border);border-radius:8px;padding:9px 11px 10px;background:#fff;transition:opacity .12s,border-color .12s}
+.srcw.off{opacity:.55;background:var(--grey-1,#f6f7f9)}
+.srcw-top{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.srcw-dot{width:9px;height:9px;border-radius:50%;flex:0 0 9px}
+.srcw-name{font-size:12.5px;font-weight:700;color:var(--ink)}
+.srcw-share{margin-left:auto;font-size:10.5px;font-weight:600;color:var(--text-3)}
+.srcw-ctl{display:flex;align-items:center;gap:10px}
+.srcw-ctl input[type=range]{flex:1;min-width:0;accent-color:var(--brand-600);cursor:pointer}
+.srcw-num{display:flex;align-items:center;gap:2px;flex:0 0 auto}
+.srcw-num input{width:44px;text-align:right;border:1px solid var(--border);border-radius:5px;padding:3px 5px;font-family:inherit;font-size:12px;font-weight:700;color:var(--ink)}
+.srcw-num span{font-size:11px;color:var(--text-3);font-weight:600}
 
 /* version / data-lock control */
 .verwrap{position:relative}
@@ -1104,6 +1133,8 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .snap-rel.returning:hover{background:#e2f2f2;border-color:#a9dcdc}
 .snap-rel.new{background:#f1f2f6;color:#5a6472;border-color:#e0e3ea}
 .snap-rel.new:hover{background:#e8eaf0;border-color:#cfd4de}
+@keyframes flashFocus{0%{box-shadow:0 0 0 3px rgba(18,128,129,.5)}100%{box-shadow:0 0 0 3px rgba(18,128,129,0)}}
+.flash-focus{animation:flashFocus 1.3s ease-out}
 .rec-card,.snap-card{border-color:#d6c9f5}
 .rec-card .card-b{padding:0}
 .rec-grid{display:grid;grid-template-columns:0.82fr 2.3fr;align-items:stretch}
@@ -1869,6 +1900,18 @@ function setSidebar(mode,d){
   if(mode==='deal'&&d){document.getElementById('side-org-name').textContent=d.org;document.getElementById('side-org-id').textContent='ID: '+d.id;}
 }
 function go(hash){location.hash=hash;}
+// jump to Background AND scroll to the prior-deals card (clearing the sticky header, not just top-of-step)
+function gotoPriorDeals(id){
+  const onBg=CUR&&CUR.id===id&&CUR.step==='background';
+  if(!onBg)go('#/deal/'+id+'/background');
+  const scroll=()=>{const el=document.getElementById('lending-rel');if(!el)return;
+    const hh=q=>{const e=document.querySelector(q);return e?e.getBoundingClientRect().height:0;};
+    const pad=hh('.topbar')+hh('.dealhead')+hh('.tabs')+14;
+    const y=window.scrollY+el.getBoundingClientRect().top-pad;
+    window.scrollTo({top:Math.max(0,y),behavior:'smooth'});
+    el.classList.remove('flash-focus');void el.offsetWidth;el.classList.add('flash-focus');};
+  setTimeout(scroll,onBg?0:140);
+}
 window.addEventListener('hashchange',route);
 function route(){
   const h=location.hash||'#/portfolio';
@@ -2823,8 +2866,8 @@ function recommendationCard(d){const m=dealMetrics(d), f=m.f;
 function companySnapshotCard(d, full){
   const relN=d.prior.length;
   const relChip = relN
-    ? `<button class="snap-rel returning" onclick="go('#/deal/${d.id}/background')" title="See the full deal history in Background">${relN} prior deal${relN!=1?'s':''} with us <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>`
-    : `<button class="snap-rel new" onclick="go('#/deal/${d.id}/background')" title="First application with Uncapped – see Background">New customer <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>`;
+    ? `<button class="snap-rel returning" onclick="gotoPriorDeals('${d.id}')" title="See the full deal history in Background">${relN} prior deal${relN!=1?'s':''} with us <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>`
+    : `<button class="snap-rel new" onclick="gotoPriorDeals('${d.id}')" title="First application with Uncapped – see Background">New customer <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>`;
   return `<div class="card snap-card" style="margin-bottom:14px">
       <div class="card-h about-h snap-head"><span class="ais-badge" style="margin-left:0">${AI_STAR}Engine</span><h3>Company snapshot</h3>${relChip}
         <span class="sub" style="margin-left:auto">${full?'Auto-computed from locked data':'the detail sits in the cards below'}</span></div>
@@ -2971,7 +3014,7 @@ function lendingRelationshipCard(d){
   const u=uncappedBalanceSeries(d); // real Uncapped balance (same source as the lender chart)
   const totalOut=d.prior.reduce((s,p)=>s+p[4],0);
   if(!u && !d.prior.length){
-    return `<div class="card" style="margin-top:14px"><div class="card-h"><h3>Lending relationship with Uncapped</h3><span class="sub" style="margin-left:auto">new customer</span></div>
+    return `<div class="card" id="lending-rel" style="margin-top:14px"><div class="card-h"><h3>Lending relationship with Uncapped</h3><span class="sub" style="margin-left:auto">new customer</span></div>
       <div class="card-b"><div class="bg-clean"><span class="chip c-neutral">New customer</span> First application with Uncapped – no prior facilities, drawdowns or repayment history to review yet.</div></div></div>`;
   }
   const hasReal=!!u||(d.realPrincipal&&d.realPrincipal.length);
@@ -2993,7 +3036,7 @@ function lendingRelationshipCard(d){
     ],forecastFrom:ff,legend:true,labels};
   const overLev=totalOut>peak*1.8;
   const pai=`Monthly closing principal of our own exposure. ${hasReal&&peak?`The prior facility peaked at ${money0(peak)} and amortised toward £0 – a clean drawdown-and-repay relationship`:'Read-only lending-relationship context'}. The dashed lines project the proposed new facility being drawn then amortised over 12 months, with liquidity (including the new facility) staying ${overLev?'thin – combined exposure runs hot against the balance':'comfortably above the drawn balance'}. Recycling assumption feeds this from the Forecast step. Delinquency: ${d.rating==='E'?'1 late repayment, since cured':'clean, never delinquent'}.`;
-  return `<div class="card" style="margin-top:14px"><div class="card-h"><h3>Lending relationship with Uncapped</h3><span class="sub" style="margin-left:auto">total outstanding ${money0(totalOut)}</span></div>
+  return `<div class="card" id="lending-rel" style="margin-top:14px"><div class="card-h"><h3>Lending relationship with Uncapped</h3><span class="sub" style="margin-left:auto">total outstanding ${money0(totalOut)}</span></div>
     <div class="card-b">
       ${aiSummaryCard({title:'Relationship summary',body:relationshipSummary(d),chips:relChips(d)})}
       <div style="overflow:auto"><table class="grid flat"><thead><tr><th>Started</th><th>Type</th><th>Outcome</th><th>Repayment</th><th class="num">Amount funded</th><th class="num">Outstanding</th><th></th></tr></thead>
@@ -3705,7 +3748,7 @@ function cashForecastCard(d){
 function tabForecast(d){
   const id=d.id;
   FCST[id]=FCST[id]||{basis:'cash',scen:'base',damp:2,mo:-0.05,othThr:0.16,varAdj:-0.04,fixAdj:0,recycling:(d.revTrend==='down'?25:90),
-    sources:{Amazon:true,Shopify:true,Walmart:true,TikTok:true,Other:true}};
+    sources:{Amazon:100,Shopify:100,Walmart:100,TikTok:100,Other:100}};
   const f=FCST[id];
   const _br=baseRev(d), _rAct=_br.ff, _rFc=_br.data.length-_br.ff;   // real actual/forecast split for the revenue chart
   document.getElementById('pane').innerHTML=`
@@ -3737,15 +3780,17 @@ function tabForecast(d){
            <div class="fc-sub-h">Net revenue forecast – ${_rAct} mo actuals · ${_rFc} mo forecast</div>
            <div id="revchart"></div>
            <div class="muted small" id="revscenlab" style="margin:8px 0 4px"></div>
+           <div class="fc-src">
+             <div class="fc-src-h"><span class="lbl">Revenue sources in the forecast</span>
+               <span class="muted small"> – set how much of each channel feeds the forecast (0% excludes it · 100% = full · up to 150% for upside)</span>
+               <button class="src-reset" id="srcreset-${id}" onclick="resetSrc('${id}')" ${Object.values(f.sources).some(v=>v!==100)?'':'disabled'}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Reset all to 100%</button></div>
+             <div id="srcchips" class="srcgrid" style="margin-top:10px">${srcChips(id)}</div></div>
            <div class="fc-ctx-lbl" style="margin-top:20px">👁 Read-only – these inform your assumptions</div>
            <div class="grid3">
              ${miniChart('Net bank revenue by source',C(seededSeries(41,18,d.preoffer/12,d.preoffer/18,0),'bars','#d9a441'),'',`Net revenue actually landing in the bank by source – the cash-basis input to the forecast. This is what the model trusts over gross platform figures.`)}
              ${miniChart('Gross platform revenue by source',C(seededSeries(43,18,d.preoffer/12,d.preoffer/16,0),'bars','var(--brand-600)'),'',`Gross marketplace-reported revenue before fees and reserves. Sits above net bank revenue – the gap is Amazon/Shopify fees, refunds and held reserves.`)}
              ${miniChart('Runrate comparison (e-revenue)',C(seededSeries(47,24,d.preoffer/12,d.preoffer/22,d.revTrend==='down'?-.2:.1),'line','var(--ink)'),d.revTrend==='down'?'declining':'',`E-commerce runrate vs the modelled trend. ${d.revTrend==='down'?'The runrate is rolling below trend – a decline signal the forecast reflects.':'Runrate is tracking the trend, supporting the forward view.'}`)}
            </div>
-           <div class="fc-src"><span class="lbl">Revenue sources in the forecast</span>
-             <span class="muted small"> – click to include / exclude; excluded streams fall to “other revenue” (lower weight)</span>
-             <div id="srcchips" style="margin-top:8px">${srcChips(id)}</div></div>
          </div>
        </div>
 
@@ -3938,21 +3983,46 @@ function fcSet(id,key,val){FCST[id][key]=val;drawRev(id);drawCost(byId(id));}
 // parse a "-5%" style input into a fraction, store it, and recompute the affected charts
 function fcPct(id,key,v){FCST[id][key]=(parseFloat(String(v).replace('%',''))||0)/100;drawRev(id);drawCost(byId(id));
   toast('Assumption applied – forecast recomputed');}
-function srcChips(id){const s=FCST[id].sources;
-  return Object.keys(s).map(k=>`<button class="srcchip ${s[k]?'on':''}" onclick="toggleSrc('${id}','${k}')">${s[k]?'✓ ':'+ '}${k}</button>`).join('');}
-function toggleSrc(id,k){FCST[id].sources[k]=!FCST[id].sources[k];
+const SRC_COLOR={Amazon:'#ff9900',Shopify:'#5a8f3d',Walmart:'#0071dc',TikTok:'#111',Other:'#8a94a6'};
+// each channel's share of total revenue – the deal's primary source dominates, the rest split the remainder
+function srcShares(d){const keys=['Amazon','Shopify','Walmart','TikTok','Other'];
+  const primary=keys.includes(d.source)?d.source:'Amazon';
+  const base={Amazon:8,Shopify:8,Walmart:6,TikTok:4,Other:4}; base[primary]=54;
+  const tot=keys.reduce((s,k)=>s+base[k],0); const sh={}; keys.forEach(k=>sh[k]=base[k]/tot); return sh;}
+// overall forecast multiplier from the per-channel %s, weighted by each channel's revenue share
+function srcFactor(id){const d=byId(id),s=FCST[id].sources,sh=srcShares(d);
+  return Object.keys(s).reduce((a,k)=>a+sh[k]*((s[k]||0)/100),0);}
+function srcChips(id){const d=byId(id),s=FCST[id].sources,sh=srcShares(d);
+  return Object.keys(s).map(k=>{const v=s[k]||0,on=v>0;
+    return `<div class="srcw ${on?'':'off'}">
+      <div class="srcw-top"><span class="srcw-dot" style="background:${SRC_COLOR[k]||'#8a94a6'}"></span><span class="srcw-name">${k}</span><span class="srcw-share">${Math.round(sh[k]*100)}% of rev</span></div>
+      <div class="srcw-ctl">
+        <input type="range" min="0" max="150" step="1" value="${v}" style="--p:${Math.round(v/150*100)}%" oninput="setSrcPct('${id}','${k}',this.value,this)" aria-label="${k} weight">
+        <div class="srcw-num"><input type="number" min="0" max="150" value="${v}" onchange="setSrcPct('${id}','${k}',this.value,this)"><span>%</span></div>
+      </div></div>`;}).join('');}
+// Update in place (no innerHTML rebuild) so the slider stays grabbable and drags smoothly.
+function setSrcPct(id,k,val,src){let v=Math.max(0,Math.min(150,Math.round(parseFloat(String(val).replace(/[^0-9.]/g,''))||0)));
+  FCST[id].sources[k]=v;
+  const row=src&&src.closest?src.closest('.srcw'):null;
+  if(row){const rng=row.querySelector('input[type=range]'),num=row.querySelector('.srcw-num input');
+    if(rng){if(rng!==src)rng.value=v; rng.style.setProperty('--p',Math.round(v/150*100)+'%');}
+    if(num&&num!==src)num.value=v; row.classList.toggle('off',v<=0);}
+  else{const el=document.getElementById('srcchips'); if(el)el.innerHTML=srcChips(id);}
+  updSrcReset(id); drawRev(id);}
+function updSrcReset(id){const b=document.getElementById('srcreset-'+id);if(!b)return;b.disabled=!Object.values(FCST[id].sources).some(v=>v!==100);}
+function resetSrc(id){const s=FCST[id].sources;Object.keys(s).forEach(k=>s[k]=100);
   const el=document.getElementById('srcchips'); if(el)el.innerHTML=srcChips(id);
-  drawRev(id); toast(FCST[id].sources[k]?k+' included in forecast':k+' → other revenue (lower weight)');}
+  updSrcReset(id); drawRev(id); toast('Revenue sources reset to 100%');}
 function drawRev(id){const d=byId(id),f=FCST[id];
   const br=baseRev(d), ff=br.ff; let base=br.data.slice();
   if(f.basis==='ecom')base=base.map((v,i)=>v*(1+.05*Math.sin(i/2)));   // platform basis uses fuller history
-  const incl=Object.values(f.sources).filter(Boolean).length/5;
+  const chFactor=srcFactor(id);             // share-weighted blend of the per-channel %s
   const fseg=base.slice(ff), fmean=(fseg.reduce((a,b)=>a+b,0)/(fseg.length||1)), dk=Math.min(1,(f.damp||0)/20);
   const adj=base.map((v,i)=>{
     if(i<ff) return v;                        // real actuals – never distorted
     let x = f.scen==='opt'?v*(1+.01*(i-ff)):f.scen==='pess'?v*(1-.02*(i-ff)):v;
     x = x*(1-dk)+fmean*dk;                    // seasonality dampening → toward forecast mean
-    return x*(0.55+0.45*incl)*(1+(f.mo||0)); // excluded sources + MO adjustment haircut on the forecast
+    return x*chFactor*(1+(f.mo||0));          // per-channel weighting + MO adjustment on the forecast
   });
   const _rspec=C(adj,'bars','var(--brand-600)',ff);_rspec.labels=realLabels(d,adj.length);
   document.getElementById('revchart').innerHTML=axedChart(_rspec,640,230,true);
