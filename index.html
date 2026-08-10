@@ -76,7 +76,7 @@ select:not(.editcell){appearance:none;-webkit-appearance:none;-moz-appearance:no
 .usr{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2)}
 .avatar{width:28px;height:28px;border-radius:9999px;background:var(--brand-200);color:var(--brand-700);
   display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
-.content{padding:20px clamp(18px,1.5vw,30px) 80px;max-width:2600px;width:100%;margin:0 auto;flex:1;display:flex;flex-direction:column}
+.content{padding:20px clamp(18px,1.5vw,30px) 100px;max-width:2600px;width:100%;margin:0 auto}
 .mi{--mi-min:230px}
 .fcrow{display:flex;gap:16px;align-items:flex-start}
 .fcright{flex:1;min-width:0}
@@ -629,6 +629,9 @@ table.txgrid tbody tr.rowsel td{background:var(--brand-100)}
 .dss-fl-lbl.pos{color:var(--green)} .dss-fl-lbl.neg{color:var(--red-t)}
 .dss-fl-txt{color:var(--text-2)} .dss-fl-txt.risk{color:var(--text-2)}
 .sc-gchip{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:22px;padding:0 7px;border-radius:5px;font-weight:800;font-size:13px}
+.trends-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+@media(max-width:1250px){.trends-strip{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.trends-strip{grid-template-columns:repeat(2,1fr)}}
 .rag-dot{width:11px;height:11px;border-radius:50%}
 .rag-dot.g{background:#2fb35a}.rag-dot.a{background:#f4a41f}.rag-dot.r{background:#e0473f}
 .exc-num{font-size:18px;font-weight:800;color:var(--warning)}
@@ -662,7 +665,7 @@ table.txgrid tbody tr.rowsel td{background:var(--brand-100)}
 .prog-val{display:flex;align-items:center;gap:8px}
 .pring{flex:0 0 20px}
 /* per-step "mark as reviewed" confirm bar */
-.confirm-bar{position:sticky;bottom:0;z-index:11;display:flex;align-items:center;gap:12px;margin:auto calc(-1*clamp(18px,1.5vw,30px)) -80px;padding:9px clamp(18px,1.5vw,30px);background:#fff;border:none;border-top:1px solid var(--border);border-radius:0;box-shadow:0 -3px 12px rgba(6,56,68,.06)}
+.confirm-bar{position:fixed;left:236px;right:0;bottom:0;z-index:11;display:flex;align-items:center;gap:12px;margin:0;padding:10px clamp(18px,1.5vw,30px);background:#fff;border:none;border-top:1px solid var(--border);border-radius:0;box-shadow:0 -3px 12px rgba(6,56,68,.08)}
 .confirm-bar .btn{padding:9px 20px;font-size:13.5px}
 .confirm-bar.done{background:var(--brand-100);border-top-color:var(--brand-300);box-shadow:0 -3px 12px rgba(18,128,129,.07)}
 .confirm-bar .cb-msg{font-weight:600;color:var(--ink);font-size:13.5px}
@@ -2986,12 +2989,26 @@ function decisionSummaryCard(d){const m=dealMetrics(d),f=m.f;
     <div class="dss-fl"><span class="dss-fl-lbl pos" title="Positives">${IC_PLUS}</span><span class="dss-fl-txt">${pos}</span></div>
     <div class="dss-fl"><span class="dss-fl-lbl neg" title="Risks">${IC_MINUS}</span><span class="dss-fl-txt risk">${risk}</span></div>
   </div></div>`;}
+// Zoomed-out one-row recap of the Overview trend charts, for context on the Decision step (click any to expand).
+function decisionTrendsStrip(d){
+  const t=[
+    ['Cash runway', cRunwayChart(d.id)||cCash(d.id)||CASH_SPEC],
+    ['Cash balance', cCashDaily(d.id)||cCash(d.id)||CASH_SPEC],
+    ['Revenue', cRevForecastStack(d.id)||cRevenue(d.id)||REV_SPEC],
+    ['Inventory', cInventoryChart(d.id)||cInventory(d.id)||INV_SPEC],
+    ['Debt recycling', cDebtRecycling(d.id)||emptyChartSpec('No external debt')],
+    ['Lender exposure', cLenderExposure(d.id)||emptyChartSpec('No debt facilities')]
+  ];
+  return `<div class="card" style="margin-bottom:14px"><div class="card-h"><h3>Trends</h3><span class="sub">zoomed-out context from the overview · click to expand</span><a class="viewcta" style="margin-left:auto" href="#" onclick="go('#/deal/${d.id}/overview');return false;">Full trends →</a></div>
+    <div class="card-b"><div class="trends-strip">${t.map(([title,spec])=>miniChart(title,spec,'','',260,66)).join('')}</div></div></div>`;
+}
 function tabDecision(d){
   const prods=decisionProducts(d);DEC[d.id]=DEC[d.id]||{};
   const ap=prods.filter((p,i)=>decState(d,i,p)==='approve').length, rj=prods.filter((p,i)=>decState(d,i,p)==='reject').length;
   const open=dealIssueCount(d);
   document.getElementById('pane').innerHTML=`
    ${decisionSummaryCard(d)}
+   ${decisionTrendsStrip(d)}
    <div class="card" style="margin-bottom:14px"><div class="card-h"><h3>Offers</h3><span class="sub">one row per product · Edit opens the terms · approve or reject each</span></div>
      <div style="overflow:auto"><table class="offer-table"><thead><tr><th>Product</th><th>Amount</th><th>Key terms</th><th>Status</th><th></th></tr></thead>
        <tbody>${prods.map((p,i)=>`${(p.addon&&!(prods[i-1]&&prods[i-1].addon))?`<tr class="offer-sep"><td colspan="5">Add-ons – attach alongside a main facility, not offered standalone</td></tr>`:''}${offerRow(d,p,i)}`).join('')}</tbody></table></div></div>
