@@ -4354,8 +4354,10 @@ function galleryNav(dir){GAL.idx=Math.min(GAL.list.length-1,Math.max(0,GAL.idx+d
 function gallerySet(i){GAL.idx=i;galleryRender();}
 function galleryRender(){const c=CHARTS[GAL.list[GAL.idx]],m=document.getElementById('chartmodal');if(!m||!c)return;
   const multi=GAL.list.length>1;
+  const cat=chartCategory(c.title);
+  const drill=cat?`<button class="btn btn-outline btn-sm gal-drill" style="margin-left:auto" title="Jump to Categorisation, filtered to the ${cat.toLowerCase()} transactions behind this chart" onclick="drillToTransactions('${cat}','${(c.title||'').replace(/'/g,'')}')">View related transactions <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;margin-left:4px;vertical-align:-2px"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>`:'';
   m.innerHTML=`
-   <div class="mh"><h3>${c.title}</h3><span class="muted small">${multi?`${GAL.idx+1} / ${GAL.list.length} · `:''}monthly</span><div class="x" onclick="closeOverlay()" style="margin-left:auto">✕</div></div>
+   <div class="mh"><h3>${c.title}</h3><span class="muted small">${multi?`${GAL.idx+1} / ${GAL.list.length} · `:''}monthly</span>${drill}<div class="x" onclick="closeOverlay()" style="margin-left:${drill?'10px':'auto'}">✕</div></div>
    <div class="mb galbody">
      <div class="galstage">
        ${multi?`<button class="galnav" ${GAL.idx===0?'disabled':''} onclick="galleryNav(-1)" title="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg></button>`:''}
@@ -4363,9 +4365,7 @@ function galleryRender(){const c=CHARTS[GAL.list[GAL.idx]],m=document.getElement
        ${multi?`<button class="galnav" ${GAL.idx===GAL.list.length-1?'disabled':''} onclick="galleryNav(1)" title="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>`:''}
      </div>
      ${chartLegend(c)}
-     ${(()=>{const cat=chartCategory(c.title);const drill=cat?`<button class="btn btn-outline btn-sm gal-drill" title="Jump to Categorisation, filtered to the ${cat.toLowerCase()} transactions behind this chart" onclick="drillToTransactions('${cat}','${(c.title||'').replace(/'/g,'')}')">See the ${cat.toLowerCase()} transactions <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;margin-left:4px;vertical-align:-2px"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>`:'';
-       if(c.ai)return `<div class="gal-ai"><span class="ais-badge">${AI_STAR}Engine</span><div class="gal-ai-tx"><span class="gal-ai-h">Analysis</span> ${c.ai}</div>${drill?`<div class="gal-ai-act">${drill}</div>`:''}</div>`;
-       return drill?`<div class="gal-act-row">${drill}</div>`:'';})()}
+     ${c.ai?`<div class="gal-ai"><span class="ais-badge">${AI_STAR}Engine</span><div class="gal-ai-tx"><span class="gal-ai-h">Analysis</span> ${c.ai}</div></div>`:''}
      ${GAL.list.length>1?`<div class="galthumbs-lbl">Related charts in this section</div><div class="galthumbs">${GAL.list.map((cid,i)=>`<button class="galthumb ${i===GAL.idx?'on':''}" onclick="gallerySet(${i})"><div class="gtlab">${CHARTS[cid].title}</div>${axedChart(CHARTS[cid],240,74,false)}</button>`).join('')}</div>`:''}
    </div>`;
 }
