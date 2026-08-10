@@ -617,18 +617,19 @@ table.txgrid tbody tr.rowsel td{background:var(--brand-100)}
 .rating-link{cursor:pointer;transition:filter .12s}
 .rating-link:hover{filter:brightness(.94);text-decoration:underline}
 /* compact deal recap on the Decision step */
-.ds-sum .card-b{padding:14px 18px}
+.ds-sum .card-b{padding:16px 20px}
 .dss-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .dss-amt{font-size:20px;font-weight:800;color:var(--ink)}
 .dss-amt-sub{font-size:12px;color:var(--text-3)}
 .dss-link{margin-left:auto;font-size:12.5px}
-.dss-assess{font-size:13px;color:var(--text-2);margin:9px 0 10px;line-height:1.45}
-.dss-fl{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;margin-top:5px}
+.dss-assess{font-size:13px;color:var(--text-2);margin:12px 0 13px;line-height:1.5}
+.dss-fl{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;margin-top:9px;line-height:1.5}
 .dss-fl-lbl{flex:0 0 16px;width:16px;height:16px}
 .dss-fl-lbl svg{width:16px;height:16px}
 .dss-fl-lbl.pos{color:var(--green)} .dss-fl-lbl.neg{color:var(--red-t)}
 .dss-fl-txt{color:var(--text-2)} .dss-fl-txt.risk{color:var(--text-2)}
 .sc-gchip{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:22px;padding:0 7px;border-radius:5px;font-weight:800;font-size:13px}
+.ds-trends-h{border-top:1px solid var(--divider);border-bottom:none;padding:14px 20px}
 .trends-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
 @media(max-width:1250px){.trends-strip{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:760px){.trends-strip{grid-template-columns:repeat(2,1fr)}}
@@ -1064,7 +1065,26 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .rec-grid{display:grid;grid-template-columns:0.82fr 2.3fr;align-items:stretch}
 .rec-left{border-right:1px solid var(--divider);padding:19px 24px 19px 19px;background:#faf8ff;border-radius:var(--r) 0 0 var(--r)}
 .rec-left .ds-amt{font-size:30px;font-weight:800;letter-spacing:-.025em;color:var(--ink);line-height:1.05;margin-bottom:2px}
-.rec-right{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:19px 19px 19px 24px}
+/* Recommendation card v3 – 3 columns: recommendation · how-we-get-the-number · signals */
+.rec-grid3{display:grid;grid-template-columns:0.85fr 1fr 1.7fr;align-items:stretch}
+@media(max-width:1050px){.rec-grid3{grid-template-columns:1fr}.rec-left,.rec-mid{border-right:none;border-bottom:1px solid var(--divider);border-radius:0}}
+.rec-mid{padding:19px 20px;border-right:1px solid var(--divider)}
+.rec-sig{padding:19px 20px;display:flex;flex-direction:column;gap:12px}
+.rec-sec-h{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);margin-bottom:12px}
+.ol-stack{display:flex;flex-direction:column;gap:10px}
+.olf{background:var(--grey-1);border:1px solid var(--border);border-radius:8px;padding:9px 13px;display:flex;flex-direction:column;gap:2px}
+.ol-stack .olf{flex:0 0 auto}
+.olf-l{font-size:11px;color:var(--text-3)}
+.olf-v{font-size:14px;font-weight:800;color:var(--ink)}
+.olf.result{background:var(--brand-100);border-color:var(--brand-300)}
+.olf.result .olf-v{color:var(--brand-700)}
+.olf.result.declined{background:var(--red-bg);border-color:var(--red-bd)}
+.olf.result.declined .olf-v{color:var(--red-t)}
+.rec-pos2{display:block;columns:1}
+.rec-risk3{display:block;columns:2;column-gap:24px}
+.rec-pos2 li,.rec-risk3 li{break-inside:avoid;margin-bottom:9px}
+.rec-pos2 li:last-child,.rec-risk3 li:last-child{margin-bottom:0}
+@media(max-width:1050px){.rec-risk3{columns:1}}
 .rec-lbl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);margin-bottom:8px}
 @media(max-width:900px){.rec-grid{grid-template-columns:1fr}.rec-left{border-right:none;border-bottom:1px solid var(--border)}.rec-right{grid-template-columns:1fr}}
 .rec-assess{margin-top:16px;font-style:italic;font-size:12.5px;color:var(--text-3);line-height:1.5}
@@ -1640,7 +1660,7 @@ function waterfallChart(spec,w,h,full){
   const padL=48,padR=12,padT=10,padB=full?42:26, iw=w-padL-padR, ih=h-padT-padB;
   const X=i=> padL+i*(iw/n)+(iw/n)/2, Y=v=> padT+ih-((v-mn)/(mx-mn))*ih, bw=Math.min(iw/n*0.62,30);
   const nT=Math.round((mx-mn)/sc.step); let grid='';
-  for(let t=0;t<=nT;t++){const val=mn+t*sc.step,yy=Y(val).toFixed(1);
+  for(let t=0;t<=nT;t++){const val=mn+t*sc.step; if(spec.sparseY&&!full&&t!==nT&&Math.abs(val)>=sc.step/2)continue; const yy=Y(val).toFixed(1);
     grid+=`<line x1="${padL}" y1="${yy}" x2="${w-padR}" y2="${yy}" stroke="var(--line2)" stroke-dasharray="2 5"/><text x="${padL-8}" y="${(Y(val)+3).toFixed(1)}" text-anchor="end" font-size="${full?11:9}" fill="var(--text-3)" font-weight="500">${fmtK(val)}</text>`;}
   let s='';
   bars.forEach((b,i)=>{const yTop=Y(Math.max(b.from,b.to)),yBot=Y(Math.min(b.from,b.to)),hh=Math.max(1,yBot-yTop);
@@ -1663,7 +1683,7 @@ function axedChart(spec,w,h,full){
   const X=i=> padL+(n>1? i*(iw/(n-1)) : iw/2);
   const Y=v=> padT+ih-((v-mn)/(mx-mn))*ih;
   const nT=Math.round((mx-mn)/sc.step); let grid='';
-  for(let t=0;t<=nT;t++){const val=mn+t*sc.step,yy=Y(val).toFixed(1);
+  for(let t=0;t<=nT;t++){const val=mn+t*sc.step; if(spec.sparseY&&!full&&t!==nT&&Math.abs(val)>=sc.step/2)continue; const yy=Y(val).toFixed(1);
     grid+=`<line x1="${padL}" y1="${yy}" x2="${w-padR}" y2="${yy}" stroke="var(--line2)" stroke-dasharray="2 5"/><text x="${padL-8}" y="${(Y(val)+3).toFixed(1)}" text-anchor="end" font-size="${full?11:9}" fill="var(--text-3)" font-weight="500">${pfmt(val)}</text>`;}
   const labs=(spec.labels&&spec.labels.length===n)?spec.labels:monthSeq(n),step=Math.max(1,Math.ceil(n/Math.max(3,Math.round(w/(full?80:110))))); let xl='';
   const isBars=type==='bars';
@@ -1708,7 +1728,7 @@ function multiChart(spec,w,h,full){
   const legH=showLeg?24:0, padL=48,padR=12,padT=10,padB=(full?38:22)+legH, iw=w-padL-padR, ih=h-padT-padB;
   const X=i=> padL+(n>1? i*(iw/(n-1)):iw/2), Y=v=> padT+ih-((v-mn)/(mx-mn))*ih;
   const nT=Math.round((mx-mn)/sc.step); let grid='';
-  for(let t=0;t<=nT;t++){const val=mn+t*sc.step,yy=Y(val).toFixed(1);
+  for(let t=0;t<=nT;t++){const val=mn+t*sc.step; if(spec.sparseY&&!full&&t!==nT&&Math.abs(val)>=sc.step/2)continue; const yy=Y(val).toFixed(1);
     grid+=`<line x1="${padL}" y1="${yy}" x2="${w-padR}" y2="${yy}" stroke="var(--line2)" stroke-dasharray="2 5"/><text x="${padL-8}" y="${(Y(val)+3).toFixed(1)}" text-anchor="end" font-size="${full?11:9}" fill="var(--text-3)" font-weight="500">${spec.percent?val+'%':fmtK(val)}</text>`;}
   const labs=(spec.labels&&spec.labels.length===n)?spec.labels:monthSeq(n),step=Math.max(1,Math.ceil(n/Math.max(3,Math.round(w/(full?80:110))))); let xl='';
   labs.forEach((L,i)=>{if(i%step===0){const anc=i===0?'start':(i>=n-1?'end':'middle');xl+=`<text x="${X(i).toFixed(1)}" y="${(padT+ih+(full?15:11)).toFixed(1)}" text-anchor="${anc}" font-size="${full?10:8}" fill="var(--text-3)">${L}</text>`;}});
@@ -2703,23 +2723,43 @@ const IC_GEAR='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke
 const IC_CLOCK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3 2"/></svg>';
 const IC_XMARK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>';
 function toggleAssume(id){const el=document.getElementById(id);if(el)el.classList.toggle('collapsed');}
+// "How we get to the number" – transparent offer sizing (forecasted revenue × availability multiple by rating, debt-service headroom → amount & term).
+function offerLogic(d,vert){
+  const av=(d.realRev||[]).filter(x=>typeof x==='number');
+  const annual=av.length>=12?av.slice(-12).reduce((a,b)=>a+b,0):Math.round((d.preoffer||120000)*5);
+  const monthlyRev=Math.max(1,Math.round(annual/12));
+  const amt=d.maxAmount||0, term=10, accDS=28;
+  const D=CD(d.id),dp=(D&&D.debtByProvider)||[];
+  let repay=0;dp.forEach(p=>{const nz=p.actualOut.filter(x=>Math.abs(x)>0).slice(-3);if(nz.length)repay+=Math.abs(nz.reduce((a,b)=>a+b,0)/nz.length);});
+  const currDS=Math.min(60,Math.round(repay/monthlyRev*100));
+  const it=(l,v)=>`<div class="olf"><span class="olf-l">${l}</span><span class="olf-v">${v}</span></div>`;
+  const steps= amt<=0
+    ? [it('Forecasted cash revenue',money0(monthlyRev)+'/mo'),it('Current debt service',currDS+'% of revenue'),it('Rating '+d.rating+' vs appetite','≤ '+accDS+'% · below bar')]
+    : [it('Forecasted cash revenue',money0(monthlyRev)+'/mo'),it('Rating '+d.rating+' → multiple',(amt/monthlyRev).toFixed(1)+'×'),it('Debt-service headroom',currDS+'% → '+accDS+'%')];
+  const result= amt<=0
+    ? `<div class="olf result declined"><span class="olf-l">Supported amount</span><span class="olf-v">£0 · below appetite</span></div>`
+    : `<div class="olf result"><span class="olf-l">Suggested offer</span><span class="olf-v">${money0(amt)} · ${term} mo</span></div>`;
+  if(vert)return `<div class="ol-stack">${steps.join('')}${result}</div>`;
+  return `<div class="ol-flow">${steps.join('<span class="olf-arrow">→</span>')}<span class="olf-arrow">=</span>${result}</div>`;
+}
 function recommendationCard(d){const m=dealMetrics(d), f=m.f;
-  const green=f.green.slice(0,5), red=f.red.slice(0,6);
-  return `<div class="card rec-card" style="margin-bottom:14px"><div class="card-b">
-    <div class="rec-grid">
-      <div class="rec-left">
-        <div class="rec-head"><span class="ais-badge" style="margin-left:0">${AI_STAR}Engine</span><h3>Recommendation</h3></div>
-        <div class="ds-amt">${d.maxAmount?money0(d.maxAmount):'£0'}</div>
-        <div class="ds-amt-sub">vs ${money0(d.preoffer)} requested</div>
-        <div class="ds-amt-tags">${decisionChip(d.decision)}<span class="rating rt-${d.rating}">${d.rating}</span>${d.products.length?d.products.map(p=>`<span class="ds-tag">${p}</span>`).join(''):'<span class="ds-tag">No product</span>'}</div>
-        <div class="rec-assess">${m.rationale}</div>
-      </div>
-      <div class="rec-right">
-        <div class="rec-box pos"><div class="rec-box-h pos">${IC_PLUS}Positives</div>
-          <ul class="ds-flist pos">${green.map(g=>`<li>${g.t}</li>`).join('')||'<li>–</li>'}</ul></div>
-        <div class="rec-box neg"><div class="rec-box-h neg">${IC_MINUS}Risks / Negatives</div>
-          <ul class="ds-flist risk">${red.map(r=>`<li class="${r.sev||'r'}">${r.t}</li>`).join('')||'<li>None material</li>'}</ul></div>
-      </div>
+  const green=f.green.slice(0,6), red=f.red.slice(0,6);
+  return `<div class="card rec-card" style="margin-bottom:14px"><div class="card-b rec-grid3">
+    <div class="rec-left">
+      <div class="rec-head"><span class="ais-badge" style="margin-left:0">${AI_STAR}Engine</span><h3>Recommendation</h3></div>
+      <div class="ds-amt">${d.maxAmount?money0(d.maxAmount):'£0'}</div>
+      <div class="ds-amt-sub">vs ${money0(d.preoffer)} requested</div>
+      <div class="ds-amt-tags">${decisionChip(d.decision)}<span class="rating rt-${d.rating}">${d.rating}</span>${d.products.length?d.products.map(p=>`<span class="ds-tag">${p}</span>`).join(''):'<span class="ds-tag">No product</span>'}</div>
+      <div class="rec-assess">${m.rationale}</div>
+    </div>
+    <div class="rec-mid">
+      ${offerLogic(d,true)}
+    </div>
+    <div class="rec-sig">
+      <div class="rec-box pos"><div class="rec-box-h pos">${IC_PLUS}Positives</div>
+        <ul class="ds-flist pos rec-pos2">${green.map(g=>`<li>${g.t}</li>`).join('')||'<li>–</li>'}</ul></div>
+      <div class="rec-box neg"><div class="rec-box-h neg">${IC_MINUS}Risks / Negatives</div>
+        <ul class="ds-flist risk rec-risk3">${red.map(r=>`<li class="${r.sev||'r'}">${r.t}</li>`).join('')||'<li>None material</li>'}</ul></div>
     </div>
   </div></div>`;}
 // Section 2b – condensed one-line descriptions in the Company snapshot (below the KPI tiles)
@@ -2988,7 +3028,7 @@ function decisionSummaryCard(d){const m=dealMetrics(d),f=m.f;
     <div class="dss-assess">${m.rationale}</div>
     <div class="dss-fl"><span class="dss-fl-lbl pos" title="Positives">${IC_PLUS}</span><span class="dss-fl-txt">${pos}</span></div>
     <div class="dss-fl"><span class="dss-fl-lbl neg" title="Risks">${IC_MINUS}</span><span class="dss-fl-txt risk">${risk}</span></div>
-  </div></div>`;}
+  </div>${decisionTrendsStrip(d)}</div>`;}
 // Zoomed-out one-row recap of the Overview trend charts, for context on the Decision step (click any to expand).
 function decisionTrendsStrip(d){
   const t=[
@@ -2999,8 +3039,8 @@ function decisionTrendsStrip(d){
     ['Debt recycling', cDebtRecycling(d.id)||emptyChartSpec('No external debt')],
     ['Lender exposure', cLenderExposure(d.id)||emptyChartSpec('No debt facilities')]
   ];
-  return `<div class="card" style="margin-bottom:14px"><div class="card-h"><h3>Trends</h3><span class="sub">zoomed-out context from the overview · click to expand</span><a class="viewcta" style="margin-left:auto" href="#" onclick="go('#/deal/${d.id}/overview');return false;">Full trends →</a></div>
-    <div class="card-b"><div class="trends-strip">${t.map(([title,spec])=>miniChart(title,spec,'','',260,66)).join('')}</div></div></div>`;
+  return `<div class="card-h ds-trends-h"><h3>Trends</h3><span class="sub">zoomed-out context from the overview · click to expand</span></div>
+    <div class="card-b"><div class="trends-strip">${t.map(([title,spec])=>miniChart(title,spec&&Object.assign({},spec,{sparseY:true}),'','',260,66)).join('')}</div></div>`;
 }
 function tabDecision(d){
   const prods=decisionProducts(d);DEC[d.id]=DEC[d.id]||{};
@@ -3008,7 +3048,6 @@ function tabDecision(d){
   const open=dealIssueCount(d);
   document.getElementById('pane').innerHTML=`
    ${decisionSummaryCard(d)}
-   ${decisionTrendsStrip(d)}
    <div class="card" style="margin-bottom:14px"><div class="card-h"><h3>Offers</h3><span class="sub">one row per product · Edit opens the terms · approve or reject each</span></div>
      <div style="overflow:auto"><table class="offer-table"><thead><tr><th>Product</th><th>Amount</th><th>Key terms</th><th>Status</th><th></th></tr></thead>
        <tbody>${prods.map((p,i)=>`${(p.addon&&!(prods[i-1]&&prods[i-1].addon))?`<tr class="offer-sep"><td colspan="5">Add-ons – attach alongside a main facility, not offered standalone</td></tr>`:''}${offerRow(d,p,i)}`).join('')}</tbody></table></div></div>
