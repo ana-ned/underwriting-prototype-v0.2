@@ -98,9 +98,9 @@ select:not(.editcell){appearance:none;-webkit-appearance:none;-moz-appearance:no
 .btn-sm{padding:5px 10px;font-size:13px}
 .btn:disabled,.btn[disabled]{opacity:.45;cursor:not-allowed}
 .btn-primary:disabled:hover,.btn-primary[disabled]:hover{background:var(--brand-600)}
-.chip{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:4px;
+.chip{display:inline-flex;align-items:center;gap:6px;height:23px;padding:0 11px;border-radius:999px;
   font-size:12px;font-weight:600;border:1px solid transparent;white-space:nowrap}
-.chip .dot{width:7px;height:7px;border-radius:9999px;background:currentColor;opacity:.9}
+.chip .dot{display:none}
 .c-success{background:var(--success-bg);border-color:var(--success-bd);color:var(--success)}
 .c-error{background:var(--error-bg);border-color:var(--error-bd);color:var(--error)}
 .c-warning{background:var(--warning-bg);border-color:var(--warning-bd);color:var(--warning)}
@@ -629,6 +629,18 @@ table.txgrid tbody tr.rowsel td{background:var(--brand-100)}
 .dss-fl-lbl.pos{color:var(--green)} .dss-fl-lbl.neg{color:var(--red-t)}
 .dss-fl-txt{color:var(--text-2)} .dss-fl-txt.risk{color:var(--text-2)}
 .sc-gchip{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:22px;padding:0 7px;border-radius:5px;font-weight:800;font-size:13px}
+/* offer editor – full field set */
+.oe-uw{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;margin-bottom:12px;background:var(--grey-1);border:1px solid var(--border);border-radius:8px;font-size:13px}
+.oe-uw-l{color:var(--text-3);font-weight:700;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em}
+.oe-uw-v{display:inline-flex;align-items:center;gap:7px;font-weight:700;color:var(--ink)}
+.oe-av{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--brand-100);color:var(--brand-700);font-size:9.5px;font-weight:800}
+.oe-tbl .oe-grp td{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--text-3);padding-top:14px;padding-bottom:3px;border-bottom:none}
+.oe-tbl .oe-grp:first-child td{padding-top:2px}
+.oe-tbl{width:100%;table-layout:fixed}
+.oe-tbl .oe-lbl{color:var(--text-2);font-weight:600;width:230px;vertical-align:middle}
+.oe-tbl .oe-val{width:auto}
+.oe-tbl .offer-term-in{width:100%;text-align:left}
+.oe-modal .mb{overflow:auto}
 .ds-trends-h{border-top:1px solid var(--divider);border-bottom:none;padding:14px 20px}
 .trends-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
 @media(max-width:1250px){.trends-strip{grid-template-columns:repeat(3,1fr)}}
@@ -660,6 +672,11 @@ table.txgrid tbody tr.rowsel td{background:var(--brand-100)}
 .snum.clean svg{width:16px;height:16px}
 .snum.red{background:var(--error-bg);color:var(--error)} /* light red bg, bright red font */
 .snum.done{background:var(--brand-600);color:#fff}
+.snum.todo{background:#c8d0d4;color:#fff} /* not reviewed yet – greyed-out ✓ */
+/* flagged-count badge pinned to the step's top-right corner (doesn't grow the row) */
+.sbadge{position:absolute;top:2px;right:-4px;min-width:15px;height:15px;padding:0 4px;border-radius:999px;font-size:9px;font-weight:800;line-height:1;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #fff}
+.sstep.cur .sbadge{box-shadow:0 0 0 2px var(--brand-100)}
+.sbadge.red,.sbadge.amber{background:#e5493f;color:#fff}
 .snum.view{background:transparent;color:var(--brand-600)} /* overview = read-only landing, home icon */
 .snum.view svg{width:15px;height:15px}
 /* review-progress ring in the verdict bar */
@@ -2102,7 +2119,7 @@ function checkArea(name){
   if(/bank account|storefront|eligib|completeness|coverage/i.test(name))return 'datachecks';
   if(/store owner|inter-client|linked|diligence|identity|adverse|ownership/i.test(name))return 'background';
   if(/low score|score/i.test(name))return 'scorecards';
-  if(/payment|delinq|default|nsf/i.test(name))return 'rag';
+  if(/payment|delinq|default|nsf/i.test(name))return 'background';  // credit history is shown under Background – count it there, not RAG
   return 'datachecks';
 }
 function focusFor(name){
@@ -2141,7 +2158,9 @@ function checkEff(id,name,auto){const o=checkOvr(id,name);return o?o.to:auto;}
 function lastNote(id,name){const l=checkLog(id,name);for(let i=l.length-1;i>=0;i--)if(l[i].note)return l[i].note;return '';}
 // resolve a check's automated severity + detail from wherever it lives
 function findCheck(d,name){let m=(d.hygiene||[]).find(h=>h[0]===name);if(m)return{sev:m[1],detail:m[2]};
-  m=[...bgIdentity(d),...bgScreen(d)].find(r=>r[0]===name);if(m)return{sev:m[1],detail:m[2]};return{sev:'g',detail:''};}
+  m=[...bgIdentity(d),...bgScreen(d)].find(r=>r[0]===name);if(m)return{sev:m[1],detail:m[2]};
+  const c=dealChecks(d).find(x=>x.name===name);if(c)return{sev:c.origSev!=null?c.origSev:c.sev,detail:c.detail};
+  return{sev:'g',detail:''};}
 // Background identity/screening use "Verified"; everything else uses "Clear"
 function checkVocab(d,name){return [...bgIdentity(d),...bgScreen(d)].some(r=>r[0]===name)?CSTATES_V:CSTATES;}
 // inline 3-state toggle (Clear / Check / Fail) – the highlighted button is the current state
@@ -2291,6 +2310,12 @@ function dealChecks(d){
   const sub=det=>{const m=(det||'').match(/(\d+)\s*(nsf|late|scores?|matches?|other|events?)/i);return m?Math.max(1,parseInt(m[1],10)):1;};
   const rows=[];
   d.hygiene.forEach(h=>{const step=checkArea(h[0]);const eff=checkEff(d.id,h[0],h[1]);rows.push({name:h[0],detail:h[2],sev:eff,origSev:h[1],step,area:label(step),count:eff==='g'?0:sub(h[2]),focus:focusFor(h[0])});});
+  // automated cross-checks – the ones underwriters used to eyeball by hand (store↔bank↔company, data completeness)
+  const weak='DEF'.includes(d.rating);
+  [ ['Store owner ↔ bank account', weak?'a':'g', weak?'Amazon store owner not yet matched to the bank-account holder – confirm':'Amazon store owner matches the bank-account holder'],
+    ['Bank account ↔ company owner', weak?'a':'g', weak?'Account may be held in a personal / other-business name – confirm':'Bank account owned by the applying company'],
+    ['Feed completeness', connMissing(d)?'a':'g', connMissing(d)?'A connected feed is missing – some fields incomplete':'All connected feeds complete – no missing or errored fields'] ]
+   .forEach(h=>{const eff=checkEff(d.id,h[0],h[1]);rows.push({name:h[0],detail:h[2],sev:eff,origSev:h[1],step:'datachecks',area:label('datachecks'),count:eff==='g'?0:1,focus:'connections'});});
   d.rag.forEach(r=>{rows.push({name:r[0],detail:r[2],sev:r[1],step:'rag',area:'RAG checks',count:r[1]==='g'?0:1,focus:r[0]});});
   return rows;
 }
@@ -2419,11 +2444,14 @@ function renderSpine(d,current){const F=stepFlags(d);
     // Overview is a read-only landing view, not a reviewable step → home icon, no ring/tick.
     // Other steps: problem count in red when issues · grey ring when clean · teal ✓ once reviewed.
     const isOverview=s.id==='overview';
-    const cls=isOverview?'view':(done?'done':(f.n>0?'red':'clean'));
-    const inner=isOverview?HOME_ICON:(done?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>':(f.n>0?f.n:DOT_RING));
+    const cls=isOverview?'view':(done?'done':'todo');   // done = teal ✓ · not-done = greyed ✓
+    const CHK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+    const inner=isOverview?HOME_ICON:CHK;
+    // flagged count → small badge pinned to the step's top-right corner (only while unreviewed)
+    const badge=(!isOverview&&!done&&f.n>0)?`<span class="sbadge ${f.red?'red':'amber'}">${f.n}</span>`:'';
     const step=`<button class="sstep ${cur?'cur':''}" onclick="go('#/deal/${d.id}/${s.id}')">
       <span class="snum ${cls}">${inner}</span>
-      <span class="slabel">${s.t}</span></button>`;
+      <span class="slabel">${s.t}</span>${badge}</button>`;
     const line=idx<STEPS.length-1?`<span class="sline ${done?'done':''}"></span>`:'';
     return step+line;}).join('')}</nav>`;
 }
@@ -3105,10 +3133,60 @@ function applyDecide(id,i,verdict){const r=((document.getElementById('decReason'
   const p=decisionProducts(byId(id))[i];DEC[id]=DEC[id]||{};DEC[id][i]=verdict;closeOverlay();
   (NOTES[id]=NOTES[id]||[]).push({name:CURRENT_UW.name,initials:CURRENT_UW.initials,time:nowStamp(),stepId:'decision',tag:'Decision',tx:`${verdict==='approve'?'Approved':'Rejected'} ${p.name}${r?' – '+r:''}`});
   tabDecision(byId(id));toast(`${verdict==='approve'?'Approved':'Rejected'} ${p.name}`);}
-function editOffer(id,i){const p=decisionProducts(byId(id))[i];
-  openOverlay(`<div class="modal" style="max-width:520px"><div class="mh"><h3>Edit offer – ${p.name}</h3><div class="x" onclick="closeOverlay()">✕</div></div>
-   <div class="mb"><table class="grid flat">${p.terms.map(t=>`<tr><td style="color:var(--text-3);font-weight:600;width:180px">${t[0]}</td><td><input class="editcell offer-term-in" data-orig="${t[1]}" style="width:190px;text-align:left" value="${t[1]}" oninput="this.classList.toggle('chg',this.value!==this.dataset.orig)"></td></tr>`).join('')}</table>
-   <div style="margin-top:12px;display:flex;gap:8px;align-items:center"><button class="btn btn-outline btn-sm" onclick="resetOffer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-right:5px;vertical-align:-2px"><path d="M4 12a8 8 0 0 1 14-5m2-2v4h-4"/><path d="M20 12a8 8 0 0 1-14 5m-2 2v-4h4"/></svg>Reset to recommended</button><span style="flex:1"></span><button class="btn btn-outline btn-sm" onclick="closeOverlay()">Cancel</button><button class="btn btn-primary btn-sm" onclick="closeOverlay();toast('Offer terms updated (demo)')">Save terms</button></div></div></div>`);}
+// Full offer field set (mirrors the back-office "confirm offer details" – all fields underwriters use to build an offer).
+function offerFields(d,p){
+  const T=Object.fromEntries(p.terms.map(t=>[t[0],t[1]]));
+  const amtStr=p.terms[0][1], amtNum=parseInt(String(amtStr).replace(/[^0-9]/g,''))||d.maxAmount||0;
+  const av=(d.realRev||[]).filter(x=>typeof x==='number');
+  const annual=av.length>=12?av.slice(-12).reduce((a,b)=>a+b,0):Math.round((d.preoffer||120000)*5);
+  const monthlyRev=Math.max(1,Math.round(annual/12));
+  const termStr=T['Term']||T['Est. duration']||T['Max term']||'10 months';
+  const isLoc=/line|loc|revolv/i.test(p.name)||/revolv/i.test(String(termStr));
+  const termMo=parseInt(String(termStr).replace(/[^0-9]/g,''))||(isLoc?12:10);
+  const cashFee=T['Cash fee']||T['Fee on drawn']||(T['Factor rate']?('factor '+T['Factor rate']):'0.90% / mo');
+  const cfNum=parseFloat(String(cashFee).replace(/[^0-9.]/g,''))||0.9;
+  const apr=(cfNum*12*1.6).toFixed(1)+'%';
+  const installs=Math.max(1,termMo*2), ppi=(100/installs).toFixed(1)+'%';
+  const grossX=(21+(amtNum%7))+'%', netX=Math.max(15,(21+(amtNum%7))-4)+'%';
+  const m=dealMetrics(d);
+  return [
+    ['Amount & sizing',[
+      ['Max advance or facility',amtStr],
+      ['Min advance or draw',T['Min draw']||(isLoc?'£15,000':money0(Math.round(amtNum*0.2)))],
+      ['Availability multiplier',(amtNum/monthlyRev).toFixed(1)+'×'],
+      ['Principal per installment ratio',ppi]]],
+    ['Term & fees',[
+      ['Currency','GBP'],
+      ['Max term or repayment period',termMo+' months'],
+      ['Collection frequency',T['Collection']||'Every 15 days'],
+      ['Draw period',isLoc?'3 months':'—'],
+      ['Payment holiday','0 months'],
+      ['Cash fee',cashFee],
+      ['APR %',apr]]],
+    ['Structure',[
+      ['Loan product type',p.name],
+      ['Secured',d.rating==='B'?'No':'Yes'],
+      ['Staple','No'],
+      ['Milestones','—']]],
+    ['Returns',[
+      ['Offer score',d.rating+' · '+(m.score||'—')+'/100'],
+      ['Indicative gross XIRR',grossX],
+      ['Net XIRR',netX]]],
+  ];
+}
+function editOffer(id,i){const d=byId(id),p=decisionProducts(d)[i];
+  const rows=offerFields(d,p).map(([grp,flds])=>`<tr class="oe-grp"><td colspan="2">${grp}</td></tr>`+flds.map(f=>`<tr><td class="oe-lbl">${f[0]}</td><td class="oe-val"><input class="editcell offer-term-in" data-orig="${f[1]}" value="${f[1]}" oninput="this.classList.toggle('chg',this.value!==this.dataset.orig)"></td></tr>`).join('')).join('');
+  openOverlay(`<div class="modal oe-modal" style="max-width:680px"><div class="mh"><h3>Edit offer – ${p.name}</h3><div class="x" onclick="closeOverlay()">✕</div></div>
+   <div class="mb">
+     <div class="oe-uw"><span class="oe-uw-l">Underwriter</span><span class="oe-uw-v"><span class="oe-av">${CURRENT_UW.initials}</span>${CURRENT_UW.name}</span></div>
+     <table class="grid flat oe-tbl">${rows}</table>
+   </div>
+   <div class="mf">
+     <button class="btn btn-outline btn-sm" onclick="resetOffer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-right:5px;vertical-align:-2px"><path d="M4 12a8 8 0 0 1 14-5m2-2v4h-4"/><path d="M20 12a8 8 0 0 1-14 5m-2 2v-4h4"/></svg>Reset to recommended</button>
+     <span style="flex:1"></span>
+     <button class="btn btn-outline btn-sm" onclick="closeOverlay()">Cancel</button>
+     <button class="btn btn-primary btn-sm" onclick="closeOverlay();toast('Offer terms updated (demo)')">Save terms</button>
+   </div></div>`);}
 function resetOffer(){document.querySelectorAll('#ovl .offer-term-in').forEach(inp=>{inp.value=inp.dataset.orig;inp.classList.remove('chg');});toast('Reset to recommended terms');}
 
 /* ---------- OVERVIEW TAB ---------- */
