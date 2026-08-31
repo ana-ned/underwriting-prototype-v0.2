@@ -108,7 +108,7 @@ select:not(.editcell){appearance:none;-webkit-appearance:none;-moz-appearance:no
 .c-neutral{background:var(--grey-2);border-color:var(--border);color:var(--text-2)}
 
 /* rating pill A–F */
-.rating{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:4px;
+.rating{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:999px;
   font-weight:800;font-size:13px}
 .rt-A,.rt-B{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
 .rt-C{background:var(--grey-2);color:var(--text-2);border:1px solid var(--border)}
@@ -197,7 +197,7 @@ tr.clickable:hover .goarrow{background:var(--brand-600);color:#fff;border-color:
 .org-cell{display:flex;align-items:center;gap:11px}
 .orglogo{width:30px;height:30px;border-radius:7px;flex:0 0 30px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);background:#fff;overflow:hidden}
 .orglogo.shop{background:#95bf47;border-color:#7fa83c}
-.ptag{display:inline-block;font-size:11.5px;font-weight:600;color:var(--text-2);background:var(--grey-1);border:1px solid var(--border);border-radius:5px;padding:2px 9px;margin:1px 3px 1px 0;white-space:nowrap}
+.ptag{display:inline-block;font-size:11.5px;font-weight:600;color:var(--text-2);background:var(--grey-1);border:1px solid var(--border);border-radius:999px;padding:2px 9px;margin:1px 3px 1px 0;white-space:nowrap}
 .uwcell{display:flex;align-items:center;gap:10px}
 .uwbar{flex:1;height:6px;border-radius:4px;background:var(--cell);overflow:hidden;min-width:52px;max-width:100px}
 .uwbar-fill{height:100%;border-radius:4px}
@@ -256,16 +256,18 @@ tr.clickable:hover .goarrow{background:var(--brand-600);color:#fff;border-color:
 .checkrow .st{width:78px;flex:0 0 78px}
 .checkrow .nm{font-weight:600;display:flex;flex-direction:column;gap:1px} .checkrow .dt{color:var(--text-3);margin-left:auto;font-size:12px;text-align:right}
 .ck-by{font-weight:600;font-size:10.5px;color:var(--brand-700)}
-.ck-note{margin-left:10px;flex:0 0 auto;display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;color:var(--text-3);background:#fff;border:1px solid var(--border);border-radius:999px;padding:4px 7px;cursor:pointer}
-.ck-note:hover{background:var(--grey-1);border-color:var(--brand-300);color:var(--brand-700)}
-.ck-note svg{width:13px;height:13px}
 .ck-hist{display:flex;flex-direction:column;gap:12px;margin:2px 0 12px;max-height:38vh;overflow:auto}
 .ck-item{display:flex;gap:10px}
 .ck-av{flex:0 0 26px;width:26px;height:26px;border-radius:50%;background:var(--brand-100);color:var(--brand-700);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center}
 .ck-meta{font-size:12px;color:var(--text-3)}
 .ck-meta b{color:var(--ink);font-weight:700}
-.ck-act-tag{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;padding:1px 6px;border-radius:4px;margin-left:7px;border:1px solid transparent}
+.ck-act-tag{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;padding:1px 8px;border-radius:999px;margin-left:7px;border:1px solid transparent}
 .ck-act-tag.c-success{background:var(--green-bg);color:#0d6b6b} .ck-act-tag.c-warning{background:var(--amber-bg);color:#a8681a} .ck-act-tag.c-neutral{background:var(--grey-1);color:var(--text-2)}
+/* horizontal state transition – the faded-crossed-out → arrow → new pattern already used vertically in .rr-tags */
+.tr-tags{display:inline-flex;align-items:center;gap:5px;margin-left:7px;vertical-align:middle}
+.tr-tags .ck-act-tag{margin-left:0}
+.tr-tags .ck-act-tag.strike{text-decoration:line-through;text-decoration-thickness:1.4px;opacity:.5}
+.tr-arw{color:var(--text-3);font-size:11px;font-weight:700;line-height:1}
 .ck-txt{font-size:13px;color:var(--text-2);margin-top:3px;line-height:1.45}
 .ck-empty{font-size:12.5px;color:var(--text-3);padding:2px 0 12px}
 .ck-by.mut{color:var(--text-3)}
@@ -274,25 +276,128 @@ tr.clickable:hover .goarrow{background:var(--brand-600);color:#fff;border-color:
 .ck-change{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;margin:2px 0 12px;padding:9px 12px;background:var(--grey-1);border-radius:8px}
 .ck-lbl{font-size:12px;font-weight:700;color:var(--text-2);margin:4px 0 6px}
 .ck-choose{margin-top:12px;display:flex;align-items:center;gap:8px}
+/* Check panel – left = the evidence, the system's call and the decision you're making now;
+   right = the trail of what everyone did before. */
+/* History is a recessed rail on the left – visible while you decide (Ravi: "being able to see the note
+   when reviewing"), but never competing with the action column, which sits under the title and above
+   the primary button. Two bands only: what the system found, then your conclusion. */
+/* The dialog is capped, the body doesn't scroll as a whole – each column scrolls inside its own
+   bounded height, so a long trail never pushes the decision or the footer off screen. */
+.ck-modal .mb{overflow:hidden;display:flex;min-height:0}
+.ck-modal .ck-two{flex:1;min-height:0}
+.ck-two{display:grid;grid-template-columns:284px minmax(0,1fr);align-items:stretch;min-height:0}
+.ck-two>.ck-col{min-width:0;min-height:0;overflow:auto}
+.ck-two>.ck-histcol{border-right:1px solid var(--border);background:var(--grey-1);padding:16px 18px}
+.ck-two>.ck-histcol .ck-sec{margin-bottom:14px}
+.ck-band{padding:16px 20px;border-bottom:1px solid var(--border)}
+.ck-band:last-child{border-bottom:0}
+.ck-band .ck-sec+.ck-why{margin-top:-2px}
+.ck-sec{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin:0 0 9px}
+.ck-sysline{display:flex;align-items:center;gap:9px;margin-top:14px}
+.ck-why{font-size:13px;color:var(--text-1);line-height:1.5}
+/* the two sides being compared, side by side – the anomaly has to be readable at a glance */
+.ck-cmp{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:12px}
+.ck-cmp>div{padding:11px 14px;text-align:center;min-width:0}
+.ck-cmp>div+div{border-left:1px solid var(--border)}
+.ck-cmp .l{font-size:11.5px;color:var(--text-3);margin-bottom:3px}
+.ck-cmp .v{font-size:14px;font-weight:700;color:var(--text-1);overflow-wrap:anywhere}
+.ck-cmp .v.miss{color:var(--amber-t)}
+/* not a comparison – a fact list, one card, no divider claiming a match */
+.ck-facts{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:12px}
+.ck-facts>div{display:flex;align-items:baseline;gap:14px;padding:9px 14px}
+.ck-facts>div+div{border-top:1px solid var(--cell)}
+.ck-facts .l{flex:0 0 132px;font-size:11.5px;color:var(--text-3)}
+.ck-facts .v{font-size:13.5px;font-weight:600;color:var(--text-1);min-width:0;overflow-wrap:anywhere}
+.ck-facts .v.miss{color:var(--amber-t)}
+.ck-two .ck-change{margin:0 0 12px}
+/* each entry is its own card on the recessed rail, so the trail reads as discrete events */
+.ck-two .ck-hist{max-height:none;margin:0;gap:10px}
+/* no avatar gutter – it would leave a dead column beside the note text in a 284px rail.
+   Identity rides with the timestamp instead, so every line starts at the same edge. */
+.ck-two .ck-item{display:block;background:#fff;border:1px solid var(--border);border-radius:8px;padding:11px 12px}
+/* the tag carries a left margin for inline use – on its own line it has to start at the text edge */
+.ck-histtag{margin-bottom:6px;line-height:1}
+.ck-histtag>.tr-tags,.ck-histtag>.ck-act-tag{margin-left:0}
+.ck-histmeta{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text-3);margin-top:8px}
+.ck-histmeta .ck-av{width:20px;height:20px;flex:0 0 20px;font-size:9px}
+.ck-standing{font-size:12.5px;color:var(--text-2);margin:9px 0 14px}
+@media (max-width:860px){.ck-two{grid-template-columns:1fr}.ck-two>.ck-histcol{border-right:0;border-bottom:1px solid var(--border);max-height:30vh}}
 .ck-in{width:100%;min-height:66px;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font:inherit;font-size:13px;resize:vertical}
 .checkrow .seg.cseg{margin-left:14px}
 .conn-act{margin-left:auto;display:inline-flex;align-items:center;gap:8px}
 /* unified check row: title · desc · note · switch */
 .cklist{margin-top:2px}
-.ckrow{display:grid;grid-template-columns:minmax(170px,1fr) minmax(130px,1.1fr) minmax(120px,1.5fr) 184px;gap:16px;align-items:center;padding:11px 2px;border-top:1px solid var(--cell)}
-.ckrow:first-child{border-top:none}
-.ckrow .ck-title{font-weight:600;font-size:13.5px;min-width:0}
+/* Data checks / Background row – 5 columns: name · evidence · SYSTEM (snapshot) · UNDERWRITER (blank unless overridden) · note.
+   Ravi Aug-25: "it'd be good to just have two columns, and if the underwriter doesn't change it, then it stays blank." */
+:root,.ckgrid{--ckcols:minmax(168px,1.05fr) minmax(196px,1.45fr) 104px minmax(190px,1.35fr) 152px}
+/* the grid bleeds to the card edges so header band and row rules run the full table width */
+.card-b>.ckgrid{margin:-19px}
+.cklist.ckgrid{margin-top:-19px}
+.ckrow{display:grid;grid-template-columns:var(--ckcols);gap:16px;align-items:center;padding:12px 19px;border-top:1px solid var(--cell)}
+.ckhead{display:grid;grid-template-columns:var(--ckcols);gap:16px;align-items:center;padding:9px 19px;background:#eceff2;border-bottom:1px solid var(--border)}
+.ckhead+.ckrow{border-top:none}
+.ckhead span{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3)}
+.ckhead .ckh-sys{display:inline-flex;align-items:center;gap:4px}
+.ckhead .ckh-sys svg{width:10px;height:10px}
+.ck-title{font-weight:600;font-size:13.5px;min-width:0;display:flex;align-items:center;gap:8px}
 .ckrow .ck-desc{color:var(--text-3);font-size:12.5px;min-width:0}
+/* the two controls share one height so their centre lines agree across the row */
+.ck-note{min-height:32px}
+.uw-cell .seg.cseg{min-height:32px}
+.uw-cell .seg.cseg button{padding:0 10px}
+/* Piotr: "little tick boxes next to the name … green, amber, red" – reflects the EFFECTIVE state.
+   Solid fill: with the row tint gone this is what carries the status at a glance. */
+.ck-tick{flex:none;width:18px;height:18px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;color:#fff}
+.ck-tick svg{width:11px;height:11px;stroke-width:3}
+.ck-tick.g{background:var(--green)} .ck-tick.a{background:var(--amber-t)} .ck-tick.r{background:var(--red-t)}
+/* Andrew: expose the two sides actually being compared, so a human can catch "Andrew Trading" vs "Andrew Trading & Brothers" */
+.ck-ev{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;font-size:12px;min-width:0}
+.ck-ev .evl{color:var(--text-3);white-space:nowrap}
+.ck-ev .evv{color:var(--text-1);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ck-ev .evv.miss{color:var(--amber-t);font-weight:600}
+/* SYSTEM = locked snapshot: outlined, never filled – it must not read as an action someone took */
+/* Tinted fill, not solid – heavier than an outline so it reads at a glance, lighter than the
+   underwriter's selected segment so the two can never be mistaken for each other. */
+.sys-chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:999px;border:1px solid transparent;white-space:nowrap}
+.sys-chip .dot{width:6px;height:6px;border-radius:999px;flex:none}
+.sys-chip.g{background:var(--green-bg);color:#0d6b6b;border-color:var(--green-bd,#bfe3de)} .sys-chip.g .dot{background:var(--green)}
+.sys-chip.a{background:var(--amber-bg);color:var(--amber-t);border-color:var(--amber-bd)} .sys-chip.a .dot{background:var(--amber-t)}
+.sys-chip.r{background:var(--red-bg,#fdecea);color:var(--red-t);border-color:var(--red-bd,#f3c9c5)} .sys-chip.r .dot{background:var(--red-t)}
+/* UNDERWRITER column – empty by default; the override affordance only appears on hover */
+.uw-cell{min-height:24px;display:flex;align-items:center;justify-content:flex-start;gap:8px}
+/* the crossed-out transition Ravi singled out on RAG – "red crossed out and then amber makes it super clear" */
+.ck-title .ckt-n{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.ck-title .ovr-tag{margin-left:0;flex:none}
+.mh .ovr-tag{vertical-align:2px}
+.uw-ovr{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;white-space:nowrap;background:none;border:0;padding:0;cursor:pointer;font-family:inherit}
+.uw-ovr:hover b{filter:brightness(.96)}
+.ck-note .uw-ovr.as-note{flex:none;cursor:inherit;font-size:11px}
+.ck-note .uw-ovr.as-note b{padding:1px 7px}
+.uw-ovr s{color:var(--text-3);font-weight:600;text-decoration-thickness:1.5px}
+.uw-ovr .arw{color:var(--text-3);font-weight:400}
+.uw-ovr b{padding:2px 9px;border-radius:999px}
+.uw-ovr b.g{background:var(--green-bg);color:#0d6b6b} .uw-ovr b.a{background:var(--amber-bg);color:var(--amber-t)} .uw-ovr b.r{background:var(--red-bg,#fdecea);color:var(--red-t)}
 .ck-notec{font-size:12.5px;color:var(--text-2);cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .ck-notec.empty{color:#b8bec6;text-align:left}
 .ck-notec:hover{text-decoration:underline;color:var(--brand-700)}
 .ck-notec .ck-n{display:inline-block;margin-left:6px;font-size:10px;font-weight:800;color:var(--text-3);background:var(--grey-1);border-radius:999px;padding:1px 6px;vertical-align:1px}
-.pbadge{display:inline-block;font-size:10px;font-weight:700;padding:1px 7px;border-radius:999px;border:1px solid transparent;vertical-align:1px;white-space:nowrap}
-.pb-keep{background:var(--brand-100);color:var(--brand-700);border-color:var(--brand-300)}
-.pb-snap{background:var(--amber-bg);color:var(--amber-t);border-color:var(--amber-bd)}
-.pb-line{display:flex;align-items:center;gap:9px;margin:0 0 12px}
+/* Piotr: "maybe with this kind of icon of chat bubble" · Ravi: reviewers must see the note behind an override without leaving the row */
+/* a real field, not a floating icon – it has to read as "the note for this row" even when empty */
+.ck-note{display:flex;align-items:center;gap:7px;width:100%;min-width:0;cursor:pointer;background:#fff;border:1px solid var(--border);border-radius:8px;padding:5px 10px;text-align:left;font:inherit}
+.ck-note:hover{border-color:var(--brand-500,#1ebdc0)}
+.ck-note:focus-visible{outline:2px solid var(--brand-500,#1ebdc0);outline-offset:1px}
+.ck-note .nb{flex:none;width:15px;height:15px;color:var(--brand-600,#128081)}
+.ck-note .nb svg{width:100%;height:100%}
+.ck-note .ck-av{flex:none;width:19px;height:19px;border-radius:999px;background:var(--brand-100);color:var(--brand-700);font-size:9px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;letter-spacing:.02em}
+.ck-note .nt{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--text-2)}
+.ck-note .nc{flex:none;margin-left:auto;font-size:10px;font-weight:800;color:var(--text-3);background:var(--grey-1);border-radius:999px;padding:1px 6px}
+.ck-note:hover .nt{color:var(--brand-700);text-decoration:underline}
+/* empty = placeholder, always legible, so the field never looks broken or unlabelled */
+.ck-note.empty .nb{color:#c2c9d0}
+.ck-note.empty .nt{color:#9aa3ab}
+.ck-note.empty:hover .nb{color:var(--brand-600,#128081)}
 .pb-desc{font-size:12px;color:var(--text-3)}
-.ckrow .seg{justify-self:end}
+.ckrow .seg{justify-self:start}
 .dotg{color:var(--green)} .dota{color:var(--amber-t)} .dotr{color:var(--red-t)}
 .stub{border:1px dashed var(--border);border-radius:var(--r);padding:30px;text-align:center;color:var(--text-3);background:#fff}
 .stub b{color:var(--text-2)}
@@ -305,13 +410,29 @@ tr.clickable:hover .goarrow{background:var(--brand-600);color:#fff;border-color:
 .acc .arow{border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;background:#fff}
 .acc .ahead{display:flex;align-items:center;gap:12px;padding:11px 14px;cursor:pointer}
 .acc .arow.g .ahead{background:var(--green-bg)} .acc .arow.a .ahead{background:var(--amber-bg)} .acc .arow.r .ahead{background:var(--red-bg)}
+/* RAG rows keep a status wash, but lighter than the chips sitting on them so the tags read as raised */
+.acc.ckgrid .arow.g .ahead{background:#f4fafa} .acc.ckgrid .arow.a .ahead{background:#fffaf0} .acc.ckgrid .arow.r .ahead{background:#fff7f8}
+.acc.ckgrid .arow.g{border-color:var(--green-bd)} .acc.ckgrid .arow.a{border-color:var(--amber-bd)} .acc.ckgrid .arow.r{border-color:var(--red-bd)}
 .acc .aname{font-weight:700;font-size:14px;white-space:nowrap;flex:0 0 auto}
 .acc .adetail{color:var(--text-2);font-size:13px;flex:1}
+/* RAG rows carry the same anatomy as Data checks / Background, but Notes sits BEFORE the selector so
+   the solid control anchors the right edge and the caret reads as part of the row, not adrift after it. */
+.acc.ckgrid{--ckcols:minmax(168px,1.05fr) minmax(196px,1.45fr) 104px minmax(170px,1.3fr) 152px}
+.acc.ckgrid .ahead{display:grid;grid-template-columns:var(--ckcols) 20px;gap:16px;align-items:center;padding:12px 14px}
+/* rows are separate cards, so the header is plain labels aligned to card content – no full-width band */
+.acc.ckgrid .ckhead{grid-template-columns:var(--ckcols) 20px;padding:0 15px 8px;background:transparent;border-bottom:0}
+.acc.ckgrid .ck-title{font-weight:700;font-size:13.5px}
+.acc.ckgrid .acaret{justify-self:end}
+.acc.ckgrid .ck-desc{color:var(--text-2);font-size:13px;min-width:0}
+.acc.ckgrid .ck-note{cursor:pointer}
 .acc .acaret{transition:transform .15s} .acc .arow.open .acaret{transform:rotate(180deg)}
 .acc .abody{padding:14px;border-top:1px solid var(--cell);display:none}
 .acc .arow.open .abody{display:block}
 .seg{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:#fff}
-.seg button{border:none;background:#fff;padding:4px 9px;font-weight:700;font-size:12px;cursor:pointer;color:var(--text-3)}
+.seg button{border:none;border-left:1px solid transparent;background:#fff;padding:4px 9px;font-weight:700;font-size:12px;cursor:pointer;color:var(--text-3)}
+/* dividers between the options; the filled option separates itself, so drop the rules touching it */
+.seg button+button{border-left-color:var(--border)}
+.seg button.on,.seg button.on+button{border-left-color:transparent}
 .seg button.on.g{background:var(--green);color:#fff} .seg button.on.a{background:var(--amber-t);color:#fff} .seg button.on.r{background:var(--red-t);color:#fff}
 
 /* scorecards strip */
@@ -448,7 +569,7 @@ table.txgrid tbody tr.rowsel td{background:var(--brand-100)}
 .amt-pos{color:var(--success)} .amt-neg{color:var(--red-t)}
 .txbulk{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 16px;background:var(--brand-100);border-bottom:1px solid var(--brand-300)}
 .txbulk-n{font-weight:700;font-size:13px;color:var(--brand-700)}
-.txbulk-warn{font-size:12.5px;color:var(--warning);background:var(--warning-bg);border:1px solid var(--warning-bd);border-radius:6px;padding:4px 9px}
+.txbulk-warn{font-size:12.5px;color:var(--warning);background:var(--warning-bg);border:1px solid var(--warning-bd);border-radius:999px;padding:4px 12px}
 .txbulk .txbsel,.txbulk .txmerch-in{font:inherit;font-size:12.5px;padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:#fff}
 .txbulk .txbsel{padding-right:30px}
 .txbulk .txmerch-in{min-width:200px}
@@ -482,7 +603,7 @@ table.txgrid tbody tr.rowsel td{background:var(--brand-100)}
 .dg-tools{margin-top:5px;display:flex;gap:5px;flex-wrap:wrap}
 .dg-t{font-size:10.5px;border:1px solid var(--border);background:#fff;border-radius:5px;padding:2px 7px;cursor:pointer;color:var(--text-2);font-family:inherit}
 .dg-t:hover{border-color:var(--brand-300);color:var(--brand-700)}
-.dg-warn{font-size:9.5px;font-weight:700;color:var(--warning);background:var(--warning-bg);border:1px solid var(--warning-bd);border-radius:4px;padding:1px 5px;white-space:nowrap}
+.dg-warn{font-size:9.5px;font-weight:700;color:var(--warning);background:var(--warning-bg);border:1px solid var(--warning-bd);border-radius:999px;padding:1px 8px;white-space:nowrap}
 .dg-c{min-width:62px}
 .dg-c.act{color:var(--text-3);background:var(--grey-1)}
 .dg-c.fc{background:#fff;color:var(--brand-700)}
@@ -563,7 +684,7 @@ table.txgrid tbody tr.rowsel td{background:var(--brand-100)}
 .snap-h{font-size:16px;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
 .snap-h .rating{width:22px;height:22px;font-size:12px;border-radius:4px}
 .snap-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:7px}
-.snap-meta .stag{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;color:var(--text-2);background:#fff;border:1px solid var(--border);border-radius:4px;padding:2px 7px}
+.snap-meta .stag{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;color:var(--text-2);background:#fff;border:1px solid var(--border);border-radius:999px;padding:2px 7px}
 .snap-meta .stag.mono{color:var(--text-3)}
 .snap-meta .mid{width:3px;height:3px;border-radius:50%;background:var(--disabled)}
 .snap-meta .lock{display:inline-flex;align-items:center;gap:5px;color:var(--text-3)}
@@ -596,7 +717,7 @@ table.txgrid tbody tr.rowsel td{background:var(--brand-100)}
 .rr-count{margin-right:auto}
 .pub-lbl .req{color:var(--error);font-weight:700;text-transform:uppercase;font-size:10px;letter-spacing:.04em;margin-left:5px}
 .pub-err{color:var(--error);font-size:12.5px;font-weight:600;margin-top:9px}
-.ovr-tag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#7c5cff;background:#f2eefc;border:1px solid #E7DFFF;border-radius:4px;padding:1px 6px;margin-left:7px;vertical-align:middle}
+.ovr-tag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#7c5cff;background:#f2eefc;border:1px solid #E7DFFF;border-radius:999px;padding:1px 6px;margin-left:7px;vertical-align:middle}
 .ref-rows{margin-top:8px}
 .ref-r{display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid var(--divider);font-size:13px}
 .ref-r:first-child{border-top:none}
@@ -604,7 +725,7 @@ table.txgrid tbody tr.rowsel td{background:var(--brand-100)}
 .sch-warn{display:flex;gap:9px;align-items:flex-start;background:var(--warning-bg);border:1px solid var(--warning-bd);color:var(--warning);border-radius:8px;padding:10px 12px;font-size:12.5px;line-height:1.45;margin-bottom:14px}
 .sch-warn b{color:var(--warning)}
 .sch-stop td{background:var(--warning-bg)}
-.stop-tag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--warning);background:#fff;border:1px solid var(--warning-bd);border-radius:4px;padding:1px 6px;margin-left:6px}
+.stop-tag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--warning);background:#fff;border:1px solid var(--warning-bd);border-radius:999px;padding:1px 6px;margin-left:6px}
 .gal-prov{display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--text-2);margin:12px 0 0;padding:10px 16px;background:var(--grey-1);border:1px solid var(--divider);border-left:none;border-right:none;border-radius:0}
 .chart-legend{display:flex;align-items:center;gap:14px 18px;flex-wrap:wrap;font-size:11.5px;color:var(--text-2);margin:12px 0 0;padding:10px 16px;background:var(--grey-1);border-top:1px solid var(--divider);border-bottom:1px solid var(--divider)}
 .chart-legend .lg-item{display:inline-flex;align-items:center;gap:7px;font-weight:600;white-space:nowrap}
@@ -637,7 +758,7 @@ table.txgrid tbody tr.rowsel td{background:var(--brand-100)}
 .dss-fl-lbl svg{width:16px;height:16px}
 .dss-fl-lbl.pos{color:var(--green)} .dss-fl-lbl.neg{color:var(--red-t)}
 .dss-fl-txt{color:var(--text-2)} .dss-fl-txt.risk{color:var(--text-2)}
-.sc-gchip{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:22px;padding:0 7px;border-radius:5px;font-weight:800;font-size:13px}
+.sc-gchip{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:22px;padding:0 9px;border-radius:999px;font-weight:800;font-size:13px}
 /* offer editor – full field set */
 .oe-uw{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;margin-bottom:12px;background:var(--grey-1);border:1px solid var(--border);border-radius:8px;font-size:13px}
 .oe-uw-l{color:var(--text-3);font-weight:700;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em}
@@ -747,7 +868,7 @@ table.txgrid tbody tr.rowsel td{background:var(--brand-100)}
 .nw-list{display:flex;flex-direction:column;gap:10px}
 .nw-note{border:1px solid var(--border);border-radius:9px;padding:11px 12px;cursor:pointer;background:var(--grey-1);transition:border-color .12s,background .12s}
 .nw-note:hover{border-color:var(--brand-300);background:#fff}
-.nw-tag{display:inline-block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:var(--brand-700);background:var(--brand-100);border:1px solid var(--brand-300);padding:2px 8px;border-radius:4px;margin-bottom:7px}
+.nw-tag{display:inline-block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:var(--brand-700);background:var(--brand-100);border:1px solid var(--brand-300);padding:2px 10px;border-radius:999px;margin-bottom:7px}
 .nw-who{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-3);margin-bottom:4px}
 .nw-av{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--brand-200);color:var(--brand-700);font-size:9px;font-weight:800}
 .nw-tx{font-size:13px;color:var(--ink);line-height:1.5}
@@ -758,7 +879,7 @@ table.txgrid tbody tr.rowsel td{background:var(--brand-100)}
 .rail-tabs .rt{flex:1;border:none;background:#fff;padding:9px 6px;font-family:inherit;font-weight:600;font-size:12px;color:var(--text-2);cursor:pointer;border-bottom:2px solid transparent;display:flex;align-items:center;justify-content:center;gap:5px}
 .rail-tabs .rt:hover{background:var(--grey-1)}
 .rail-tabs .rt.on{color:var(--brand-700);border-bottom-color:var(--brand-600)}
-.rt-badge{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-bd);border-radius:4px;font-size:10px;font-weight:800;padding:0 6px;min-width:17px;text-align:center}
+.rt-badge{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-bd);border-radius:999px;font-size:10px;font-weight:800;padding:0 6px;min-width:17px;text-align:center}
 .rail-body{flex:1 1 auto;min-height:0;background:#fff;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--r) var(--r);overflow:hidden;display:flex;flex-direction:column}
 .rail-scroll{flex:1 1 auto;min-height:0;overflow:auto;padding:16px}
 .note-foot{flex:0 0 auto;border-top:1px solid var(--cell);padding:12px;background:#fff}
@@ -773,14 +894,14 @@ table.txgrid tbody tr.rowsel td{background:var(--brand-100)}
 .exc .et-row{display:flex;align-items:flex-start;gap:8px}
 .exc .et{flex:1;min-width:0;font-weight:700;font-size:14px;line-height:1.32}
 .exc .et-row .areatag{flex:0 0 auto;margin-top:1px}
-.exc .ecount{display:inline-block;margin-left:7px;font-size:11px;font-weight:800;color:var(--warning);background:var(--warning-bg);border-radius:4px;padding:0 7px;vertical-align:1px}
+.exc .ecount{display:inline-block;margin-left:7px;font-size:11px;font-weight:800;color:var(--warning);background:var(--warning-bg);border-radius:999px;padding:0 7px;vertical-align:1px}
 .exc.high .ecount{color:var(--red-t);background:var(--error-bg)}
 .exc .eloc{font-size:12.5px;color:var(--text-3);margin-top:5px;line-height:1.45}
 .exc .ego{margin-top:11px;display:flex;gap:6px}
 .exc.done{opacity:.5}
-.cnum{display:inline-block;margin-left:7px;font-size:11px;font-weight:800;border-radius:4px;padding:0 7px;vertical-align:1px}
+.cnum{display:inline-block;margin-left:7px;font-size:11px;font-weight:800;border-radius:999px;padding:0 7px;vertical-align:1px}
 .cnum.a{color:var(--amber-t);background:var(--warning-bg)} .cnum.r{color:var(--red-t);background:var(--error-bg)}
-.areatag{display:inline-block;font-size:11px;font-weight:600;color:var(--text-2);background:var(--grey-1);border:1px solid var(--border);padding:2px 9px;border-radius:4px;white-space:nowrap}
+.areatag{display:inline-block;font-size:11px;font-weight:600;color:var(--text-2);background:var(--grey-1);border:1px solid var(--border);padding:2px 11px;border-radius:999px;white-space:nowrap}
 .viewcta{color:var(--brand-700);font-weight:700;text-decoration:none;white-space:nowrap}
 .viewcta:hover{text-decoration:underline}
 .rnote{border-bottom:1px solid var(--cell);padding:9px 2px;font-size:13px}
@@ -846,7 +967,7 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .editcell.mini2{width:60px;display:inline-block;text-align:right}
 .edit-badge{display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--brand-600);background:#fff;border-radius:20px;padding:5px 12px;font-size:11px;color:var(--brand-700);font-weight:700;margin-bottom:14px}
 .edit-badge .gear{width:13px;height:13px}
-.fc-ctx-lbl{font-size:11px;font-weight:700;color:var(--brand-700);background:var(--brand-100);border:1px solid var(--brand-300);border-radius:4px;padding:3px 10px;display:inline-flex;align-items:center;gap:5px;margin:16px 0 9px}
+.fc-ctx-lbl{font-size:11px;font-weight:700;color:var(--brand-700);background:var(--brand-100);border:1px solid var(--brand-300);border-radius:999px;padding:3px 12px;display:inline-flex;align-items:center;gap:5px;margin:16px 0 9px}
 .fc-src{margin-top:16px;border-top:1px dashed var(--cell);padding-top:13px}
 .srcchip{border:1px solid var(--border);background:#fff;border-radius:4px;padding:4px 11px;font-family:inherit;font-size:12px;font-weight:600;color:var(--text-2);cursor:pointer;margin:0 6px 6px 0}
 .srcchip.on{border-color:var(--brand-300);background:var(--brand-100);color:var(--brand-700)}
@@ -907,7 +1028,7 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .pimg{width:38px;height:38px;border-radius:6px;background:var(--grey-1);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--text-3)}
 .pn{font-weight:600;font-size:12.5px}.pp{font-size:11px;color:var(--text-3)}
 .linkrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
-.linkchip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--link);border:1px solid var(--border);border-radius:4px;padding:4px 11px;background:#fff;cursor:pointer;text-decoration:none}
+.linkchip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--link);border:1px solid var(--border);border-radius:999px;padding:4px 11px;background:#fff;cursor:pointer;text-decoration:none}
 .linkchip:hover{background:var(--brand-100);border-color:var(--brand-300)}
 .linked-item{display:flex;align-items:center;gap:9px;font-size:13px;padding:7px 0;border-bottom:1px solid var(--cell)}
 .linked-item:last-child{border-bottom:none}
@@ -958,7 +1079,7 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .ais-metricrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:9px}
 .ais-metric{font-size:22px;font-weight:800;letter-spacing:-.02em;color:var(--ink)}
 /* Engine-summary flag now matches the regular chip/tag style (4px radius, tinted, small inline icon) */
-.ais-flag{display:inline-flex;align-items:center;gap:6px;border-radius:4px;padding:2px 10px;font-size:12px;font-weight:700;white-space:nowrap;border:1px solid var(--border);background:var(--grey-1);color:var(--text-2)}
+.ais-flag{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;white-space:nowrap;border:1px solid var(--border);background:var(--grey-1);color:var(--text-2)}
 .ais-flag .af-ic{width:13px;height:13px;display:inline-flex;align-items:center;justify-content:center}
 .ais-flag .af-ic svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .ais-flag.warn{background:var(--warning-bg);border-color:var(--warning-bd);color:var(--warning)}
@@ -1001,7 +1122,7 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .ds-amt-sub{font-size:12px;color:var(--text-3);margin-bottom:11px}
 .ds-amt-tags{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:7px}
 .ds-amt-tags .rating{width:auto;min-width:22px;height:22px;padding:0 6px}
-.ds-tag{font-size:11px;font-weight:700;color:var(--text-2);background:#fff;border:1px solid var(--border);border-radius:4px;padding:3px 9px}
+.ds-tag{font-size:11px;font-weight:700;color:var(--text-2);background:#fff;border:1px solid var(--border);border-radius:999px;padding:3px 9px}
 .ds-flist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
 .ds-flist li{position:relative;padding-left:24px;font-size:12.5px;line-height:1.45;color:var(--text-2)}
 .ds-flist.pos li::before{content:"✓";position:absolute;left:2px;top:0;color:var(--green);font-weight:800;font-size:11px}
@@ -1045,7 +1166,7 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .oc-rec,.oc-avail{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:2px 7px;border-radius:4px;margin-left:7px;vertical-align:2px}
 .oc-rec{color:var(--brand-700);background:var(--brand-100);border:1px solid var(--brand-300)}
 .oc-avail{color:var(--text-3);background:var(--grey-1);border:1px solid var(--border)}
-.oc-addon{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:2px 7px;border-radius:4px;margin-left:7px;vertical-align:2px;color:#3f7fd6;background:#eef3fb;border:1px solid #d3e2f5}
+.oc-addon{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:2px 9px;border-radius:999px;margin-left:7px;vertical-align:2px;color:#3f7fd6;background:#eef3fb;border:1px solid #d3e2f5}
 .offer-sep td{padding:8px 14px;background:var(--grey-1);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);font-weight:700;border-top:1px solid var(--border)}
 .offer-row.addon{background:#fbfdfe}
 .offer-row.addon .or-name{color:var(--text-2);font-weight:600}
@@ -2218,9 +2339,6 @@ const uwFirst=n=>String(n||'').split(' ')[0];
 const cChipCls=s=>s=='g'?'c-success':s=='a'?'c-warning':'c-error';
 // persistent (fixed fact – carries across data refreshes) vs snapshot-only (state can change – re-checked on refresh)
 function checkPersists(name){return !/payment|delinq|default|score|arrear|nsf|missed|balance|runway|cash|revenue/i.test(name);}
-function persistTag(name){return checkPersists(name)
-  ? `<span class="pbadge pb-keep" title="A fixed fact – this override carries across data refreshes.">Persists</span>`
-  : `<span class="pbadge pb-snap" title="The state can change – this override applies to the current data snapshot only and is re-checked on refresh.">Snapshot only</span>`;}
 function logCheck(id,name,e){CHECK_LOG[id]=CHECK_LOG[id]||{};(CHECK_LOG[id][name]=CHECK_LOG[id][name]||[]).push(e);}
 function checkLog(id,name){return (CHECK_LOG[id]&&CHECK_LOG[id][name])||[];}
 function checkOvr(id,name){return CHECK_OVR[id]&&CHECK_OVR[id][name];}
@@ -2235,48 +2353,203 @@ function findCheck(d,name){let m=(d.hygiene||[]).find(h=>h[0]===name);if(m)retur
 function checkVocab(d,name){return [...bgIdentity(d),...bgScreen(d)].some(r=>r[0]===name)?CSTATES_V:CSTATES;}
 // inline 3-state toggle (Clear / Check / Fail) – the highlighted button is the current state
 function checkSeg(id,name,eff,V){return `<span class="seg cseg" onclick="event.stopPropagation()">${['g','a','r'].map(s=>`<button class="${s} ${s==eff?'on':''}" onclick="onCheckState('${id}','${name}','${s}')">${V[s]}</button>`).join('')}</span>`;}
-// one consistent check row (toggle + attribution + notes) for Background / Credit lists
-function checkRowHTML(d,name,sev,detail,mode){
+const ckEsc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+/* One history entry's tag. A state change reads as two pills – the old one faded and struck
+   through, an arrow, then the new one – the same treatment .rr-tags uses vertically in the
+   review popups, laid out horizontally here. Everything else stays a single pill. */
+function actTag(s,cls,extra){return `<span class="ck-act-tag ${cls}${extra||''}">${s}</span>`;}
+function trTags(from,to,V){return `<span class="tr-tags">${actTag(V[from]||'–',cChipCls(from),' strike')}<span class="tr-arw">→</span>${actTag(V[to]||'–',cChipCls(to))}</span>`;}
+function histTag(e,V){
+  if(e.action==='override')return trTags(e.from,e.to,V);
+  if(e.action==='revert')  return trTags(e.from,e.to,V);   // from = the withdrawn override, to = the system result
+  if(e.action==='confirm') return actTag(`Agreed · ${V[e.to]||''}`,cChipCls(e.to));
+  return '';   // a plain note needs no tag – the text below already says what it is
+}
+// the tag row disappears entirely when there's no tag, rather than leaving an empty gap
+function histTagRow(e,V){const t=histTag(e,V);return t?`<div class="ck-histtag">${t}</div>`:'';}
+const LOCK_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+/* At 11px the amber "!" only reads if the dot is a real circle – drawn as a round-capped stroke it
+   fuses with the stem into a blob. Green/red stay strokes; they survive the size. */
+const TICK_ICON={
+  g:'<path d="M5 12.5l4.5 4.5L19 7"/>',
+  a:'<path d="M12 5.5v7.5"/><circle cx="12" cy="18" r="1.5" fill="currentColor" stroke="none"/>',
+  r:'<path d="M7 7l10 10M17 7L7 17"/>'};
+// Piotr Aug-25: "little tick boxes next to the name of the applicant to reduce the amount of text … green, amber, red"
+function ckTick(s,V){return `<span class="ck-tick ${s}" title="${ckEsc((V||CSTATES)[s])}" aria-label="${ckEsc((V||CSTATES)[s])}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${TICK_ICON[s]||TICK_ICON.g}</svg></span>`;}
+// SYSTEM column – a locked snapshot, deliberately outlined (never filled) so it can't read as a decision someone made.
+// Ravi: "the system will always – it's a snapshot, it will always stay the same … unless new information comes in."
+function sysChip(s,V){return `<span class="sys-chip ${s}" title="Computed at data-lock – re-runs only when new data or a new connection arrives"><span class="dot"></span>${(V||CSTATES)[s]}</span>`;}
+
+/* --------------------------------------------------------------------------
+   Compared values (Andrew Aug-25): "unless it's exposed here, the human can't
+   catch the anomaly … expose the underlying logic for what's actually being
+   compared." Each cross-check shows BOTH sides, so "Casewell Travel" vs
+   "Casewell Travel Co Ltd" is visible at a glance instead of just "Match".
+   -------------------------------------------------------------------------- */
+const CK_DIRECTORS={'ORG-7011':'J. Halloway','ORG-7024':'M. Pryce','ORG-7038':'S. Okafor','ORG-7052':'A. Vance','ORG-7067':'R. Casewell'};
+function ckDirector(d){return CK_DIRECTORS[d.id]||'A. Vance';}
+function ckBank(d){const B=['Barclays','HSBC','Lloyds','NatWest'];return B[Math.abs((d.id.charCodeAt(6)||52)-48)%B.length];}
+function checkEvidence(d,name){
+  const legal=d.org+' Ltd', weak='DEF'.includes(d.rating);
+  const store=weak?d.org:legal;                  // trades without the legal suffix – the "reax issue" Ravi described
+  const holder=weak?ckDirector(d):legal;         // Andrew: "it'll say bank account match but actually it's a personal account"
+  const acct='····'+d.id.slice(-4);
+  const E={
+    'Bank accounts connected':[['Connected',`${ckBank(d)} business a/c ${acct}`],['Coverage','24 months · synced 14 Jul 2026']],
+    'Storefronts connected'  :[[d.source,`Seller ID ${d.id.replace('ORG-','A2X')}`],['Coverage','18 months orders & settlements']],
+    'Eligibility'            :[['Trading history',`${d.tenure} · min 12 months`],['Territory','United Kingdom · GBP']],
+    'Amazon store owner'     :[[d.source+' storefront',store],['Applicant entity',legal]],
+    'Inter-client match'     :[['Searched',`${legal} · ${ckDirector(d)}`],['Result','No other Uncapped client matches']],
+    'Store owner ↔ bank account' :[[d.source+' storefront',store],['Bank-account holder',holder]],
+    'Bank account ↔ company owner':[['Bank-account holder',holder],['Companies House',legal]],
+    'Feed completeness'      :[['Complete',`Bank · ${d.source}${['A','B','C'].includes(d.rating)?' · Stripe':''}`],['Missing',connMissing(d)?'Stripe – no card-processing feed':'None']],
+    'Amazon storefront owner':[[d.source+' storefront',store],['Applicant entity',legal]],
+    'Primary bank account holder':[['Bank-account holder',holder],['Applicant entity',legal]],
+    'Applicant legal entity' :[['Companies House',legal],['Status','Active · filings current']],
+  };
+  return E[name]||null;
+}
+/* Flag the second side only when the two don't read as the same party. A bare "Ltd" suffix is NOT
+   an anomaly – Ravi called that a "reax issue" the underwriter clears in seconds; a different name
+   (a personal account behind a company match) is the one worth an amber. */
+function evDiffer(ev){
+  return ev.length===2&&ev[0][0]!=='Coverage'&&/holder|entity|storefront|Companies House|Missing/i.test(ev[1][0])
+    &&String(ev[0][1]).replace(/\s+(Ltd|Limited)$/i,'')!==String(ev[1][1]).replace(/\s+(Ltd|Limited)$/i,'')
+    &&!/^None$/i.test(ev[1][1]);
+}
+function evHTML(ev){
+  const differ=evDiffer(ev);
+  return `<span class="ck-ev">${ev.map(([l,v],i)=>`<span class="evl">${ckEsc(l)}</span><span class="evv${differ&&i===1?' miss':''}" title="${ckEsc(v)}">${ckEsc(v)}</span>`).join('')}</span>`;
+}
+/* The split box means "these two must match" – the divider is the comparison. Only the cross-checks
+   actually work that way; the rest are a fact plus its metadata, or an input and its result, and a
+   divider there would claim a match that isn't being made. Those get a plain fact list instead. */
+const CMP_CHECKS=['Amazon store owner','Amazon storefront owner','Store owner ↔ bank account','Bank account ↔ company owner','Primary bank account holder'];
+function evBoxHTML(ev,name){
+  const differ=evDiffer(ev);
+  if(CMP_CHECKS.includes(name))
+    return `<div class="ck-cmp">${ev.map(([l,v],i)=>`<div><div class="l">${ckEsc(l)}</div><div class="v${differ&&i===1?' miss':''}">${ckEsc(v)}</div></div>`).join('')}</div>`;
+  return `<div class="ck-facts">${ev.map(([l,v],i)=>`<div><span class="l">${ckEsc(l)}</span><span class="v${differ&&i===1?' miss':''}">${ckEsc(v)}</span></div>`).join('')}</div>`;
+}
+
+/* UNDERWRITER column. Always shows the control, because an empty cell reads as "nothing happened"
+   rather than "a decision is owed here". The PRE-SELECTION carries the meaning instead:
+     · system Clear   → Clear pre-selected  (the underwriter agrees with the system by default)
+     · system flagged → nothing selected    (a blank selector visibly asks for a decision)
+   That keeps Ravi's "only require a check if the system fails it" while never looking unrendered. */
+const CHECK_CONF={};  // {id:{name:{by,initials,at}}} – underwriter explicitly agreed with a flagged system result
+function checkConf(id,name){return CHECK_CONF[id]&&CHECK_CONF[id][name];}
+function uwCell(d,name,sysSev,V){
+  const id=d.id, ov=checkOvr(id,name), cf=checkConf(id,name);
+  // the selector stays a selector in every state – what actually happened is audited in the notes column
+  const sel=ov?ov.to:(cf?sysSev:(sysSev==='g'?'g':null));
+  const tip=ov?`Set to ${V[ov.to]} by ${ov.by} · ${ov.at}`:(cf?`Agreed with the system by ${cf.by} · ${cf.at}`:'');
+  return `<span class="uw-cell"${tip?` title="${ckEsc(tip)}"`:''}>${checkSeg(id,name,sel,V)}</span>`;
+}
+// column headers – without them the two status columns are just two chips sitting next to each other
+function ckHead(mode){
+  return `<div class="ckhead"><span>Check</span><span>Underlying data</span><span class="ckh-sys">${LOCK_ICON}System</span><span>Notes &amp; history</span><span>Conclusion</span></div>`;
+}
+// one consistent check row for Data checks / Background / Credit – 5 columns, same anatomy everywhere
+function checkRowHTML(d,name,sev,detail,mode,count){
   const V=mode==='verify'?CSTATES_V:CSTATES;
-  const eff=checkEff(d.id,name,sev),ov=checkOvr(d.id,name),log=checkLog(d.id,name);
-  const by=ov?`<span class="ck-by">Set to ${V[ov.to]} by ${uwFirst(ov.by)} · ${ov.at}</span>`
-           :(log.length?`<span class="ck-by mut">Note by ${uwFirst(log[log.length-1].by)} · ${log[log.length-1].at}</span>`:'');
-  return `<div class="ckrow" data-focus="${name}"><span class="ck-title">${name}${ov?' '+persistTag(name):''}</span><span class="ck-desc">${detail}</span>${noteCell(d,name)}${checkSeg(d.id,name,eff,V)}</div>`;
+  const eff=checkEff(d.id,name,sev),ov=checkOvr(d.id,name),ev=checkEvidence(d,name);
+  return `<div class="ckrow" data-focus="${name}">`
+    +`<span class="ck-title">${ckTick(eff,V)}<span class="ckt-n">${name}</span>${count>1?`<span class="cnum ${eff}">${count}</span>`:''}${ov?'<span class="ovr-tag">overridden</span>':''}</span>`
+    +(ev?evHTML(ev):`<span class="ck-desc">${detail}</span>`)
+    +`<span>${sysChip(sev,V)}</span>`
+    +noteCell(d,name)
+    +uwCell(d,name,sev,V)
+    +`</div>`;
 }
-// note shown as truncated text – click to open the full note + history; "–" when empty
-function noteCell(d,name){const n=lastNote(d.id,name),log=checkLog(d.id,name),cnt=log.length>1?`<span class="ck-n">${log.length}</span>`:'';
-  return n
-    ? `<span class="ck-notec" title="Click to view the full note &amp; history" onclick="openCheckReview('${d.id}','${name}')">${n}${cnt}</span>`
-    : `<span class="ck-notec empty" title="Add a note" onclick="openCheckReview('${d.id}','${name}')">Add note</span>`;
+/* Notes column. Piotr: "maybe with this kind of icon of chat bubble." Ravi: a reviewer must see the
+   note behind an override without opening it. Andrew: overrides can stack, so keep the count. */
+function noteCell(d,name){return noteCellHTML(checkLog(d.id,name),checkVocab(d,name),`openCheckReview('${d.id}','${name}')`);}
+function noteCellHTML(log,V,onclick){
+  if(!log.length)return `<button class="ck-note empty" title="Add a note" onclick="${onclick}"><span class="nb">${NOTE_ICON}</span><span class="nt">Add a note…</span></button>`;
+  const last=log[log.length-1];
+  // a state change carries its own transition chip here; the selector next door just shows where it landed
+  const moved=last.action==='override'||last.action==='revert';
+  const trans=moved?`<span class="uw-ovr as-note"><s>${V[last.from]}</s><span class="arw">→</span><b class="${last.to}">${V[last.to]}</b></span>`:'';
+  const A={confirm:`Agreed · ${V[last.to]}`};
+  const txt=last.note||(moved?'':(A[last.action]||'Note'));
+  const cnt=log.length>1?`<span class="nc">+${log.length-1}</span>`:'';
+  const what=moved?`${V[last.from]} → ${V[last.to]}`:(A[last.action]||'Note');
+  const tip=`${last.by} · ${last.at} · ${what}${last.note?` – ${last.note}`:(moved?' – no reason given':'')}`;
+  return `<button class="ck-note" title="${ckEsc(tip)} (click for the full history)" onclick="${onclick}"><span class="nb">${NOTE_ICON}</span><span class="ck-av">${ckEsc(last.initials)}</span>${trans}${txt?`<span class="nt">${ckEsc(txt)}</span>`:''}${cnt}</button>`;
 }
-// clicking a different state opens the per-check panel with that state pending (needs a reason)
-function onCheckState(id,name,s){const d=byId(id),{sev}=findCheck(d,name);if(s===checkEff(id,name,sev))return;openCheckReview(id,name,s);}
+/* Clicking a state that DIFFERS from the system opens the per-check panel (reason optional).
+   Clicking the system's own value is not a no-op any more: on a flagged row it records the
+   underwriter explicitly agreeing, and on an overridden row it withdraws the override. */
+function onCheckState(id,name,s){
+  const d=byId(id),{sev}=findCheck(d,name),ov=checkOvr(id,name);
+  if(ov&&s===ov.to)return;                      // already the standing override
+  if(s===sev){
+    if(ov)return revertCheckOverride(id,name);  // back to the system result – withdraw the override
+    return confirmCheckState(id,name);          // agree with a flagged system result
+  }
+  openCheckReview(id,name,s);
+}
+// George's scale concern: agreeing is the common case, so it costs one click and no modal.
+function confirmCheckState(id,name){
+  if(checkConf(id,name))return;
+  const d=byId(id),V=checkVocab(d,name),{sev}=findCheck(d,name);
+  CHECK_CONF[id]=CHECK_CONF[id]||{};CHECK_CONF[id][name]={by:CURRENT_UW.name,initials:CURRENT_UW.initials,at:nowStamp()};
+  logCheck(id,name,{by:CURRENT_UW.name,initials:CURRENT_UW.initials,at:nowStamp(),action:'confirm',to:sev});
+  rerenderStep(id);toast(`${name} – agreed with the system (${V[sev]})`);
+}
+function revertCheckOverride(id,name){
+  const d=byId(id),V=checkVocab(d,name),{sev}=findCheck(d,name),ov=checkOvr(id,name);
+  if(!ov)return;
+  delete CHECK_OVR[id][name];
+  logCheck(id,name,{by:CURRENT_UW.name,initials:CURRENT_UW.initials,at:nowStamp(),action:'revert',from:ov.to,to:sev});
+  (NOTES[id]=NOTES[id]||[]).push({name:CURRENT_UW.name,initials:CURRENT_UW.initials,time:nowStamp(),stepId:CUR.step,tag:'Override withdrawn · '+name,tx:`${V[ov.to]} → ${V[sev]} (back to the system result)`});
+  rerenderStep(id);toast(`${name} – override withdrawn`);
+}
 function pendCheck(id,name,s){openCheckReview(id,name,s);}
 function openCheckReview(id,name,pending){
   const d=byId(id),{sev,detail}=findCheck(d,name),eff=checkEff(id,name,sev),log=checkLog(id,name),V=checkVocab(d,name);
   const chip=s=>`<span class="chip ${cChipCls(s)}"><span class="dot"></span>${V[s]}</span>`;
   const hist=log.length
-    ? `<div class="ck-hist">${log.map(e=>{const tag=e.action==='override'?`${V[e.from]||''} → ${V[e.to]||''}`:'Note';const tc=e.action==='override'?cChipCls(e.to):'c-neutral';
-        return `<div class="ck-item"><span class="ck-av">${e.initials}</span><div style="min-width:0"><div class="ck-meta"><b>${e.by}</b> · ${e.at}<span class="ck-act-tag ${tc}">${tag}</span></div>${e.note?`<div class="ck-txt">${e.note}</div>`:''}</div></div>`;}).join('')}</div>`
+    ? `<div class="ck-hist">${log.map(e=>
+        `<div class="ck-item">${histTagRow(e,V)}${e.note?`<div class="ck-txt">${ckEsc(e.note)}</div>`:''}<div class="ck-histmeta"><span class="ck-av">${e.initials}</span>${ckEsc(e.by)} · ${ckEsc(e.at)}</div></div>`).join('')}</div>`
     : `<div class="ck-empty">No notes yet – you're the first to review this check.</div>`;
   const changing=pending&&pending!==eff;
-  const changeBlock=changing?`<div class="ck-change">Change state ${chip(eff)} <span class="muted">→</span> ${chip(pending)}</div>`:'';
-  const lbl=changing?'Reason for this change <span class="req">Required</span>':'Add a note';
-  const choose=changing?'':`<div class="ck-choose"><span class="muted small">Override state</span><span class="seg cseg">${['g','a','r'].map(s=>`<button class="${s} ${s==eff?'on':''}" onclick="pendCheck('${id}','${name}','${s}')">${V[s]}</button>`).join('')}</span></div>`;
+  const changeBlock=changing?`<div class="ck-change">Pending change ${trTags(eff,pending,V)}</div>`:'';
+  const lbl=changing?'Reason for this change':'Add a note';
+  const ov=checkOvr(id,name),cf=checkConf(id,name),ev=checkEvidence(d,name);
+  // Withdrawing an override or agreeing with the system are not "overrides" – name the button for what it does
+  const primaryLbl=!changing?'Save note':(pending===sev?(ov?'Withdraw override':'Agree with the system'):'Override');
   const primary=changing
-    ? `<button class="btn btn-primary btn-sm" onclick="applyCheckOverride('${id}','${name}','${pending}')">Apply change</button>`
-    : `<button class="btn btn-primary btn-sm" onclick="saveCheckNote('${id}','${name}')">Save note</button>`;
-  openOverlay(`<div class="modal" style="max-width:560px"><div class="mh"><h3>${name}</h3><div class="x" onclick="closeOverlay()">✕</div></div>
-   <div class="mb">
-     <div class="rr-intro">Automated result: ${chip(sev)} <span style="color:var(--text-3)">${detail||''}</span>.${changing?'':' Override the state (with a reason) or just leave a note – your name and the time are recorded for the next underwriter.'}</div>
-     <div class="pb-line">${persistTag(name)}<span class="pb-desc">${checkPersists(name)?'Fixed fact – your override stays for the next underwriter.':'State can change – applies to this data snapshot only; re-checked when data is refreshed.'}</span></div>
-     ${changeBlock}
-     ${hist}
-     <div class="ck-lbl">${lbl}</div>
-     <textarea id="ckNote" class="ck-in" placeholder="Add note"></textarea>
-     <div class="pub-err" id="ckErr" hidden>Add a reason before applying the change.</div>
-     ${choose}
-   </div>
+    ? `<button class="btn btn-primary btn-sm" onclick="applyCheckOverride('${id}','${name}','${pending}')">${primaryLbl}</button>`
+    : `<button class="btn btn-primary btn-sm" onclick="saveCheckNote('${id}','${name}')">${primaryLbl}</button>`;
+  // at rest the selector arms a change; once armed it's replaced by the pending transition
+  const decide=`<span class="seg cseg">${['g','a','r'].map(s=>`<button class="${s} ${s==eff?'on':''}" onclick="pendCheck('${id}','${name}','${s}')">${V[s]}</button>`).join('')}</span>`;
+  // durability of the override belongs with the conclusion, not as a badge competing with "overridden"
+  const durable=checkPersists(name)
+    ? 'This carries over when the data refreshes.'
+    : 'This applies to the current data snapshot – it will be re-checked when the data refreshes.';
+  const standing=ov?`Currently ${V[ov.to]} – set by <b>${ckEsc(ov.by)}</b> · ${ckEsc(ov.at)}. ${durable}`
+    :(cf?`Agreed with the system by <b>${ckEsc(cf.by)}</b> · ${ckEsc(cf.at)}.`
+       :'No underwriter decision recorded yet – pick a state to record one.');
+  openOverlay(`<div class="modal ck-modal" style="max-width:860px"><div class="mh"><h3>${name}${ov?'<span class="ovr-tag">overridden</span>':''}</h3><div class="x" onclick="closeOverlay()">✕</div></div>
+   <div class="mb" style="padding:0"><div class="ck-two">
+     <aside class="ck-col ck-histcol"><div class="ck-sec">Notes history</div>${hist}</aside>
+     <div class="ck-col">
+       <div class="ck-band">
+         <div class="ck-sec">What the system found</div>
+         <div class="ck-why">${detail||''}</div>
+         ${ev?evBoxHTML(ev,name):''}
+         <div class="ck-sysline">${sysChip(sev,V)}<span class="pb-desc">computed at data-lock</span></div>
+       </div>
+       <div class="ck-band">
+         <div class="ck-sec">Your conclusion</div>
+         ${changing?changeBlock:`${decide}<div class="ck-standing">${standing}</div>`}
+         <div class="ck-lbl">${lbl}</div>
+         <textarea id="ckNote" class="ck-in" placeholder="Add note"></textarea>
+       </div>
+     </div>
+   </div></div>
    <div class="mf">
      <button class="btn btn-outline btn-sm" onclick="closeOverlay()">Cancel</button>
      <span style="flex:1"></span>
@@ -2284,13 +2557,17 @@ function openCheckReview(id,name,pending){
    </div></div>`);
   setTimeout(()=>{const t=document.getElementById('ckNote');if(t)t.focus();},60);
 }
+/* George Aug-25 raised the friction at 30–50 deals/day; Ravi's compromise was "if we made it optional
+   so we don't have to come back and remove it". So the reason is captured but never blocks the override. */
 function applyCheckOverride(id,name,to){
   const ta=document.getElementById('ckNote'),note=ta?ta.value.trim():'';
-  if(!note){const e=document.getElementById('ckErr');if(e)e.hidden=false;if(ta){ta.focus();ta.style.borderColor='#e0473f';}return;}
   const d=byId(id),{sev}=findCheck(d,name),prev=checkOvr(id,name),from=prev?prev.from:sev,V=checkVocab(d,name);
+  // picking the system's own value inside the panel isn't an override – it's agreement, or withdrawing one
+  if(to===sev){closeOverlay();return prev?revertCheckOverride(id,name):confirmCheckState(id,name);}
+  if(CHECK_CONF[id])delete CHECK_CONF[id][name];
   CHECK_OVR[id]=CHECK_OVR[id]||{};CHECK_OVR[id][name]={from,to,by:CURRENT_UW.name,initials:CURRENT_UW.initials,at:nowStamp(),reason:note};
   logCheck(id,name,{by:CURRENT_UW.name,initials:CURRENT_UW.initials,at:nowStamp(),action:'override',from,to,note});
-  (NOTES[id]=NOTES[id]||[]).push({name:CURRENT_UW.name,initials:CURRENT_UW.initials,time:nowStamp(),stepId:CUR.step,tag:'Check override · '+name,tx:`${V[from]} → ${V[to]} – ${note}`});
+  (NOTES[id]=NOTES[id]||[]).push({name:CURRENT_UW.name,initials:CURRENT_UW.initials,time:nowStamp(),stepId:CUR.step,tag:'Check override · '+name,tx:`${V[from]} → ${V[to]}${note?' – '+note:' – no reason given'}`});
   closeOverlay();rerenderStep(id);toast(`${name} set to ${V[to]}`);
 }
 function saveCheckNote(id,name){
@@ -2412,7 +2689,7 @@ function tabDataChecks(d){
     <div class="card" style="margin-bottom:14px"><div class="card-h"><h3>Data checks</h3>
       <span class="sub">pure data hygiene – connections, consistency &amp; missing data (credit history sits under Background)</span>
       ${issues?`<span style="margin-left:auto;display:inline-flex;gap:7px;align-items:center"><span class="chip c-warning"><span class="dot"></span>${issues} to review</span><span class="chip c-success"><span class="dot"></span>${clear} clear</span></span>`:`<span class="chip c-success" style="margin-left:auto"><span class="dot"></span>All ${rows.length} clear</span>`}</div>
-      <div class="card-b"><div class="cklist">${rows.map(c=>`<div class="ckrow" data-focus="${c.name}"><span class="ck-title">${c.name}${c.count>1?` <span class="cnum ${c.sev}">${c.count}</span>`:''}${checkOvr(d.id,c.name)?' '+persistTag(c.name):''}</span><span class="ck-desc">${c.detail}</span>${noteCell(d,c.name)}${checkSeg(d.id,c.name,c.sev,CSTATES)}</div>`).join('')}</div></div>
+      <div class="card-b"><div class="cklist ckgrid">${ckHead('clear')}${rows.map(c=>checkRowHTML(d,c.name,c.origSev!=null?c.origSev:c.sev,c.detail,'clear',c.count)).join('')}</div></div>
     </div>
     ${bgConnCoverage(d)}`;
 }
@@ -3053,11 +3330,11 @@ function creditBackgroundCard(d){
   if(!items.length)return '';
   const chip=s=>`<span class="chip ${s=='g'?'c-success':s=='a'?'c-warning':'c-error'}"><span class="dot"></span>${s=='g'?'Clear':s=='a'?'Check':'Fail'}</span>`;
   return `<div class="card" style="margin-top:14px"><div class="card-h"><h3>Credit &amp; repayment history</h3><span class="sub">delinquency, defaults &amp; missed payments – the loan background</span></div>
-    <div class="card-b">${items.map(h=>checkRowHTML(d,h[0],h[1],h[2],'clear')).join('')}</div></div>`;
+    <div class="card-b"><div class="ckgrid">${ckHead('clear')}${items.map(h=>checkRowHTML(d,h[0],h[1],h[2],'clear')).join('')}</div></div></div>`;
 }
 function tabBackground(d){
   const chip=s=>`<span class="chip ${s=='g'?'c-success':s=='a'?'c-warning':'c-error'}"><span class="dot"></span>${s=='g'?'Verified':s=='a'?'Check':'Fail'}</span>`;
-  const rows=list=>list.map(r=>checkRowHTML(d,r[0],r[1],r[2],'verify')).join('');
+  const rows=list=>`<div class="ckgrid">${ckHead('verify')}${list.map(r=>checkRowHTML(d,r[0],r[1],r[2],'verify')).join('')}</div>`;
   const linked=bgLinked(d);
   const expchip=(sev,t)=>`<span class="chip ${sev=='r'?'c-error':sev=='a'?'c-warning':'c-success'}">${t}</span>`;
   const linkedCard = linked.length
@@ -3402,7 +3679,7 @@ function tabRAG(d){
        <span class="chip c-error"><span class="dot"></span>${counts.r} Red</span>
        <span class="chip c-warning"><span class="dot"></span>${counts.a} Amber</span>
        <span class="chip c-success"><span class="dot"></span>${counts.g} Green</span></div></div>
-   <div class="acc">${d.rag.map((x,i)=>ragRow(d,x,i)).join('')}</div>`;
+   <div class="acc ckgrid">${ragHead()}${d.rag.map((x,i)=>ragRow(d,x,i)).join('')}</div>`;
 }
 // Morgan's "expand all" – open every RAG backing-chart row at once (toggles to "Collapse all")
 function toggleAllRag(){const rows=[...document.querySelectorAll('.acc .arow')];if(!rows.length)return;
@@ -3411,15 +3688,24 @@ function toggleAllRag(){const rows=[...document.querySelectorAll('.acc .arow')];
   const b=document.getElementById('ragExpandBtn');if(b)b.innerHTML=(expand?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-right:5px;vertical-align:-2px"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>Collapse all':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-right:5px;vertical-align:-2px"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>Expand all');}
 function ragRow(d,x,i){
   const [name,st,detail]=x;
+  const ov=ragOvr(d.id,name),cf=ragConf(d.id,name),sys=ragSys(d.id,name,st);
+  // same rule as the checks table: system-green pre-selects, a flagged row starts blank and asks for a decision
+  const sel=ov?ov.to:(cf?sys:(sys==='g'?'g':null));
+  const seg=`<span class="seg cseg">${['g','a','r'].map(s=>`<button class="${s} ${s==sel?'on':''}" onclick="onRagState(${i},'${s}')">${RAGN[s]}</button>`).join('')}</span>`;
+  const tip=ov?`Set to ${RAGN[ov.to]} by ${ov.by||CURRENT_UW.name}`:(cf?`Agreed with the system by ${cf.by} · ${cf.at}`:'');
   return `<div class="arow ${st}" id="ar${i}" data-focus="${name}">
     <div class="ahead" onclick="toggleAcc(${i})">
-      <span class="chip ${st=='g'?'c-success':st=='a'?'c-warning':'c-error'}" id="arc${i}"><span class="dot"></span>${st=='g'?'Green':st=='a'?'Amber':'Red'}</span>
-      <span class="aname">${name}${(RAG_OVR[d.id]&&RAG_OVR[d.id][name])?' <span class="ovr-tag">overridden</span>':''}</span><span class="adetail">${String(detail).replace(/^Flagged:\s*/i,'')}</span>
-      <span class="seg" onclick="event.stopPropagation()">
-        ${['g','a','r'].map(s=>`<button class="${s} ${s==st?'on':''}" onclick="confirmRag(${i},'${s}')">${s.toUpperCase()}</button>`).join('')}</span>
-      <svg class="acaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--text-3)"><path d="M6 9l6 6 6-6"/></svg>
+      <span class="ck-title">${ckTick(st,RAGN)}<span class="ckt-n">${name}</span>${ov?'<span class="ovr-tag">overridden</span>':''}</span>
+      <span class="ck-desc">${String(detail).replace(/^Flagged:\s*/i,'')}</span>
+      <span>${sysChip(sys,RAGN)}</span>
+      <span onclick="event.stopPropagation()">${ragNoteCell(d,name,i)}</span>
+      <span class="uw-cell"${tip?` title="${ckEsc(tip)}"`:''} onclick="event.stopPropagation()">${seg}</span>
+      <svg class="acaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--text-3)"><title>Show the backing charts</title><path d="M6 9l6 6 6-6"/></svg>
     </div>
     <div class="abody">${ragCharts(d,name,i)}</div></div>`;
+}
+function ragHead(){
+  return `<div class="ckhead"><span>Risk area</span><span>What drives it</span><span class="ckh-sys">${LOCK_ICON}System</span><span>Notes &amp; history</span><span>Conclusion</span><span></span></div>`;
 }
 // Real backing-chart sets per RAG area – mapped from the Amazon Model 2.0 tabs (Model / Debt Summary / Account Status / Inventory / Revenue by Source)
 // Top-3 ASIN thumbnail tiles with dummy product renders (self-contained inline SVG)
@@ -3532,44 +3818,107 @@ function ragCharts(d,name,i){
   return G(mc(name+' – trend',C(S(i*7+3,24,P/12,P/20,down?-.3:.15),'bars','var(--brand-600)'),'',''));
 }
 function toggleAcc(i){document.getElementById('ar'+i).classList.toggle('open');}
-function setRag(i,s){
-  const el=document.getElementById('ar'+i);const open=el.classList.contains('open');
-  el.className='arow '+s+(open?' open':'');
-  const c=document.getElementById('arc'+i);
-  c.className='chip '+(s=='g'?'c-success':s=='a'?'c-warning':'c-error');
-  c.innerHTML='<span class="dot"></span>'+(s=='g'?'Green':s=='a'?'Amber':'Red');
-  el.querySelectorAll('.seg button').forEach(b=>b.classList.toggle('on',b.classList.contains(s)));
-}
-// RAG override must be explained – confirmation popup with a required reason note
 const RAGN={g:'Green',a:'Amber',r:'Red'};
 function ragChipCls(s){return s=='g'?'c-success':s=='a'?'c-warning':'c-error';}
-function confirmRag(i,s){const d=byId(CUR.id),area=d.rag[i],cur=area[1];
-  if(s===cur)return; // no change
-  openOverlay(`<div class="modal" style="max-width:480px"><div class="mh"><h3>Override RAG status</h3><div class="x" onclick="closeOverlay()">✕</div></div>
-   <div class="mb">
-     <div class="pub-sum"><span class="muted small">${area[0]}</span><div class="pub-sum-v"><span class="chip ${ragChipCls(cur)}"><span class="dot"></span>${RAGN[cur]}</span> <span class="muted">→</span> <span class="chip ${ragChipCls(s)}"><span class="dot"></span>${RAGN[s]}</span></div></div>
-     <label class="pub-lbl" for="ragNote">Reason for override <span class="req">Required</span></label>
-     <textarea id="ragNote" class="editcell" style="width:100%;min-height:80px;text-align:left" placeholder="Explain why you're changing this rating – saved to the deal history." oninput="var e=document.getElementById('ragErr');if(e&&this.value.trim())e.hidden=true;"></textarea>
-     <div class="pub-err" id="ragErr" hidden>Add a reason before applying the override.</div>
-     <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-outline btn-sm" onclick="closeOverlay()">Cancel</button>
-       <button class="btn btn-primary btn-sm" onclick="applyRag(${i},'${s}')">Apply override</button></div>
-   </div></div>`);
-  setTimeout(()=>{const t=document.getElementById('ragNote');if(t)t.focus();},60);}
-function applyRag(i,s){const t=document.getElementById('ragNote'),v=((t||{}).value||'').trim();
-  if(!v){const e=document.getElementById('ragErr');if(e)e.hidden=false;if(t){t.classList.add('chg');t.focus();}return;}
-  const d=byId(CUR.id),area=d.rag[i],cur=area[1];
-  RAG_OVR[d.id]=RAG_OVR[d.id]||{};
-  const orig=(RAG_OVR[d.id][area[0]]&&RAG_OVR[d.id][area[0]].from)||cur; // keep the original status across repeated overrides
-  d.rag[i][1]=s;                 // persist the override on the deal
-  RAG_OVR[d.id][area[0]]={from:orig,to:s,reason:v};   // structured override – used by the review popup
-  (NOTES[d.id]=NOTES[d.id]||[]).push({name:CURRENT_UW.name,initials:CURRENT_UW.initials,time:nowStamp(),stepId:'rag',tag:'RAG override',tx:`${area[0]}: ${RAGN[cur]} → ${RAGN[s]} – ${v}`});
-  closeOverlay();
-  // re-render the whole RAG step (banner + counts + rows) preserving open rows, then refresh the spine
+/* An override writes the new status straight onto d.rag[i][1] (every downstream count reads it there),
+   so the SYSTEM value has to be recovered from the override's own `from`. */
+const RAG_LOG={};   // {id:{name:[{by,initials,at,action,from,to,note}]}}
+const RAG_CONF={};  // {id:{name:{by,initials,at}}} – underwriter agreed with a flagged system status
+function ragOvr(id,name){return RAG_OVR[id]&&RAG_OVR[id][name];}
+function ragConf(id,name){return RAG_CONF[id]&&RAG_CONF[id][name];}
+function ragLog(id,name){return (RAG_LOG[id]&&RAG_LOG[id][name])||[];}
+function logRag(id,name,e){RAG_LOG[id]=RAG_LOG[id]||{};(RAG_LOG[id][name]=RAG_LOG[id][name]||[]).push(e);}
+function ragSys(id,name,eff){const o=ragOvr(id,name);return o?o.from:eff;}
+function ragNoteCell(d,name,i){return noteCellHTML(ragLog(d.id,name),RAGN,`openRagItem(${i})`);}
+// mirrors onCheckState: picking the system's own status agrees with it, or withdraws an override
+function onRagState(i,s){
+  const d=byId(CUR.id),area=d.rag[i],name=area[0],eff=area[1],sys=ragSys(d.id,name,eff),ov=ragOvr(d.id,name);
+  if(s===eff&&ov)return;
+  if(s===sys){
+    if(ov)return revertRagOverride(i);
+    return confirmRagState(i);
+  }
+  openRagItem(i,s);
+}
+function rerenderRag(d){
   const open=[...document.querySelectorAll('.arow.open')].map(e=>+e.id.replace('ar',''));
   tabRAG(d); renderStepBar(d);
   open.forEach(k=>{const el=document.getElementById('ar'+k);if(el)el.classList.add('open');});
   const sp=document.getElementById('spine');if(sp)sp.outerHTML=renderSpine(d,CUR.step);
-  toast(`${area[0]} overridden to ${RAGN[s]}`);}
+}
+function confirmRagState(i){
+  const d=byId(CUR.id),area=d.rag[i],name=area[0];
+  if(ragConf(d.id,name))return;
+  RAG_CONF[d.id]=RAG_CONF[d.id]||{};RAG_CONF[d.id][name]={by:CURRENT_UW.name,initials:CURRENT_UW.initials,at:nowStamp()};
+  logRag(d.id,name,{by:CURRENT_UW.name,initials:CURRENT_UW.initials,at:nowStamp(),action:'confirm',to:area[1]});
+  rerenderRag(d);toast(`${name} – agreed with the system (${RAGN[area[1]]})`);
+}
+function revertRagOverride(i){
+  const d=byId(CUR.id),area=d.rag[i],name=area[0],ov=ragOvr(d.id,name);
+  if(!ov)return;
+  const back=ov.from;
+  d.rag[i][1]=back;
+  delete RAG_OVR[d.id][name];
+  logRag(d.id,name,{by:CURRENT_UW.name,initials:CURRENT_UW.initials,at:nowStamp(),action:'revert',from:ov.to,to:back});
+  (NOTES[d.id]=NOTES[d.id]||[]).push({name:CURRENT_UW.name,initials:CURRENT_UW.initials,time:nowStamp(),stepId:'rag',tag:'Override withdrawn · '+name,tx:`${RAGN[ov.to]} → ${RAGN[back]} (back to the system result)`});
+  rerenderRag(d);toast(`${name} – override withdrawn`);
+}
+// same panel shape as the Data-checks one: evidence + system call + your decision on the left, the trail on the right
+function openRagItem(i,pending){
+  const d=byId(CUR.id),area=d.rag[i],name=area[0],detail=area[2],eff=area[1];
+  const ov=ragOvr(d.id,name),cf=ragConf(d.id,name),sys=ragSys(d.id,name,eff),log=ragLog(d.id,name);
+  const changing=pending&&pending!==eff;
+  const hist=log.length
+    ? `<div class="ck-hist">${log.map(e=>`<div class="ck-item">${histTagRow(e,RAGN)}${e.note?`<div class="ck-txt">${ckEsc(e.note)}</div>`:''}<div class="ck-histmeta"><span class="ck-av">${e.initials}</span>${ckEsc(e.by)} · ${ckEsc(e.at)}</div></div>`).join('')}</div>`
+    : `<div class="ck-empty">No notes yet – you're the first to review this area.</div>`;
+  const decide=`<span class="seg cseg">${['g','a','r'].map(s=>`<button class="${s} ${s==eff?'on':''}" onclick="openRagItem(${i},'${s}')">${RAGN[s]}</button>`).join('')}</span>`;
+  const standing=ov?`Currently ${RAGN[ov.to]} – set by <b>${ckEsc(ov.by||CURRENT_UW.name)}</b>.`
+    :(cf?`Agreed with the system by <b>${ckEsc(cf.by)}</b> · ${ckEsc(cf.at)}.`
+       :'No underwriter decision recorded yet – pick a status to record one.');
+  const lbl=changing?'Reason for this change':'Add a note';
+  const primaryLbl=!changing?'Save note':(pending===sys?(ov?'Withdraw override':'Agree with the system'):'Override');
+  const primary=changing
+    ? `<button class="btn btn-primary btn-sm" onclick="applyRag(${i},'${pending}')">${primaryLbl}</button>`
+    : `<button class="btn btn-primary btn-sm" onclick="saveRagNote(${i})">${primaryLbl}</button>`;
+  openOverlay(`<div class="modal ck-modal" style="max-width:860px"><div class="mh"><h3>${name}${ov?'<span class="ovr-tag">overridden</span>':''}</h3><div class="x" onclick="closeOverlay()">✕</div></div>
+   <div class="mb" style="padding:0"><div class="ck-two">
+     <aside class="ck-col ck-histcol"><div class="ck-sec">Notes history</div>${hist}</aside>
+     <div class="ck-col">
+       <div class="ck-band">
+         <div class="ck-sec">What the system found</div>
+         <div class="ck-why">${String(detail||'').replace(/^Flagged:\s*/i,'')}</div>
+         <div class="ck-sysline">${sysChip(sys,RAGN)}<span class="pb-desc">scored at data-lock from the locked financial data</span></div>
+       </div>
+       <div class="ck-band">
+         <div class="ck-sec">Your conclusion</div>
+         ${changing?`<div class="ck-change">Pending change ${trTags(eff,pending,RAGN)}</div>`:`${decide}<div class="ck-standing">${standing}</div>`}
+         <div class="ck-lbl">${lbl}</div>
+         <textarea id="ragNote" class="ck-in" placeholder="Add note"></textarea>
+       </div>
+     </div>
+   </div></div>
+   <div class="mf"><button class="btn btn-outline btn-sm" onclick="closeOverlay()">Cancel</button><span style="flex:1"></span>${primary}</div></div>`);
+  setTimeout(()=>{const t=document.getElementById('ragNote');if(t)t.focus();},60);}
+function saveRagNote(i){const t=document.getElementById('ragNote'),v=((t||{}).value||'').trim();
+  const d=byId(CUR.id),name=d.rag[i][0];
+  if(!v){if(t){t.focus();t.style.borderColor='#e0473f';}toast('Add a note first');return;}
+  logRag(d.id,name,{by:CURRENT_UW.name,initials:CURRENT_UW.initials,at:nowStamp(),action:'note',note:v});
+  RAG_ACK[d.id]=RAG_ACK[d.id]||{};RAG_ACK[d.id][name]=v;
+  (NOTES[d.id]=NOTES[d.id]||[]).push({name:CURRENT_UW.name,initials:CURRENT_UW.initials,time:nowStamp(),stepId:'rag',tag:'RAG note · '+name,tx:v});
+  closeOverlay();rerenderRag(d);toast('Note saved');}
+// reason is optional here too – George's scale concern, Ravi's "make it optional so we don't have to remove it later"
+function applyRag(i,s){const t=document.getElementById('ragNote'),v=((t||{}).value||'').trim();
+  const d=byId(CUR.id),area=d.rag[i],name=area[0],cur=area[1],sys=ragSys(d.id,name,cur);
+  if(s===sys){closeOverlay();return ragOvr(d.id,name)?revertRagOverride(i):confirmRagState(i);}
+  if(RAG_CONF[d.id])delete RAG_CONF[d.id][name];
+  RAG_OVR[d.id]=RAG_OVR[d.id]||{};
+  const orig=(RAG_OVR[d.id][name]&&RAG_OVR[d.id][name].from)||cur; // keep the original status across repeated overrides
+  d.rag[i][1]=s;                 // persist the override on the deal – every downstream count reads it here
+  RAG_OVR[d.id][name]={from:orig,to:s,reason:v,by:CURRENT_UW.name,initials:CURRENT_UW.initials,at:nowStamp()};
+  logRag(d.id,name,{by:CURRENT_UW.name,initials:CURRENT_UW.initials,at:nowStamp(),action:'override',from:cur,to:s,note:v});
+  (NOTES[d.id]=NOTES[d.id]||[]).push({name:CURRENT_UW.name,initials:CURRENT_UW.initials,time:nowStamp(),stepId:'rag',tag:'RAG override · '+name,tx:`${RAGN[cur]} → ${RAGN[s]}${v?' – '+v:' – no reason given'}`});
+  closeOverlay();rerenderRag(d);
+  toast(`${name} overridden to ${RAGN[s]}`);}
 const RAG_OVR={};
 const RAG_ACK={}; // {dealId:{area:note}} – "your read on this flag" captured at the review gate
 
