@@ -315,11 +315,15 @@ tr.clickable:hover .goarrow{background:var(--brand-600);color:#fff;border-color:
 /* no avatar gutter – it would leave a dead column beside the note text in a 284px rail.
    Identity rides with the timestamp instead, so every line starts at the same edge. */
 .ck-two .ck-item{display:block;background:#fff;border:1px solid var(--border);border-radius:8px;padding:11px 12px}
+/* who + when on the first line, then the tag, then the note – every line flush left in the card */
+.ck-histwho{display:flex;align-items:center;gap:8px;min-width:0}
+.ck-histwho .ck-av{width:20px;height:20px;flex:0 0 20px;font-size:9px}
+.ck-histwho .nm{font-size:12px;font-weight:600;color:var(--text-2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ck-histwho .when{margin-left:auto;flex:none;font-size:11px;color:var(--text-3);white-space:nowrap}
 /* the tag carries a left margin for inline use – on its own line it has to start at the text edge */
-.ck-histtag{margin-bottom:6px;line-height:1}
+.ck-histtag{margin-top:9px;line-height:1}
 .ck-histtag>.tr-tags,.ck-histtag>.ck-act-tag{margin-left:0}
-.ck-histmeta{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text-3);margin-top:8px}
-.ck-histmeta .ck-av{width:20px;height:20px;flex:0 0 20px;font-size:9px}
+.ck-two .ck-item .ck-txt{margin-top:7px}
 .ck-standing{font-size:12.5px;color:var(--text-2);margin:9px 0 14px}
 @media (max-width:860px){.ck-two{grid-template-columns:1fr}.ck-two>.ck-histcol{border-right:0;border-bottom:1px solid var(--border);max-height:30vh}}
 .ck-in{width:100%;min-height:66px;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font:inherit;font-size:13px;resize:vertical}
@@ -366,7 +370,7 @@ tr.clickable:hover .goarrow{background:var(--brand-600);color:#fff;border-color:
 /* UNDERWRITER column – empty by default; the override affordance only appears on hover */
 .uw-cell{min-height:24px;display:flex;align-items:center;justify-content:flex-start;gap:8px}
 /* the crossed-out transition Ravi singled out on RAG – "red crossed out and then amber makes it super clear" */
-.ck-title .ckt-n{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.ck-title .ckt-n{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ck-title .ovr-tag{margin-left:0;flex:none}
 .mh .ovr-tag{vertical-align:2px}
 .uw-ovr{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;white-space:nowrap;background:none;border:0;padding:0;cursor:pointer;font-family:inherit}
@@ -433,6 +437,7 @@ tr.clickable:hover .goarrow{background:var(--brand-600);color:#fff;border-color:
 /* dividers between the options; the filled option separates itself, so drop the rules touching it */
 .seg button+button{border-left-color:var(--border)}
 .seg button.on,.seg button.on+button{border-left-color:transparent}
+.seg button.on{background:var(--brand-600);color:#fff}
 .seg button.on.g{background:var(--green);color:#fff} .seg button.on.a{background:var(--amber-t);color:#fff} .seg button.on.r{background:var(--red-t);color:#fff}
 
 /* scorecards strip */
@@ -441,6 +446,15 @@ tr.clickable:hover .goarrow{background:var(--brand-600);color:#fff;border-color:
 .scrow{display:grid;grid-template-columns:1.75fr 1fr;gap:14px;margin-bottom:14px;align-items:stretch}
 @media(max-width:900px){.scrow{grid-template-columns:1fr}}
 /* prominent final-rating row */
+/* Final rating uses the same tile anatomy as the individual scorecards (Piotr: "at least as
+   prominent as the other scorecards"), with the override CTA sitting at the foot of the card. */
+/* the card itself becomes the column so the body can fill it without overflowing the clipped edge */
+.card[data-focus="final-rating"]{display:flex;flex-direction:column}
+.card[data-focus="final-rating"] .fr-body{flex:1;display:flex;flex-direction:column;min-height:0}
+/* same tile size as the individual scorecards – only the column count differs */
+.scstrip.fr-strip{grid-template-columns:1fr;flex:1}
+.scstrip.fr-strip .sc{justify-content:center}
+.fr-cta{align-self:stretch;justify-content:center;margin-top:12px;flex:0 0 auto}
 .final-rating-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .rating.rt-lg{width:auto;min-width:44px;height:44px;font-size:22px;padding:0 12px;border-radius:9px;flex:0 0 auto}
 .fr-meta{min-width:0}
@@ -523,6 +537,16 @@ tr.clickable:hover .goarrow{background:var(--brand-600);color:#fff;border-color:
 .conf.lo{color:var(--red-t)} .conf.mid{color:var(--amber-t)} .conf.hi{color:var(--text-3)}
 table.grid tr.flagged td{background:var(--warning-bg)}
 /* Transactions header + toggle + compact grid */
+/* Ravi's two charts sit above the transactions; the balance one is the selection surface */
+.catcharts{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:18px;align-items:start}
+.catcharts .lbl{margin-bottom:4px}
+.brushwrap{position:relative;touch-action:none;cursor:crosshair;-webkit-user-select:none;user-select:none}
+.brushwrap svg{display:block;width:100%}
+.brush-layer{position:absolute;inset:0;pointer-events:none}
+.brush-band,.brush-live{position:absolute;top:6%;bottom:13%;background:rgba(30,189,192,.15);border-left:1.5px solid var(--brand-600);border-right:1.5px solid var(--brand-600)}
+.brush-live{background:rgba(30,189,192,.10)}
+.brush-hint{font-size:11.5px;color:var(--text-3)}
+@media (max-width:1100px){.catcharts{grid-template-columns:1fr}}
 .txdrill{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding:11px 16px;background:var(--brand-50,#eef8f8);border:1px solid var(--brand-200,#bfe6e6);border-radius:10px;font-size:13px;color:var(--ink)}
 .txdrill-ic{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;flex:0 0 26px;border-radius:7px;background:var(--brand-600,#128081);color:#fff}
 .txdrill-ic svg{width:15px;height:15px}
@@ -573,6 +597,115 @@ table.txgrid tbody tr.rowsel td{background:var(--brand-100)}
 .txbulk .txbsel,.txbulk .txmerch-in{font:inherit;font-size:12.5px;padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:#fff}
 .txbulk .txbsel{padding-right:30px}
 .txbulk .txmerch-in{min-width:200px}
+/* ── Routed full-screen sheet: a work surface, not a dialog ── */
+.sheet{position:fixed;inset:0;z-index:80;background:var(--surface,#fff);display:flex;flex-direction:column}
+.sheet-h{display:flex;align-items:center;gap:14px;padding:14px 22px;border-bottom:1px solid var(--border);flex:0 0 auto}
+.sheet-t{display:flex;align-items:baseline;gap:12px;min-width:0}
+.sheet-t h3{font-size:16px;white-space:nowrap}
+.sheet-act{margin-left:auto;display:inline-flex;gap:8px;align-items:center;flex:0 0 auto}
+.sheet-set{display:inline-flex;align-items:center;gap:12px;margin-left:20px;flex:0 0 auto}
+/* an editable cell has to look like a field – otherwise the only cue is the colour of the number */
+.sheet>.selbar{flex:0 0 auto;position:static}
+.sheet-f{justify-content:flex-start}
+.sheet-x{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:14px;color:var(--text-2);flex:0 0 auto}
+.sheet-x:hover{background:var(--grey-1)}
+.sheet-b{flex:1;min-height:0;display:grid;grid-template-rows:minmax(0,1fr) auto;overflow:hidden;position:relative}
+.sheet-scroll{flex:1;min-height:0;overflow:auto}
+.sheet-b>.selbar{position:static;margin-top:auto;flex:0 0 auto}
+.sheet-f{display:flex;align-items:center;gap:8px;padding:12px 22px;border-top:1px solid var(--border);flex:0 0 auto}
+.sheet .dg-host .card{border:0;box-shadow:none;border-radius:0;overflow:visible}
+.sheet .dg-host .card-h{display:none}
+.sheet .dgscroll{overflow:visible}
+/* ===========================================================================
+   One spreadsheet base for every forecast table (Ravi/Andrew: "as close as possible
+   to a Google Sheet"). Both grids opt in with .sheetgrid and differ only by settings:
+   label-column width, min-width, and which row roles they use.
+   Shared vocabulary — cells: .act (locked actual) · .fc (forecast) · .man (hand-edited)
+                       rows:  .sg-open · .sg-sub · .sg-tot · .sg-muted
+   =========================================================================== */
+.sheetgrid{border-collapse:separate;border-spacing:0;font-size:12px;white-space:nowrap;
+  font-variant-numeric:tabular-nums;--sg-lbl-w:auto}
+.sheetgrid th,.sheetgrid td{padding:6px 10px;text-align:right;
+  border-bottom:1px solid var(--cell);border-right:1px solid var(--cell)}
+/* Frozen panes. Explicit layering, corner highest, or the month row paints over the label column:
+   corner 5 > header row 4 > label column 3 > body cells 1 */
+.sheetgrid thead th,.sheetgrid tr:first-child th{position:sticky;top:0;z-index:4;
+  background:#eceff2;color:var(--text-3);font-size:10.5px;font-weight:700;letter-spacing:.03em}
+.sheetgrid .mdl-lbl,.sheetgrid .dg-info{position:sticky;left:0;z-index:3;background:#fff;
+  text-align:left;font-weight:600;white-space:nowrap;box-shadow:1px 0 0 var(--border);width:var(--sg-lbl-w)}
+.sheetgrid thead th.mdl-lbl,.sheetgrid tr:first-child th.mdl-lbl,.sheetgrid thead .dg-info{
+  position:sticky;left:0;top:0;z-index:5;background:#eceff2}
+/* cell states */
+.sheetgrid .act,.sheetgrid .rocell{background:var(--grey-1);color:var(--text-2)}
+.sheetgrid .fc{background:#fff;color:var(--brand-700)}
+.sheetgrid .man{background:#fff4e0}
+.sheetgrid .man input{color:var(--amber-t);font-weight:700}
+.sheetgrid input{width:100%;min-width:56px;border:1px solid transparent;background:transparent;
+  text-align:right;font:inherit;font-size:12px;font-variant-numeric:tabular-nums;
+  border-radius:4px;padding:2px 4px;color:var(--brand-700)}
+.sheetgrid input:hover{border-color:var(--cell)}
+.sheetgrid input:focus{border-color:var(--brand-400,#8ecfd0);background:#fff;outline:none;box-shadow:0 0 0 2px var(--brand-100)}
+/* row roles */
+.sheetgrid .sg-open td,.sheetgrid .mdl-open td{background:var(--grey-1);font-weight:600}
+.sheetgrid .sg-sub td,.sheetgrid .mdl-sub td{background:#f7fafb;font-weight:700}
+.sheetgrid .sg-tot td,.sheetgrid .mdl-tot td,.sheetgrid .dg-total td{background:var(--grey-1);font-weight:700;border-top:1px solid var(--border)}
+.sheetgrid .sg-muted td,.sheetgrid .mdl-resid td{color:var(--text-3);font-style:italic}
+.sheetgrid .sg-open .mdl-lbl,.sheetgrid .sg-sub .mdl-lbl,.sheetgrid .sg-tot .mdl-lbl,
+.sheetgrid .mdl-open .mdl-lbl,.sheetgrid .mdl-sub .mdl-lbl,.sheetgrid .mdl-tot .mdl-lbl,
+.sheetgrid .dg-total .dg-info{background:var(--grey-1)}
+.sheetgrid .mdl-sub .mdl-lbl{background:#f7fafb}
+/* an editable cell must read as a field – otherwise the only cue is the colour of the number */
+.sheetgrid td:has(> input){background:#fff;padding:3px 6px}
+.sheetgrid input{border-color:var(--cell)!important;background:#fff}
+.sheetgrid input:hover{border-color:var(--brand-400,#8ecfd0)!important}
+.sheetgrid .man input{border-color:var(--amber-bd)!important}
+/* per-table settings – the only things that legitimately differ */
+.mdlgrid{--sg-lbl-w:auto}
+.dggrid{--sg-lbl-w:210px;min-width:900px}
+.dggrid .dg-info{min-width:210px;max-width:210px}
+/* ── Full cashflow model – 40 real months, so the label column has to hold its place ── */
+.mdl-modal{max-width:1180px}
+.mdl-modal .mb{padding:0;overflow:hidden;display:flex;flex-direction:column;min-height:0}
+.mdlscroll{overflow:auto;flex:1;min-height:0}
+.mdlgrid th.fc{color:var(--brand-700)}
+.mdlgrid td.fc{color:var(--brand-700)}
+.mdlgrid .mdl-tot td{border-top:1px solid var(--border);font-weight:700;background:var(--grey-1)}
+.mdlgrid .mdl-tot .mdl-lbl{background:var(--grey-1)}
+/* months-down: the semantic classes move from rows to columns, so restate them for th/td alike */
+.mdl-seg{margin-left:auto;flex:0 0 auto}
+.mdl-seg button{white-space:nowrap}
+.orient-down .mdlgrid th.mdl-tot,.orient-down .mdlgrid th.mdl-sub{background:#e4eaee}
+.orient-down .mdlgrid th.mdl-resid{font-style:italic;color:var(--text-3)}
+.orient-down .mdlgrid .mdl-fcrow .mdl-lbl{color:var(--brand-700)}
+.orient-down .mdlgrid .mdl-lbl{font-variant-numeric:tabular-nums}
+.mdlgrid .mdl-open td{border-bottom:1px solid var(--border);font-weight:600;background:var(--grey-1)}
+.mdlgrid .mdl-open .mdl-lbl{background:var(--grey-1)}
+.mdlgrid .mdl-resid td{border-top:1px solid var(--border);color:var(--text-3);font-style:italic}
+/* spreadsheet selection – the marching-ants equivalent, plus the Excel status bar */
+/* dragging a cell range must not also drag a text selection through the labels */
+.selgrid{-webkit-user-select:none;user-select:none}
+.selgrid input,.selgrid textarea{-webkit-user-select:text;user-select:text}
+.selgrid td[data-sv]{cursor:cell}
+.selgrid td.sel-on{background:rgba(30,189,192,.16)!important;box-shadow:inset 0 0 0 1px var(--brand-600)}
+.selgrid td.sel-on input{background:transparent}
+[data-selwrap]{position:relative}
+.selbar{position:sticky;bottom:0;z-index:4;display:flex;align-items:center;gap:10px;padding:9px 16px;
+  background:#fff;border-top:1px solid var(--border);font-size:12.5px;box-shadow:0 -4px 10px rgba(16,24,32,.05)}
+.selbar b{font-weight:800;font-variant-numeric:tabular-nums;color:var(--ink)}
+.selbar .selb-k{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3)}
+.selbar .selb-k:not(:first-child){margin-left:12px}
+.selbar .btn{margin-left:auto}
+.mdlgrid .mdl-sub td{border-top:1px solid var(--cell);font-weight:700;background:#f7fafb}
+.mdlgrid .mdl-sub .mdl-lbl{background:#f7fafb}
+/* debt grid – draws on their own line beneath the lender's repayments */
+.dggrid .dg-inrow td{background:#f4fafa}
+.dggrid .dg-subinfo{font-size:11.5px;color:var(--text-3);padding-left:22px}
+.dggrid .dg-in{color:#0d6b6b;font-weight:600}
+/* months-down: lender identity + tools move into the column header */
+.dggrid .dg-colhead{vertical-align:top;text-align:left;min-width:150px}
+.dggrid .dg-colinfo{text-align:left}
+.dggrid .dg-monthlbl{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dggrid .dg-todayrow td{border-bottom:2px solid var(--border)}
 /* ── Debt-forecast editable grid ── */
 .dg-htitle{display:flex;flex-direction:column;gap:2px}
 .dg-htitle .sub{margin:0}
@@ -592,11 +725,6 @@ table.txgrid tbody tr.rowsel td{background:var(--brand-100)}
 .dgscroll::-webkit-scrollbar{height:12px}
 .dgscroll::-webkit-scrollbar-track{background:var(--grey-1);border-radius:8px}
 .dgscroll::-webkit-scrollbar-thumb{background:#b7c0c7;border-radius:8px;border:3px solid var(--grey-1)}
-.dggrid{border-collapse:separate;border-spacing:0;font-size:12px;min-width:900px;font-variant-numeric:tabular-nums}
-.dggrid th,.dggrid td{border-bottom:1px solid var(--cell);border-right:1px solid var(--cell);padding:5px 8px;white-space:nowrap;text-align:right}
-.dggrid thead th{background:var(--grey-1);font-weight:700;color:var(--text-3);font-size:11px;position:sticky;top:0;z-index:1}
-.dggrid .dg-info{position:sticky;left:0;z-index:2;background:#fff;text-align:left;min-width:210px;max-width:210px;box-shadow:1px 0 0 var(--border)}
-.dggrid thead .dg-info{z-index:3;background:var(--grey-1)}
 .dggrid .dg-total .dg-info,.dggrid .dg-total td{background:var(--grey-1);font-weight:700;border-top:2px solid var(--border)}
 .dg-nm{font-weight:700;color:var(--ink);font-size:13px}
 .dg-sub{font-size:11px;color:var(--text-3);margin-top:1px}
@@ -2034,11 +2162,43 @@ function gotoPriorDeals(id){
   setTimeout(scroll,onBg?0:140);
 }
 window.addEventListener('hashchange',route);
+/* The forecast sheets get their own route rather than living in a modal: they're a work session
+   (select, sum, edit, export, reconcile against the Sheet), so they need a back button, a reload
+   that lands you back in the same table, and a link a reviewer can be pointed at. */
+const SHEETS={model:{open:id=>modelSheet(id)},debt:{open:id=>debtSheet(id)}};
 function route(){
   const h=location.hash||'#/portfolio';
-  if(h.startsWith('#/deal/')){renderDeal(h.split('/')[2], h.split('/')[3]||'overview');}
-  else{renderPortfolio();}
+  if(h.startsWith('#/deal/')){
+    const p=h.split('/'), id=p[2], step=p[3]||'overview', sheet=p[4];
+    renderDeal(id,step);
+    if(sheet&&SHEETS[sheet])setTimeout(()=>SHEETS[sheet].open(id),0); else closeSheet(true);
+  }
+  else{renderPortfolio();closeSheet(true);}
 }
+function openSheet(id,step,name){go(`#/deal/${id}/${step}/${name}`);}
+function closeSheet(silent){const el=document.getElementById('sheet');if(el)el.remove();
+  if(!silent){const p=location.hash.split('/');if(p.length>4){p.pop();location.hash=p.join('/');}}}
+/* Actions live at the top, in two rows: identity + what you can do with the sheet, then its
+   settings. The foot is reserved for moving between the sheets, so switching tables is a
+   fixed, predictable place rather than a button that shifts per screen. */
+const SHEET_TABS=[['model','Cashflow model'],['debt','Debt forecast']];
+function renderSheet(id,active,title,sub,actions,settings,bodyHTML){
+  const ex=document.getElementById('sheet');if(ex)ex.remove();
+  const el=document.createElement('div');el.id='sheet';el.className='sheet';
+  el.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:80';
+  el.setAttribute('data-selwrap','');
+  el.innerHTML=`<div class="sheet-h">
+      <div class="sheet-t"><h3>${title}</h3><span class="muted small">${sub}</span></div>
+      ${settings?`<span class="sheet-set">${settings}</span>`:''}
+      <span class="sheet-act">${actions||''}</span>
+      <button class="sheet-x" title="Close (Esc)" onclick="closeSheet()">✕</button></div>
+    <div class="sheet-b">${bodyHTML}</div>
+    <div class="selbar" hidden></div>
+    <div class="sheet-f"><span class="seg cseg">${SHEET_TABS.map(([k,l])=>
+      `<button class="${k===active?'on':''}" onclick="openSheet('${id}','forecast','${k}')">${l}</button>`).join('')}</span></div>`;
+  document.body.appendChild(el);
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!SEL.cells.size&&document.getElementById('sheet'))closeSheet();});
 
 /* =========================================================================
    SCREEN 1 – HELICOPTER / PORTFOLIO
@@ -2367,6 +2527,7 @@ function histTag(e,V){
 }
 // the tag row disappears entirely when there's no tag, rather than leaving an empty gap
 function histTagRow(e,V){const t=histTag(e,V);return t?`<div class="ck-histtag">${t}</div>`:'';}
+const DL_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;margin-right:6px;vertical-align:-2px"><path d="M12 3v12M7 11l5 5 5-5M4 21h16"/></svg>';
 const LOCK_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
 /* At 11px the amber "!" only reads if the dot is a real circle – drawn as a round-capped stroke it
    fuses with the stem into a blob. Green/red stay strokes; they survive the size. */
@@ -2455,7 +2616,7 @@ function checkRowHTML(d,name,sev,detail,mode,count){
   const V=mode==='verify'?CSTATES_V:CSTATES;
   const eff=checkEff(d.id,name,sev),ov=checkOvr(d.id,name),ev=checkEvidence(d,name);
   return `<div class="ckrow" data-focus="${name}">`
-    +`<span class="ck-title">${ckTick(eff,V)}<span class="ckt-n">${name}</span>${count>1?`<span class="cnum ${eff}">${count}</span>`:''}${ov?'<span class="ovr-tag">overridden</span>':''}</span>`
+    +`<span class="ck-title">${ckTick(eff,V)}<span class="ckt-n" title="${ckEsc(name)}">${name}</span>${count>1?`<span class="cnum ${eff}">${count}</span>`:''}${ov?'<span class="ovr-tag">overridden</span>':''}</span>`
     +(ev?evHTML(ev):`<span class="ck-desc">${detail}</span>`)
     +`<span>${sysChip(sev,V)}</span>`
     +noteCell(d,name)
@@ -2512,7 +2673,7 @@ function openCheckReview(id,name,pending){
   const chip=s=>`<span class="chip ${cChipCls(s)}"><span class="dot"></span>${V[s]}</span>`;
   const hist=log.length
     ? `<div class="ck-hist">${log.map(e=>
-        `<div class="ck-item">${histTagRow(e,V)}${e.note?`<div class="ck-txt">${ckEsc(e.note)}</div>`:''}<div class="ck-histmeta"><span class="ck-av">${e.initials}</span>${ckEsc(e.by)} · ${ckEsc(e.at)}</div></div>`).join('')}</div>`
+        `<div class="ck-item"><div class="ck-histwho"><span class="ck-av">${e.initials}</span><span class="nm">${ckEsc(e.by)}</span><span class="when">${ckEsc(e.at)}</span></div>${histTagRow(e,V)}${e.note?`<div class="ck-txt">${ckEsc(e.note)}</div>`:''}</div>`).join('')}</div>`
     : `<div class="ck-empty">No notes yet – you're the first to review this check.</div>`;
   const changing=pending&&pending!==eff;
   const changeBlock=changing?`<div class="ck-change">Pending change ${trTags(eff,pending,V)}</div>`:'';
@@ -3397,18 +3558,11 @@ function offerRow(d,p,i){
 function decisionSummaryCard(d){const m=dealMetrics(d),f=m.f;
   const pos=f.green.slice(0,3).map(g=>g.t).join(' · ')||'–';
   const risk=f.red.slice(0,3).map(r=>r.t).join(' · ')||'None material';
-  return `<div class="card ds-sum" style="margin-bottom:14px"><div class="card-b">
-    <div class="dss-top">
-      <span class="ais-badge" style="margin-left:0">${AI_STAR}Engine</span>
-      <span class="rating rt-${d.rating}">${d.rating}</span>
-      <span class="dss-amt">${d.maxAmount?money0(d.maxAmount):'£0'}</span><span class="dss-amt-sub">vs ${money0(d.preoffer)} requested</span>
-      ${decisionChip(d.decision)}
-      <a class="viewcta dss-link" href="#" onclick="go('#/deal/${d.id}/overview');return false;">Full overview →</a>
-    </div>
-    <div class="dss-assess">${m.rationale}</div>
-    <div class="dss-fl"><span class="dss-fl-lbl pos" title="Positives">${IC_PLUS}</span><span class="dss-fl-txt">${pos}</span></div>
-    <div class="dss-fl"><span class="dss-fl-lbl neg" title="Risks">${IC_MINUS}</span><span class="dss-fl-txt risk">${risk}</span></div>
-  </div>${decisionTrendsStrip(d)}</div>`;}
+  /* The collapsed recap that used to sit here said the same thing as the full recommendation card
+     directly below it – same rationale, same positives, same risks. dec5 was raised because the
+     view was too collapsed, so the expanded card stays and the duplicate goes. */
+  return `${recommendationCard(d)}
+  <div class="card ds-sum" style="margin-bottom:14px">${decisionTrendsStrip(d)}</div>`;}
 // Zoomed-out one-row recap of the Overview trend charts, for context on the Decision step (click any to expand).
 function decisionTrendsStrip(d){
   const t=[
@@ -3695,7 +3849,7 @@ function ragRow(d,x,i){
   const tip=ov?`Set to ${RAGN[ov.to]} by ${ov.by||CURRENT_UW.name}`:(cf?`Agreed with the system by ${cf.by} · ${cf.at}`:'');
   return `<div class="arow ${st}" id="ar${i}" data-focus="${name}">
     <div class="ahead" onclick="toggleAcc(${i})">
-      <span class="ck-title">${ckTick(st,RAGN)}<span class="ckt-n">${name}</span>${ov?'<span class="ovr-tag">overridden</span>':''}</span>
+      <span class="ck-title">${ckTick(st,RAGN)}<span class="ckt-n" title="${ckEsc(name)}">${name}</span>${ov?'<span class="ovr-tag">overridden</span>':''}</span>
       <span class="ck-desc">${String(detail).replace(/^Flagged:\s*/i,'')}</span>
       <span>${sysChip(sys,RAGN)}</span>
       <span onclick="event.stopPropagation()">${ragNoteCell(d,name,i)}</span>
@@ -3869,7 +4023,7 @@ function openRagItem(i,pending){
   const ov=ragOvr(d.id,name),cf=ragConf(d.id,name),sys=ragSys(d.id,name,eff),log=ragLog(d.id,name);
   const changing=pending&&pending!==eff;
   const hist=log.length
-    ? `<div class="ck-hist">${log.map(e=>`<div class="ck-item">${histTagRow(e,RAGN)}${e.note?`<div class="ck-txt">${ckEsc(e.note)}</div>`:''}<div class="ck-histmeta"><span class="ck-av">${e.initials}</span>${ckEsc(e.by)} · ${ckEsc(e.at)}</div></div>`).join('')}</div>`
+    ? `<div class="ck-hist">${log.map(e=>`<div class="ck-item"><div class="ck-histwho"><span class="ck-av">${e.initials}</span><span class="nm">${ckEsc(e.by)}</span><span class="when">${ckEsc(e.at)}</span></div>${histTagRow(e,RAGN)}${e.note?`<div class="ck-txt">${ckEsc(e.note)}</div>`:''}</div>`).join('')}</div>`
     : `<div class="ck-empty">No notes yet – you're the first to review this area.</div>`;
   const decide=`<span class="seg cseg">${['g','a','r'].map(s=>`<button class="${s} ${s==eff?'on':''}" onclick="openRagItem(${i},'${s}')">${RAGN[s]}</button>`).join('')}</span>`;
   const standing=ov?`Currently ${RAGN[ov.to]} – set by <b>${ckEsc(ov.by||CURRENT_UW.name)}</b>.`
@@ -4037,10 +4191,13 @@ function tabScore(d){
          ${strip.map(s=>{const r=scoreReason(s[0],s[1]);return `<div class="sc"><div class="g" style="background:${bg[s[1]]};color:${ink[s[1]]}">${s[1]}</div><div class="lab">${s[0]}</div><div class="sc-why ${r.tier}">${r.txt}</div></div>`;}).join('')}
        </div></div></div>
      <div class="card" data-focus="final-rating"><div class="card-h"><h3>Final rating</h3><span class="sub">blended · editable</span>${SCORE_OVR[d.id]?'<span class="ovr-tag" style="margin-left:auto">overridden</span>':''}</div>
-       <div class="card-b"><div class="final-rating-row">
-         <span class="rating rt-${d.rating} rt-lg">${d.rating}</span>
-         <div class="fr-meta"><div class="fr-title">Final rating · ${m.score}/100</div><div class="fr-sub">${finalNote}</div></div>
-         <button class="btn btn-outline btn-sm" style="margin-left:auto" onclick="openScoreOverride('${d.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-right:5px;vertical-align:-2px"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Override</button>
+       <div class="card-b fr-body">
+         <div class="scstrip fr-strip"><div class="sc">
+           <div class="g" style="background:${bg[d.rating]};color:${ink[d.rating]}">${d.rating}</div>
+           <div class="lab">Final rating · ${m.score}/100</div>
+           <div class="sc-why">${finalNote}</div>
+         </div></div>
+         <button class="btn btn-primary btn-sm fr-cta" onclick="openScoreOverride('${d.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-right:5px;vertical-align:-2px"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Override</button>
        </div></div></div>
    </div>
    <div class="card"><div class="card-h"><h3>Low-scoring areas</h3><span class="sub">Engine explanation</span></div>
@@ -4082,7 +4239,8 @@ function cashForecastCard(d){
   const cur=cCash(d.id)?_nz(cCash(d.id).data).slice(-1)[0]:Math.round((d.preoffer||300000)*.34);
   return `<div class="card fc-out" style="margin-bottom:14px">
     <div class="card-h"><h3>Cash-flow forecast</h3><span class="sub">the output we forecast to – read-only</span>
-      <span class="ro-pill" style="margin-left:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg>Read-only · no inputs</span></div>
+      <button class="btn btn-outline btn-sm" style="margin-left:auto" onclick="openModel('${d.id}')">Open full model</button>
+      <span class="ro-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg>Read-only · no inputs</span></div>
     <div class="card-b">
       <div class="fc-out-top">
         <div class="fc-out-stat"><div class="fco-num ${ok?'ok':thin?'warn':'bad'}">${rw}<span> mo</span></div><div class="fco-lbl">cash runway</div></div>
@@ -4111,8 +4269,7 @@ function tabForecast(d){
 
        <!-- REVENUE FORECAST -->
        <div class="card" style="margin-bottom:14px">
-         <div class="card-h"><h3>Revenue forecast</h3><span class="sub">the model runs itself – flex it only if needed</span>
-           <button class="btn btn-outline btn-sm" style="margin-left:auto" onclick="openModel('${id}')">Open full model</button></div>
+         <div class="card-h"><h3>Revenue forecast</h3><span class="sub">the model runs itself – flex it only if needed</span></div>
          <div class="card-b">
            <div class="assume collapsed" id="asm-rev">
              <div class="ah" onclick="toggleAssume('asm-rev')"><span class="gear">${IC_GEAR}</span>Adjust assumptions<span class="chev">▸</span><span class="hint">basis · forecast · dampening · adjustments</span></div>
@@ -4212,12 +4369,13 @@ function buildDebtGrid(id){
   dp.forEach(p=>p.months.forEach((mo,i)=>{if(Math.abs(p.actualOut[i]||0)>0){const gi=axis.indexOf(mo);if(gi>todayIdx)todayIdx=gi;}}));
   if(todayIdx<0)todayIdx=Math.max(0,Math.floor(axis.length/2)-1);
   const lenders=dp.map(p=>{
-    const act=axis.map(()=>0),fc=axis.map(()=>0),manual=axis.map(()=>false);
+    const act=axis.map(()=>0),fc=axis.map(()=>0),manual=axis.map(()=>false),inn=axis.map(()=>0);
     p.months.forEach((mo,i)=>{const gi=axis.indexOf(mo);if(gi<0)return;
-      const o=Math.abs(p.actualOut[i]||0),f=Math.abs(p.forecastOut[i]||0);
-      if(gi<=todayIdx)act[gi]=o; else fc[gi]=f||o;});
+      const o=Math.abs(p.actualOut[i]||0),f=Math.abs(p.forecastOut[i]||0),n=p.actualIn[i]||0;
+      if(gi<=todayIdx)act[gi]=o; else fc[gi]=f||o;
+      if(n>0)inn[gi]=n;});                       // draws were only ever summed into `drawn` – keep them per month
     const drawn=p.actualIn.reduce((s,x)=>s+(x>0?x:0),0);
-    return {name:p.name,drawn,act,fc,manual,hasDraw:drawn>0};
+    return {name:p.name,drawn,act,fc,manual,inn,hasDraw:drawn>0};
   });
   return DEBTG[id]={axis,todayIdx,lenders,manualOnly:false};
 }
@@ -4246,45 +4404,95 @@ function dgExtend(id,li){const g=DEBTG[id],L=g.lenders[li];
     L.fc[idx]=val;L.manual[idx]=true;}
   dgRerender(id);toast(L.name+': extended 6 months');}
 function dgAddLoan(id){const g=DEBTG[id];const nm=prompt('Lender / facility name:','New facility');if(!nm)return;
-  g.lenders.push({name:nm,drawn:0,act:g.axis.map(()=>0),fc:g.axis.map(()=>0),manual:g.axis.map(()=>false),hasDraw:false});dgRerender(id);toast('Added '+nm+' – set its schedule');}
+  g.lenders.push({name:nm,drawn:0,act:g.axis.map(()=>0),fc:g.axis.map(()=>0),manual:g.axis.map(()=>false),inn:g.axis.map(()=>0),hasDraw:false});dgRerender(id);toast('Added '+nm+' – set its schedule');}
 function dgManualOnly(id){DEBTG[id].manualOnly=!DEBTG[id].manualOnly;dgRerender(id);}
-function dgExpand(id){openOverlay(`<div class="modal dg-modal"><button class="dg-close" onclick="closeOverlay()" title="Close">✕</button><div class="dg-host">${debtGridCard(byId(id))}</div></div>`);}
-// keep every mounted copy of the grid (in-tab + expanded modal) in sync
-function dgRerender(id){document.querySelectorAll('.dg-host').forEach(el=>{el.innerHTML=debtGridCard(byId(id));});}
-function debtGridCard(d){
+function dgExpand(id){openSheet(id,'forecast','debt');}
+function debtSheet(id){
+  const d=byId(id),g=buildDebtGrid(id),okey='debt:'+id,orient=gridOrient(okey);
+  // the card header is hidden full-screen, so its controls move up into the sheet header
+  const ctl=`<label class="toggle"><input type="checkbox" ${g.manualOnly?'checked':''} onchange="dgManualOnly('${id}')"><span class="sw"></span>Manual edits only</label>
+    <span class="seg cseg">${['across','down'].map(o=>`<button class="${o===orient?'on':''}" onclick="setGridOrient('${okey}','${o}',()=>debtSheet('${id}'))">${o==='across'?'Months across':'Months down'}</button>`).join('')}</span>
+    `;
+  renderSheet(id,'debt','Debt forecast – '+d.org,
+    "every lender's repayment schedule – edit the forecast like a spreadsheet",
+    `<button class="btn btn-outline btn-sm" onclick="exportDebtCSV('${id}')">${DL_IC}Download CSV</button>
+     <button class="btn btn-outline btn-sm" onclick="dgAddLoan('${id}')">+ Add loan</button>`,
+    ctl, `${debtSummaryBand(d,g,g.lenders.reduce((s,L)=>s+(dgOutstanding(L)||0),0),g.lenders.reduce((s,L)=>s+dgRemaining(L),0))}<div class="sheet-scroll dg-host">${debtGridCard(d,{noSummary:true})}</div>`);
+}
+// keep every mounted copy of the grid (in-tab + sheet) in sync
+function dgRerender(id){
+  if(document.getElementById('sheet')&&location.hash.endsWith('/debt'))return debtSheet(id);
+  document.querySelectorAll('.dg-host').forEach(el=>{el.innerHTML=debtGridCard(byId(id));});}
+function debtSummaryBand(d,g,totOut,totRemain){
+  return `<div class="dg-summary"><div class="dg-stats">
+        <div class="dg-stat"><b>${money0(totOut)}</b><span>outstanding</span></div>
+        <div class="dg-stat"><b>${money0(totRemain)}</b><span>forecast repayments remaining</span></div>
+        <div class="dg-stat"><b>${d.runway} mo</b><span>runway · feeds debt service</span></div></div>
+      <span class="dg-legend"><span class="dg-legk">Cell key</span><span class="dg-legrow"><span><i class="lg-act"></i>actual</span><span><i class="lg-fc"></i>forecast</span><span><i class="lg-man"></i>manual</span></span></span></div>`;
+}
+/* opts.noSummary: full-screen, the stats band is rendered outside the scrolling area instead –
+   inside it, it inherits the table's 3820px width and slides away with the months. */
+function debtGridCard(d,opts){
   const id=d.id,g=buildDebtGrid(id);
   if(!g.lenders.length)return `<div class="card"><div class="card-h"><h3>Debt forecast</h3><span class="sub">no third-party facilities on file</span><span class="chip c-success" style="margin-left:auto"><span class="dot"></span>No external debt</span></div><div class="card-b"><div class="bg-clean"><span class="chip c-neutral">Nothing to schedule</span> No debt facilities identified in the bank data.</div></div></div>`;
   const shown=g.manualOnly?g.lenders.filter(L=>L.manual.some(Boolean)):g.lenders;
   const totFc=g.axis.map((_,gi)=>gi>g.todayIdx?g.lenders.reduce((s,L)=>s+(L.fc[gi]||0),0):0);
   const totOut=g.lenders.reduce((s,L)=>s+(dgOutstanding(L)||0),0);
   const totRemain=g.lenders.reduce((s,L)=>s+dgRemaining(L),0);
+  const okey='debt:'+id, orient=gridOrient(okey);
   const monthTh=g.axis.map((mo,gi)=>`<th class="dg-c ${gi>g.todayIdx?'fc':'act'}${gi===g.todayIdx?' today':''}">${dgMonthLabel(mo)}</th>`).join('');
+  /* Months-down flips lenders into columns; the lender's name, balance and schedule tools ride in
+     the column header, and each lender contributes a repayments column plus a draws column. */
+  const dgTable=(id,g,shown,totFc,infoCell,row,monthTh,orient)=>{
+    if(orient!=='down')
+      return `<thead><tr><th class="dg-info">Lender</th>${monthTh}</tr></thead>
+        <tbody>${shown.map(row).join('')||'<tr><td class="dg-info muted">No manually-edited lenders</td>'+g.axis.map(()=>'<td class="dg-c"></td>').join('')+'</tr>'}
+          <tr class="dg-total"><td class="dg-info">Total forecast /mo</td>${g.axis.map((_,gi)=>`<td class="dg-c ${gi>g.todayIdx?'fc':'act'}">${gi>g.todayIdx&&totFc[gi]?fmtK(totFc[gi]):''}</td>`).join('')}</tr>
+        </tbody>`;
+    const cols=[];
+    shown.forEach(L=>{cols.push({L,kind:'out'}); if(L.hasDraw)cols.push({L,kind:'in'});});
+    const head=`<thead><tr><th class="dg-info">Month</th>${cols.map(c=>
+      c.kind==='in'?`<th class="dg-c dg-in">${c.L.name}<div class="dg-sub">drawn down</div></th>`
+                   :`<th class="dg-colhead">${infoCell(c.L).replace(/^<td class="dg-info">/,'<div class="dg-colinfo">').replace(/<\/td>$/,'</div>')}</th>`
+      ).join('')}<th class="dg-c">Total /mo</th></tr></thead>`;
+    const body=g.axis.map((mo,gi)=>{
+      const tds=cols.map(c=>{
+        const {L,kind}=c;
+        if(kind==='in'){const v=L.inn[gi];return `<td class="dg-c dg-in ${gi>g.todayIdx?'fc':'act'}" data-sv="${v?Math.round(v):''}">${v?fmtK(v):''}</td>`;}
+        const li=g.lenders.indexOf(L);
+        if(gi<=g.todayIdx){const v=L.act[gi];return `<td class="dg-c act" data-sv="${v?-Math.round(v):''}">${v?fmtK(v):''}</td>`;}
+        const v=L.fc[gi],man=L.manual[gi];
+        return `<td class="dg-c fc${man?' man':''}" data-sv="${v?-Math.round(v):''}"><input value="${v?Math.round(v):''}" data-li="${li}" data-mi="${gi}" onfocus="dgFocus(${li},${gi})" onchange="dgEdit('${id}',${li},${gi},this.value)"></td>`;
+      }).join('');
+      const tot=gi>g.todayIdx&&totFc[gi]?fmtK(totFc[gi]):'';
+      return `<tr class="${gi===g.todayIdx?'dg-todayrow':''}"><td class="dg-info dg-monthlbl">${dgMonthLabel(mo)}</td>${tds}<td class="dg-c dg-total ${gi>g.todayIdx?'fc':'act'}">${tot}</td></tr>`;
+    }).join('');
+    return head+`<tbody>${body}</tbody>`;
+  };
   const infoCell=L=>{const li=g.lenders.indexOf(L),out=dgOutstanding(L);
     return `<td class="dg-info"><div class="dg-nm">${L.name}${L.hasDraw?'':' <span class="dg-warn" title="No drawdown seen in the bank data – confirm the outstanding balance and remaining payments by hand">no draw</span>'}</div>
       <div class="dg-sub">${out==null?'balance —':money0(out)+' out'} · ${dgLeft(L,g)} left</div>
       <div class="dg-tools"><button class="dg-t" title="Set a fixed £/mo for N months (e.g. £20k × 7)" onclick="dgSetAmt('${id}',${li})">Set £/mo</button><button class="dg-t" title="Delete forecast after the selected month (click a forecast cell first)" onclick="dgTrim('${id}',${li})">Trim after</button><button class="dg-t" title="Add 6 more months at the last amount" onclick="dgExtend('${id}',${li})">Extend</button></div></td>`;};
   const row=L=>{const li=g.lenders.indexOf(L);
     const cells=g.axis.map((mo,gi)=>{
-      if(gi<=g.todayIdx){const v=L.act[gi];return `<td class="dg-c act">${v?fmtK(v):''}</td>`;}
+      if(gi<=g.todayIdx){const v=L.act[gi];return `<td class="dg-c act" data-sv="${v?-Math.round(v):''}">${v?fmtK(v):''}</td>`;}
       const v=L.fc[gi],man=L.manual[gi];
-      return `<td class="dg-c fc${man?' man':''}"><input value="${v?Math.round(v):''}" data-li="${li}" data-mi="${gi}" onfocus="dgFocus(${li},${gi})" onchange="dgEdit('${id}',${li},${gi},this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();dgFillRight('${id}',${li},${gi},this.value);}"></td>`;
+      return `<td class="dg-c fc${man?' man':''}" data-sv="${v?-Math.round(v):''}"><input value="${v?Math.round(v):''}" data-li="${li}" data-mi="${gi}" onfocus="dgFocus(${li},${gi})" onchange="dgEdit('${id}',${li},${gi},this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();dgFillRight('${id}',${li},${gi},this.value);}"></td>`;
     }).join('');
-    return `<tr>${infoCell(L)}${cells}</tr>`;};
+    const repaid=`<tr>${infoCell(L)}${cells}</tr>`;
+    /* Ravi: "if there's a way of splitting out inflows and outflows on slightly different lines,
+       that is helpful." Draws sit in the data per month; only repayments were ever drawn. */
+    if(!L.hasDraw)return repaid;
+    const inCells=g.axis.map((mo,gi)=>{const v=L.inn[gi];
+      return `<td class="dg-c dg-in ${gi>g.todayIdx?'fc':'act'}" data-sv="${v?Math.round(v):''}">${v?fmtK(v):''}</td>`;}).join('');
+    return repaid+`<tr class="dg-inrow"><td class="dg-info dg-subinfo">drawn down</td>${inCells}</tr>`;};
   return `<div class="card"><div class="card-h"><div class="dg-htitle"><h3>Debt forecast</h3><span class="sub">every lender's repayment schedule – edit the forecast like a spreadsheet</span></div>
       <span class="dg-hctl">
         <label class="toggle"><input type="checkbox" ${g.manualOnly?'checked':''} onchange="dgManualOnly('${id}')"><span class="sw"></span>Manual edits only</label>
         <button class="btn btn-outline btn-sm btn-expand" onclick="dgExpand('${id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;margin-right:5px;vertical-align:-2px"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>Expand</button>
         <button class="btn btn-outline btn-sm" onclick="dgAddLoan('${id}')">+ Add loan</button></span></div>
-    <div class="dg-summary"><div class="dg-stats">
-        <div class="dg-stat"><b>${money0(totOut)}</b><span>outstanding</span></div>
-        <div class="dg-stat"><b>${money0(totRemain)}</b><span>forecast repayments remaining</span></div>
-        <div class="dg-stat"><b>${d.runway} mo</b><span>runway · feeds debt service</span></div></div>
-      <span class="dg-legend"><span class="dg-legk">Cell key</span><span class="dg-legrow"><span><i class="lg-act"></i>actual</span><span><i class="lg-fc"></i>forecast</span><span><i class="lg-man"></i>manual</span></span></span></div>
-    <div class="dgscroll"><table class="dggrid">
-      <thead><tr><th class="dg-info">Lender</th>${monthTh}</tr></thead>
-      <tbody>${shown.map(row).join('')||'<tr><td class="dg-info muted">No manually-edited lenders</td>'+g.axis.map(()=>'<td class="dg-c"></td>').join('')+'</tr>'}
-        <tr class="dg-total"><td class="dg-info">Total forecast /mo</td>${g.axis.map((_,gi)=>`<td class="dg-c ${gi>g.todayIdx?'fc':'act'}">${gi>g.todayIdx&&totFc[gi]?fmtK(totFc[gi]):''}</td>`).join('')}</tr>
-      </tbody></table></div>
+    ${opts&&opts.noSummary?'':debtSummaryBand(d,g,totOut,totRemain)}
+    <div class="dgscroll" data-selwrap><table class="sheetgrid dggrid selgrid">${dgTable(id,g,shown,totFc,infoCell,row,monthTh,orient)}</table><div class="selbar" hidden></div></div>
   </div>`;
 }
 function plRows(d){
@@ -4452,18 +4660,232 @@ function openSchedule(id,i){const d=byId(id),l=debtLoans(d)[i]; const out=Math.r
    </div>
    <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-outline btn-sm" onclick="closeOverlay()">Cancel</button><button class="btn btn-primary btn-sm" onclick="closeOverlay()">Apply</button></div></div></div>`);
 }
-function openModel(id){const d=byId(id);
-  const cats=['Revenue','Other revenue','Regular inflows','Variable costs','Fixed costs','Taxes','Debt repayment','Uncategorised'];
-  const months=['24-09','24-11','25-01','25-03','25-05','25-07','25-09','25-11','26-01','26-03','26-05','26-07','26-09','26-11'];
-  const hist=8; // first 8 columns are history (read-only)
-  const head=`<tr><th style="text-align:left">Category</th>${months.map((m,j)=>`<th class="num">${m}${j>=hist?' ·f':''}</th>`).join('')}</tr>`;
-  const body=cats.map((c,ci)=>{const sign=(ci>=3?-1:1);const ser=seededSeries(ci*13+7,months.length,d.preoffer/12*(ci===0?1:.2),d.preoffer/22,d.revTrend==='down'?-.2:.1);
-    return `<tr><td style="font-weight:600">${c}</td>${ser.map((v,j)=>{const val=Math.round(sign*v);
-      return j<hist?`<td class="num rocell">${money0(val)}</td>`:`<td class="num"><input class="editcell" value="${val}" onchange="this.classList.add('chg')"></td>`}).join('')}</tr>`;}).join('');
-  openOverlay(`<div class="modal"><div class="mh"><h3>Full cashflow model – ${d.org}</h3>
-     <span class="muted small">history read-only · forecast (·f) editable · changed cells turn amber</span><div class="x" onclick="closeOverlay()">✕</div></div>
-   <div class="mb"><div style="overflow:auto"><table class="grid flat" style="font-size:12px">${head}${body}</table></div>
-   <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-outline btn-sm" onclick="closeOverlay()">Close</button><button class="btn btn-primary btn-sm" onclick="closeOverlay()">Apply overrides</button></div></div></div>`);
+/* The full cashflow model, on the real monthly series loaded for this tool.
+   Andrew wants to reconcile this against the Google Sheet – exporting invented numbers would
+   look like the feature works while doing nothing, so every row reads COMPANY_DATA[id].model.
+   Actuals are read-only; forecast months are editable and overrides are kept per deal. */
+/* ===========================================================================
+   Spreadsheet cell selection (Ravi, Aug-25):
+   "If you click one and then click multiple, does it sum them all up? This needs to function
+    more closely to Excel so that people aren't having to run a calculation on the side."
+   Any table marked .selgrid whose cells carry data-sv becomes selectable: click, drag a
+   rectangle, shift-click to extend, cmd/ctrl-click to add. The footer shows Sum/Avg/Count.
+   =========================================================================== */
+let SEL={grid:null,cells:new Set(),anchor:null,drag:false,keep:null};
+const selVal=td=>{const i=td.querySelector('input');const raw=i?i.value:td.dataset.sv;
+  const n=parseFloat(String(raw==null?'':raw).replace(/[^0-9.-]/g,''));return isNaN(n)?null:n;};
+const selRC=td=>({r:td.parentElement.rowIndex,c:td.cellIndex});
+function selCellsIn(grid,a,b){
+  const r0=Math.min(a.r,b.r),r1=Math.max(a.r,b.r),c0=Math.min(a.c,b.c),c1=Math.max(a.c,b.c),out=[];
+  grid.querySelectorAll('td[data-sv]').forEach(td=>{const {r,c}=selRC(td);
+    if(r>=r0&&r<=r1&&c>=c0&&c<=c1)out.push(td);});
+  return out;
+}
+function selPaint(){
+  document.querySelectorAll('td.sel-on').forEach(td=>td.classList.remove('sel-on'));
+  SEL.cells.forEach(td=>td.classList.add('sel-on'));
+  const bar=SEL.grid&&SEL.grid.closest('[data-selwrap]');
+  const out=bar&&bar.querySelector('.selbar');
+  if(!out)return;
+  const vals=[...SEL.cells].map(selVal).filter(v=>v!=null);
+  if(vals.length<2){out.hidden=true;return;}
+  const sum=vals.reduce((a,b)=>a+b,0);
+  out.hidden=false;
+  out.innerHTML=`<span class="selb-k">Sum</span><b>${money0(Math.round(sum))}</b>`
+    +`<span class="selb-k">Average</span><b>${money0(Math.round(sum/vals.length))}</b>`
+    +`<span class="selb-k">Count</span><b>${vals.length}</b>`
+    +`<button class="btn btn-outline btn-sm" onclick="selCopy()">Copy</button>`;
+}
+function selCopy(){
+  const rows={};
+  SEL.cells.forEach(td=>{const {r,c}=selRC(td);(rows[r]=rows[r]||{})[c]=selVal(td);});
+  const txt=Object.keys(rows).sort((a,b)=>a-b).map(r=>{
+    const cs=rows[r];return Object.keys(cs).sort((a,b)=>a-b).map(c=>cs[c]==null?'':cs[c]).join('\t');}).join('\n');
+  navigator.clipboard&&navigator.clipboard.writeText(txt);
+  toast(SEL.cells.size+' cells copied');
+}
+function selClear(){SEL.cells.clear();SEL.anchor=null;selPaint();}
+function selDown(e){
+  const td=e.target.closest('td[data-sv]'); if(!td)return;
+  const grid=td.closest('.selgrid'); if(!grid)return;
+  if(SEL.grid!==grid){SEL.grid=grid;SEL.cells.clear();SEL.anchor=null;}
+  const add=e.metaKey||e.ctrlKey, ext=e.shiftKey&&SEL.anchor;
+  SEL.keep=add?new Set(SEL.cells):new Set();
+  if(!ext)SEL.anchor=selRC(td);
+  SEL.cells=new Set([...SEL.keep,...selCellsIn(grid,SEL.anchor,selRC(td))]);
+  SEL.drag=true; selPaint();
+  // no preventDefault – a plain click still lands in the input so forecast cells stay editable
+}
+function selMove(e){
+  if(!SEL.drag||!SEL.grid)return;
+  const td=document.elementFromPoint(e.clientX,e.clientY);
+  const cell=td&&td.closest&&td.closest('td[data-sv]');
+  if(!cell||cell.closest('.selgrid')!==SEL.grid)return;
+  SEL.cells=new Set([...SEL.keep,...selCellsIn(SEL.grid,SEL.anchor,selRC(cell))]);
+  selPaint();
+}
+document.addEventListener('pointerdown',selDown);
+document.addEventListener('pointermove',selMove);
+document.addEventListener('pointerup',()=>{SEL.drag=false;});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&SEL.cells.size)selClear();});
+
+const MODEL_IN=['Revenue','Other revenue','Regular inflows','Debt investment','Uncategorised in'];
+const MODEL_ROWS=[
+  ['Revenue','revenueActual','revenueForecast'],
+  ['Other revenue','otherRev','otherRevForecast'],
+  ['Regular inflows','regularInflows','regularInflowsForecast'],
+  ['Debt investment','debtInvestment','debtInvestmentForecast'],
+  ['Uncategorised in','uncatInflows','uncatInflowsForecast'],
+  ['Variable costs','variableCosts','variableForecast'],
+  ['Fixed costs','fixedCosts','fixedForecast'],
+  ['Taxes','taxes',null],
+  ['Debt repayment','debtRepayment','debtRepaymentForecast'],
+];
+const MODEL_OVR={};   // {id:{'row|monthIdx':value}} – forecast cells the underwriter has changed
+function modelCtx(id){
+  const C=COMPANY_DATA[id]||{},M=C.model||{},months=C.months||[];
+  const act=M.revenueActual||[];
+  let lastAct=-1; act.forEach((v,i)=>{if(v!=null)lastAct=i;});
+  return {M,months,lastAct};
+}
+function modelVal(id,label,aKey,fKey,i){
+  const {M,lastAct}=modelCtx(id);
+  const o=MODEL_OVR[id]&&MODEL_OVR[id][label+'|'+i];
+  if(o!=null)return o;
+  const src=i<=lastAct?(M[aKey]||[]):(fKey?(M[fKey]||[]):[]);
+  const v=src[i];
+  return v==null?null:Math.round(v);
+}
+function setModelCell(id,label,i,raw,el){
+  const n=parseFloat(String(raw).replace(/[^0-9.-]/g,''));
+  MODEL_OVR[id]=MODEL_OVR[id]||{};
+  if(isNaN(n))delete MODEL_OVR[id][label+'|'+i]; else MODEL_OVR[id][label+'|'+i]=Math.round(n);
+  if(el)el.classList.add('chg');
+}
+/* Andrew: "I'd like a CSV of all the workings – revenue, expenses, debt, opening cash, ending cash,
+   the full movement of the cash flow – so I can compare it to what the Google Sheet is producing."
+   So the export carries every row the model computes, not just what fits on screen, plus the
+   opening/closing cash and the net movement, and it marks which months are actual vs forecast. */
+/* The nine categories don't account for the whole movement in the real data – every month leaves a
+   1–5% residual (FX, inter-account transfers, fees). Exporting without it would hand Andrew a file
+   where Opening + movement ≠ Closing, and he'd conclude the tool is broken rather than reconcile
+   against the Sheet. So the gap is carried as its own row instead of being hidden. */
+function modelRowsFor(id){
+  const {M,months,lastAct}=modelCtx(id);
+  const rows=MODEL_ROWS.map(([label,a,f])=>[label,months.map((m,i)=>modelVal(id,label,a,f,i))]);
+  const closing=months.map((m,i)=>{const v=(i<=lastAct?(M.bankBalance||[]):(M.bankBalanceForecast||[]))[i];return v==null?null:Math.round(v);});
+  const opening=closing.map((v,i)=>i===0?null:closing[i-1]);
+  const part=which=>months.map((m,i)=>{
+    let s=0,any=false;
+    rows.forEach(([label,vals])=>{ if(MODEL_IN.includes(label)!==which)return;
+      const v=vals[i]; if(v!=null){s+=v;any=true;} });
+    return any?s:null;});
+  const inflow=part(true), outflow=part(false);   // Ravi: inflows and outflows on separate lines
+  const catSum=months.map((m,i)=>{
+    let s=0,any=false; rows.forEach(([,vals])=>{const v=vals[i]; if(v!=null){s+=v;any=true;}});
+    return any?s:null;});
+  const resid=months.map((m,i)=>
+    (opening[i]==null||closing[i]==null||catSum[i]==null)?null:(closing[i]-opening[i])-catSum[i]);
+  const net=months.map((m,i)=>
+    catSum[i]==null?null:catSum[i]+(resid[i]||0));
+  return {months,lastAct,rows,inflow,outflow,catSum,resid,net,opening,closing};
+}
+function exportDebtCSV(id){
+  const d=byId(id),g=buildDebtGrid(id),q=s=>`"${String(s).replace(/"/g,'""')}"`;
+  const out=[['Deal',d.org,d.id].map(q).join(','),
+             ['Exported',new Date().toISOString().slice(0,10),'Actuals to',dgMonthLabel(g.axis[g.todayIdx])].map(q).join(','),'',
+             ['Row'].concat(g.axis.map(dgMonthLabel)).map(q).join(','),
+             ['Basis'].concat(g.axis.map((m,i)=>i<=g.todayIdx?'actual':'forecast')).map(q).join(',')];
+  g.lenders.forEach(L=>{
+    out.push([L.name+' – repaid'].concat(g.axis.map((m,i)=>{const v=i<=g.todayIdx?L.act[i]:L.fc[i];return v?-Math.round(v):'';})).map(q).join(','));
+    if(L.hasDraw)out.push([L.name+' – drawn down'].concat(g.axis.map((m,i)=>L.inn[i]?Math.round(L.inn[i]):'')).map(q).join(','));
+  });
+  out.push(['Total forecast /mo'].concat(g.axis.map((m,i)=>{
+    if(i<=g.todayIdx)return '';
+    const t=g.lenders.reduce((s,L)=>s+(L.fc[i]||0),0);return t?-Math.round(t):'';})).map(q).join(','));
+  const blob=new Blob([out.join('\n')],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${d.id}-debt-forecast.csv`;
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},0);
+  toast('CSV exported – '+g.lenders.length+' lenders × '+g.axis.length+' months');
+}
+function exportModelCSV(id){
+  const d=byId(id),{months,lastAct,rows,inflow,outflow,resid,net,opening,closing}=modelRowsFor(id);
+  const q=s=>`"${String(s).replace(/"/g,'""')}"`;
+  const cell=v=>v==null?'':v;
+  const out=[
+    ['Deal',d.org,d.id].map(q).join(','),
+    ['Exported',new Date().toISOString().slice(0,10),'Actuals to',months[lastAct]].map(q).join(','),
+    '',
+    ['Row'].concat(months).map(q).join(','),
+    ['Basis'].concat(months.map((m,i)=>i<=lastAct?'actual':'forecast')).map(q).join(','),
+  ];
+  out.push(['Opening cash'].concat(opening.map(cell)).map(q).join(','));
+  const emit=which=>rows.filter(([l])=>MODEL_IN.includes(l)===which)
+    .forEach(([label,vals])=>out.push([label].concat(vals.map(cell)).map(q).join(',')));
+  emit(true);  out.push(['Total inflows'].concat(inflow.map(cell)).map(q).join(','));
+  emit(false); out.push(['Total outflows'].concat(outflow.map(cell)).map(q).join(','));
+  out.push(['Other / unreconciled'].concat(resid.map(cell)).map(q).join(','));
+  out.push(['Net cash movement'].concat(net.map(cell)).map(q).join(','));
+  out.push(['Closing cash'].concat(closing.map(cell)).map(q).join(','));
+  const blob=new Blob([out.join('\n')],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`${d.id}-cashflow-model.csv`;
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},0);
+  toast('CSV exported – '+rows.length+' rows × '+months.length+' months');
+}
+/* Andrew: "this is horizontal, kind of want to flip it around." Ravi, in the same breath:
+   "everyone just wants it as close as possible to our existing UX." So both, on a toggle.
+   The table is built as a matrix once and rendered either way, so the two orientations can't drift. */
+const GRID_ORIENT={};
+function gridOrient(k){return GRID_ORIENT[k]||'across';}
+function setGridOrient(k,v,after){GRID_ORIENT[k]=v;selClear();if(after)after();}
+/* rows: [{label, cls, vals, edit}] · cols: month labels · edit(i) decides per column */
+function renderMatrix(rows,cols,lastAct,orient,fmt,editHTML){
+  const cell=(r,i)=>{
+    const v=r.vals[i];
+    const sv=`data-sv="${v==null?'':v}"`;
+    if(r.edit&&i>lastAct&&editHTML)return `<td class="num" ${sv}>${editHTML(r,i)}</td>`;
+    const cls=(i<=lastAct?'rocell':'fc');
+    return `<td class="num ${cls}" ${sv}>${fmt(v)}</td>`;
+  };
+  if(orient==='across'){
+    const head=`<tr><th class="mdl-lbl">Category</th>${cols.map((m,i)=>`<th class="num${i>lastAct?' fc':''}">${m}</th>`).join('')}</tr>`;
+    const body=rows.map(r=>`<tr class="${r.cls||''}"><td class="mdl-lbl">${r.label}</td>${cols.map((m,i)=>cell(r,i)).join('')}</tr>`).join('');
+    return head+body;
+  }
+  const head=`<tr><th class="mdl-lbl">Month</th>${rows.map(r=>`<th class="num ${r.cls||''}">${r.label}</th>`).join('')}</tr>`;
+  const body=cols.map((m,i)=>`<tr class="${i>lastAct?'mdl-fcrow':''}"><td class="mdl-lbl">${m}</td>${rows.map(r=>cell(r,i)).join('')}</tr>`).join('');
+  return head+body;
+}
+function openModel(id){
+  if(!(COMPANY_DATA[id]||{}).months)return toast('No model data loaded for this deal');
+  openSheet(id,'forecast','model');
+}
+function modelSheet(id){
+  const d=byId(id),{M,months,lastAct}=modelCtx(id);
+  if(!months.length)return toast('No model data loaded for this deal');
+  const R=modelRowsFor(id), key='model:'+id, orient=gridOrient(key);
+  const fmt=v=>v==null?'<span class="muted">–</span>':money0(v);
+  const catRow=([label,aKey,fKey])=>({label,vals:months.map((m,i)=>modelVal(id,label,aKey,fKey,i)),edit:true});
+  const pick=which=>MODEL_ROWS.filter(([l])=>MODEL_IN.includes(l)===which).map(catRow);
+  const rows=[{label:'Opening cash',cls:'mdl-open',vals:R.opening}]
+    .concat(pick(true),  [{label:'Total inflows', cls:'mdl-sub',vals:R.inflow}])
+    .concat(pick(false), [{label:'Total outflows',cls:'mdl-sub',vals:R.outflow}])
+    .concat([{label:'Other / unreconciled',cls:'mdl-resid',vals:R.resid},
+             {label:'Net cash movement',cls:'mdl-tot',vals:R.net},
+             {label:'Closing cash',cls:'mdl-tot',vals:R.closing}]);
+  const cols=months.map((m,i)=>m.slice(2)+(i>lastAct?' ·f':''));
+  const editHTML=(r,i)=>`<input class="editcell" value="${r.vals[i]==null?'':r.vals[i]}" onchange="setModelCell('${id}','${r.label}',${i},this.value,this)">`;
+  const table=renderMatrix(rows,cols,lastAct,orient,fmt,editHTML);
+  const seg=['across','down'].map(o=>`<button class="${o===orient?'on':''}" onclick="setGridOrient('${key}','${o}',()=>modelSheet('${id}'))">${o==='across'?'Months across':'Months down'}</button>`).join('');
+  renderSheet(id,'model',`Full cashflow model – ${d.org}`,
+    `actuals to ${months[lastAct]} read-only · forecast (·f) editable`,
+    `<button class="btn btn-outline btn-sm" onclick="exportModelCSV('${id}')">${DL_IC}Download CSV</button>
+     <button class="btn btn-primary btn-sm" onclick="toast('Overrides applied to the forecast')">Apply overrides</button>`,
+    `<span class="seg cseg">${seg}</span>`,
+    `<div class="sheet-scroll ${orient==='down'?'orient-down':''}"><table class="sheetgrid mdlgrid selgrid">${table}</table></div>`);
 }
 
 /* ---------- CATEGORISATION TAB ---------- */
@@ -4488,9 +4910,98 @@ function txnData(d){
   return rows.map(r=>({date:r[0],desc:r[1],amt:r[2],cat:r[3],conf:r[4],flag:r[5],merch:r[6],recur:r[7],acct:r[8],matched:r[9],cur:r[10]}));
 }
 function tabCateg(d){if(!CATG[d.id]){const txns=txnData(d);CATG[d.id]={sub:'pl',filter:txns.some(t=>t.flag)?'flagged':'all',touched:false,txns,sel:[],filt:{q:'',cat:'',conf:0,recur:'any',cur:''}};}renderCateg(d.id);}
+/* ===========================================================================
+   Categorisation drill (Ravi, 28 Aug screenshare)
+   "At the top of the transaction categorisation page you have these two charts:
+    the bank balance over time, and this one which categorises the bank transfers
+    and shows you the movement. Below you have the transactions. When you select a
+    period, this chart updates, and below you see which transactions it relates to
+    – so they can recategorise underneath."
+   The balance chart is the only selection surface; everything else follows it.
+   =========================================================================== */
+// the real daily bank balance loaded for this tool – COMPANY_DATA[id].bankDaily
+function balanceSeries(id){
+  const bd=(COMPANY_DATA[id]||{}).bankDaily;
+  if(!bd||!bd.daily||!bd.daily.length)return {data:[],labels:[]};
+  const t0=Date.parse(bd.start+'T00:00:00Z');
+  return {data:bd.daily, labels:bd.daily.map((_,i)=>new Date(t0+i*864e5).toISOString().slice(0,10))};
+}
+const catRange=id=>CATG[id]&&CATG[id].range;
+function txInRange(t,r){return !r || (t.date>=r.from && t.date<=r.to);}
+/* Ravi's second chart – "it categorises the bank transfers and shows you the movement".
+   Driven off the real monthly model series, summed across whatever period is selected. */
+const MOVE_CATS=[['Revenue','revenueActual'],['Debt in','debtInvestment'],['Uncat. in','uncatInflows'],
+                 ['Variable','variableCosts'],['Fixed','fixedCosts'],['Taxes','taxes'],['Debt repay','debtRepayment']];
+function movementSpec(id){
+  const C=COMPANY_DATA[id]||{},M=C.model||{},months=C.months||[],r=catRange(id);
+  const lo=r&&r.from.slice(0,7), hi=r&&r.to.slice(0,7);
+  const keep=months.map((m,i)=>(!r||(m>=lo&&m<=hi))?i:-1).filter(i=>i>=0);
+  if(!keep.length)return {empty:'No model months in this period'};
+  const pairs=MOVE_CATS.map(([label,key])=>{
+    const s=M[key]||[]; let sum=0,any=false;
+    keep.forEach(i=>{const v=s[i]; if(v!=null){sum+=v;any=true;}});
+    return any?[label,sum]:null;
+  }).filter(p=>p&&Math.round(p[1])!==0).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]));
+  if(!pairs.length)return {empty:'No actuals in this period'};
+  return {type:'bars',data:pairs.map(p=>Math.round(p[1])),labels:pairs.map(p=>p[0]),
+          color:'var(--green)',negColor:'var(--red-t)',sparseY:true};
+}
+function fmtRange(r){return fmtDate(r.from)+' – '+fmtDate(r.to);}
+/* The balance chart with a drag-to-select band. axedChart emits a viewBox'd SVG that scales, so the
+   overlay works in percentages of the rendered box rather than SVG units. */
+const BR_PADL=48, BR_PADR=12;
+function brushChart(id,w,h){
+  const S=balanceSeries(id),r=catRange(id),n=S.data.length;
+  const spec={data:S.data,labels:S.labels.map(fmtDate),color:'var(--brand-600)',linear:true,sparseY:true};
+  const L=BR_PADL/w*100, W=100-L-(BR_PADR/w*100);
+  const pos=i=> n>1 ? L+i/(n-1)*W : L+W/2;
+  let band='';
+  if(r){
+    let i0=S.labels.findIndex(x=>x>=r.from); if(i0<0)i0=0;
+    let i1=-1; for(let k=S.labels.length-1;k>=0;k--){if(S.labels[k]<=r.to){i1=k;break;}} if(i1<0)i1=i0;
+    band=`<div class="brush-band" style="left:${pos(i0).toFixed(2)}%;width:${Math.max(.7,pos(i1)-pos(i0)).toFixed(2)}%"></div>`;
+  }
+  return `<div class="brushwrap" data-id="${id}" data-n="${n}" data-l="${L}" data-w="${W}" onpointerdown="brushDown(event,this)">
+    ${axedChart(spec,w,h,false)}
+    <div class="brush-layer">${band}<div class="brush-live" hidden></div></div></div>`;
+}
+let BRUSH=null;
+const brushPct=(e,el)=>{const b=el.getBoundingClientRect();return Math.max(0,Math.min(1,(e.clientX-b.left)/b.width))*100;};
+function brushIdx(el,pct){const n=+el.dataset.n,L=+el.dataset.l,W=+el.dataset.w;
+  return Math.max(0,Math.min(n-1,Math.round((pct-L)/W*(n-1))));}
+function brushPaint(el,a,b){
+  const n=+el.dataset.n,L=+el.dataset.l,W=+el.dataset.w,live=el.querySelector('.brush-live');
+  const pos=i=> n>1 ? L+i/(n-1)*W : L+W/2;
+  const lo=Math.min(a,b),hi=Math.max(a,b);
+  live.hidden=false; live.style.left=pos(lo).toFixed(2)+'%'; live.style.width=Math.max(.7,pos(hi)-pos(lo)).toFixed(2)+'%';
+}
+function brushDown(e,el){
+  if(e.button)return; e.preventDefault();
+  BRUSH={el,a:brushIdx(el,brushPct(e,el)),b:null};
+  window.addEventListener('pointermove',brushMove);
+  window.addEventListener('pointerup',brushUp,{once:true});
+}
+function brushMove(e){ if(!BRUSH)return; BRUSH.b=brushIdx(BRUSH.el,brushPct(e,BRUSH.el)); brushPaint(BRUSH.el,BRUSH.a,BRUSH.b); }
+function brushUp(e){
+  window.removeEventListener('pointermove',brushMove);
+  const B=BRUSH; BRUSH=null; if(!B)return;
+  const id=B.el.dataset.id;
+  if(B.b==null||B.b===B.a)return clearCatRange(id);   // a plain click clears the selection
+  const S=balanceSeries(id),lo=Math.min(B.a,B.b),hi=Math.max(B.a,B.b);
+  setCatRange(id,S.labels[lo],S.labels[hi]);
+}
+function setCatRange(id,from,to){
+  const st=CATG[id]; st.range={from,to}; st.sub='tx';   // "below you actually see which transactions it relates to"
+  // selecting a period is an explicit ask to see that period – the flagged-only toggle would
+  // silently hide everything in it, which reads as "the drill is broken"
+  st.filter='all';
+  renderCateg(id);
+}
+function clearCatRange(id){CATG[id].range=null;renderCateg(id);}
 // shared filter pipeline (flagged toggle + per-column filters) – used by the table and select-all
 function visibleTx(id){const st=CATG[id],tx=st.txns,F=st.filt||{q:'',cat:'',conf:0,recur:'any',cur:''};
   let rows=st.filter==='flagged'?tx.filter(t=>t.flag):tx.slice();
+  const r=st.range; if(r)rows=rows.filter(t=>txInRange(t,r));
   if(F.q){const q=F.q.toLowerCase();rows=rows.filter(t=>((t.desc||'')+' '+(t.merch||'')).toLowerCase().includes(q));}
   if(F.cat)rows=rows.filter(t=>t.cat===F.cat);
   if(F.conf)rows=rows.filter(t=>t.conf>=F.conf);
@@ -4590,10 +5101,36 @@ function renderCateg(id){
           <td class="num"><span class="conf ${cc}">${t.conf}%</span></td>
           <td>${catStatus(t)}</td>
           <td class="mono nowrap">${fmtDate(t.date)}</td></tr>`}).join('')}
-      ${rows.length?'':'<tr><td colspan="11" class="muted" style="text-align:center;padding:24px">No transactions match these filters.</td></tr>'}</tbody></table></div>
+      ${rows.length?'':`<tr><td colspan="11" class="muted" style="text-align:center;padding:24px">${st.range?`No transactions in ${fmtRange(st.range)}. The loaded transaction sample only covers ${fmtRange({from:tx.reduce((a,t)=>t.date<a?t.date:a,tx[0].date),to:tx.reduce((a,t)=>t.date>a?t.date:a,tx[0].date)})}.`:'No transactions match these filters.'}</td></tr>`}</tbody></table></div>
     </div>`;
+  const r=st.range, inRange=r?tx.filter(t=>txInRange(t,r)).length:0;
+  const charts=`
+    <div class="card" style="margin-bottom:14px"><div class="card-b">
+      <div class="catcharts">
+        <div>
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+            <div class="lbl">Bank balance over time</div>
+            <span class="brush-hint">${r?'drag again to reselect · click to clear':'drag across a period to select it'}</span>
+          </div>
+          ${brushChart(id,620,170)}
+        </div>
+        <div>
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+            <div class="lbl">Movement by category</div>
+            <span class="brush-hint">${r?fmtRange(r):'all time'}</span>
+          </div>
+          ${axedChart(movementSpec(id),560,170,false)}
+        </div>
+      </div>
+    </div></div>
+    ${r?`<div class="txdrill">
+      <span class="txdrill-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18M6 10h12M10 15h4M11 20h2"/></svg></span>
+      <span class="txdrill-tx">Showing <b>${fmtRange(r)}</b> — the transactions behind the selected period. <span class="muted">${inRange} of ${tx.length} shown.</span></span>
+      <button class="btn btn-outline btn-sm" onclick="clearCatRange('${id}')">Clear period</button>
+    </div>`:''}`;
   document.getElementById('pane').innerHTML=`
     ${aiTxnPanel(flagged)}
+    ${charts}
     <div class="subtabs">
       <div class="st ${st.sub==='pl'?'on':''}" onclick="catSub('${id}','pl')">Monthly P&amp;L</div>
       <div class="st ${st.sub==='tx'?'on':''}" onclick="catSub('${id}','tx')">Transactions</div></div>
