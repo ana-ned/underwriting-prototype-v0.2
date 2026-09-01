@@ -687,7 +687,12 @@ table.txgrid tbody tr.rowsel td{background:var(--brand-100)}
 .selgrid{-webkit-user-select:none;user-select:none}
 .selgrid input,.selgrid textarea{-webkit-user-select:text;user-select:text}
 .selgrid td[data-sv]{cursor:cell}
+/* headers and row labels are handles for their whole line, like a spreadsheet's gutters */
+.selgrid thead th,.selgrid tr:first-child th,.selgrid td.mdl-lbl,.selgrid td.dg-info{cursor:pointer}
+.selgrid thead th:hover,.selgrid tr:first-child th:hover{background:#e2e7ec}
+.selgrid td.mdl-lbl:hover,.selgrid td.dg-info:hover{background:#f2f6f8}
 .selgrid td.sel-on{background:rgba(30,189,192,.16)!important;box-shadow:inset 0 0 0 1px var(--brand-600)}
+.selgrid .sel-line{background:var(--brand-600)!important;color:#fff!important}
 .selgrid td.sel-on input{background:transparent}
 [data-selwrap]{position:relative}
 .selbar{position:sticky;bottom:0;z-index:4;display:flex;align-items:center;gap:10px;padding:9px 16px;
@@ -4737,7 +4742,17 @@ function selCellsIn(grid,a,b){
 }
 function selPaint(){
   document.querySelectorAll('td.sel-on').forEach(td=>td.classList.remove('sel-on'));
+  document.querySelectorAll('.sel-line').forEach(el=>el.classList.remove('sel-line'));
   SEL.cells.forEach(td=>td.classList.add('sel-on'));
+  // light the gutter for any line that's fully selected, so you can see what's active
+  if(SEL.grid&&SEL.cells.size){
+    const B=selBounds(SEL.grid), byC={}, byR={};
+    SEL.cells.forEach(td=>{const {r,c}=selRC(td);byC[c]=(byC[c]||0)+1;byR[r]=(byR[r]||0)+1;});
+    const rows=B.r1-B.r0+1, cols=B.c1-B.c0+1;
+    const head=SEL.grid.querySelector('thead tr')||SEL.grid.querySelector('tr');
+    Object.keys(byC).forEach(c=>{if(byC[c]>=rows&&head&&head.children[c])head.children[c].classList.add('sel-line');});
+    Object.keys(byR).forEach(r=>{if(byR[r]>=cols){const tr=SEL.grid.rows[r];const l=tr&&tr.querySelector('.mdl-lbl,.dg-info');if(l)l.classList.add('sel-line');}});
+  }
   const bar=SEL.grid&&SEL.grid.closest('[data-selwrap]');
   const out=bar&&bar.querySelector('.selbar');
   if(!out)return;
@@ -4759,23 +4774,45 @@ function selCopy(){
   toast(SEL.cells.size+' cells copied');
 }
 function selClear(){SEL.cells.clear();SEL.anchor=null;selPaint();}
+/* the extent of the selectable area, so a header or a label can select its whole line */
+function selBounds(grid){
+  let r0=Infinity,r1=-1,c0=Infinity,c1=-1;
+  grid.querySelectorAll('td[data-sv]').forEach(td=>{const {r,c}=selRC(td);
+    if(r<r0)r0=r; if(r>r1)r1=r; if(c<c0)c0=c; if(c>c1)c1=c;});
+  return {r0,r1,c0,c1};
+}
+/* Resolve whatever was hit into a rectangle: a cell is itself, a column header is its whole
+   column, a row label is its whole row, and the corner is everything – as in a spreadsheet. */
+function selTarget(e,grid){
+  const B=selBounds(grid); if(B.r1<0)return null;
+  const cell=e.target.closest('td[data-sv]');
+  if(cell){const p=selRC(cell);return {a:p,b:p,B};}
+  const lbl=e.target.closest('td.mdl-lbl,td.dg-info');
+  if(lbl)return {a:{r:lbl.parentElement.rowIndex,c:B.c0},b:{r:lbl.parentElement.rowIndex,c:B.c1},B,line:'row'};
+  const th=e.target.closest('th'); if(!th)return null;
+  const c=th.cellIndex;
+  if(c<B.c0)return {a:{r:B.r0,c:B.c0},b:{r:B.r1,c:B.c1},B,line:'all'};   // corner selects the sheet
+  return {a:{r:B.r0,c},b:{r:B.r1,c},B,line:'col'};
+}
 function selDown(e){
-  const td=e.target.closest('td[data-sv]'); if(!td)return;
-  const grid=td.closest('.selgrid'); if(!grid)return;
+  const grid=e.target.closest('.selgrid'); if(!grid)return;
+  const t=selTarget(e,grid); if(!t)return;
   if(SEL.grid!==grid){SEL.grid=grid;SEL.cells.clear();SEL.anchor=null;}
   const add=e.metaKey||e.ctrlKey, ext=e.shiftKey&&SEL.anchor;
   SEL.keep=add?new Set(SEL.cells):new Set();
-  if(!ext)SEL.anchor=selRC(td);
-  SEL.cells=new Set([...SEL.keep,...selCellsIn(grid,SEL.anchor,selRC(td))]);
+  SEL.line=t.line||null;
+  if(!ext)SEL.anchor=t.a;
+  SEL.cells=new Set([...SEL.keep,...selCellsIn(grid,SEL.anchor,t.b)]);
   SEL.drag=true; selPaint();
-  // no preventDefault – a plain click still lands in the input so forecast cells stay editable
+  if(t.line)e.preventDefault();   // header/label drags shouldn't start a text selection
+  // a plain cell click still falls through, so forecast inputs stay focusable
 }
 function selMove(e){
   if(!SEL.drag||!SEL.grid)return;
-  const td=document.elementFromPoint(e.clientX,e.clientY);
-  const cell=td&&td.closest&&td.closest('td[data-sv]');
-  if(!cell||cell.closest('.selgrid')!==SEL.grid)return;
-  SEL.cells=new Set([...SEL.keep,...selCellsIn(SEL.grid,SEL.anchor,selRC(cell))]);
+  const el=document.elementFromPoint(e.clientX,e.clientY);
+  if(!el||!el.closest||el.closest('.selgrid')!==SEL.grid)return;
+  const t=selTarget({target:el},SEL.grid); if(!t)return;
+  SEL.cells=new Set([...SEL.keep,...selCellsIn(SEL.grid,SEL.anchor,t.b)]);
   selPaint();
 }
 document.addEventListener('pointerdown',selDown);
