@@ -1303,6 +1303,12 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .offer-table td.or-prod{white-space:nowrap;min-width:230px}
 .oc-rec,.oc-avail,.offer-table .oc-sysh{white-space:nowrap}
 .or-pending{font-size:12px;color:var(--text-3)}
+.dec-trail{display:inline-flex;align-items:center;gap:6px;margin-left:8px;padding:2px 8px 2px 3px;border:1px solid var(--border);border-radius:999px;background:#fff;cursor:pointer;font:inherit;font-size:11.5px;color:var(--text-2)}
+.dec-trail:hover{border-color:var(--brand-500,#1ebdc0);color:var(--brand-700)}
+.dec-trail .ck-av{width:18px;height:18px;flex:none;font-size:8.5px}
+.oe-hist{margin:0 0 16px;border:1px solid var(--border);border-radius:8px;padding:13px 15px;background:#fff}
+.oe-hist .ck-item{display:block;padding:9px 0;border-top:1px solid var(--cell)}
+.oe-hist .ck-item:first-of-type{border-top:0;padding-top:4px}
 .pub-lines{flex:1;min-width:0}
 .pub-line{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:3px 0;font-size:13.5px}
 .pub-line b{font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -3542,7 +3548,11 @@ function tabBackground(d){
    ${lendingRelationshipCard(d)}
    ${bgConnections(d)}`;
 }
-const DEC={};
+const DEC={};       // {id:{i:'approve'|'reject'}} – the verdict every count reads
+const DEC_META={};  // {id:{i:{by,initials,at,note}}} – who reached it
+const DEC_LOG={};   // {id:{i:[{by,initials,at,action,from,to,note}]}} – every iteration
+const decMeta=(id,i)=>DEC_META[id]&&DEC_META[id][i];
+const decLog=(id,i)=>(DEC_LOG[id]&&DEC_LOG[id][i])||[];
 function decisionProducts(d){
   const m=d.maxAmount||120000, sec=d.rating==='B'?'Not required':'Personal guarantee';
   const rec=n=>d.products.some(p=>p.toLowerCase().includes(n));
@@ -3567,6 +3577,13 @@ function offerCard(d,p,i){
   </div>`;
 }
 // Decision offers as compact rows (transcript §7: summary-style, not inline-editable; amounts via Edit → modal)
+/* Who reached the verdict, on the row – the last place in the flow where the trail stopped */
+function decTrail(id,i){
+  const mt=decMeta(id,i); if(!mt)return '';
+  const log=decLog(id,i), cnt=log.length>1?` +${log.length-1}`:'';
+  return `<button class="dec-trail" title="${ckEsc(mt.by+' · '+mt.at+(mt.note?' – '+mt.note:' – no reason given'))} (click for the full history)" onclick="reviewOffer('${id}',${i})">
+    <span class="ck-av">${ckEsc(mt.initials)}</span><span>${ckEsc(uwFirst(mt.by))}${cnt}</span></button>`;
+}
 function offerRow(d,p,i){
   const state=decState(d,i,p);
   const chip=state==='approve'?'<span class="chip c-success"><span class="dot"></span>Approved</span>':state==='reject'?'<span class="chip c-error"><span class="dot"></span>Rejected</span>':'<span class="chip c-neutral">Pending</span>';
@@ -3584,7 +3601,7 @@ function offerRow(d,p,i){
     <td class="or-amt mono">${amt}</td>
     <td class="or-terms">${rest}</td>
     <td><span class="sys-chip ${sysCls}" title="What the engine recommends – it does not change when you decide"><span class="dot"></span>${sysTxt}</span></td>
-    <td>${decided?chip:'<span class="or-pending">Not reviewed</span>'}</td>
+    <td>${decided?chip+decTrail(d.id,i):'<span class="or-pending">Not reviewed</span>'}</td>
     <td class="or-act">
       <button class="btn ${decided?'btn-outline':'btn-primary'} btn-sm" onclick="reviewOffer('${d.id}',${i})">${decided?'Edit':'Review'}</button>
     </td></tr>`;
@@ -3672,12 +3689,17 @@ function publishDecision(id){CONFIRMED[id]=CONFIRMED[id]||{};CONFIRMED[id].decis
   toast('Decision published – sent for risk sign-off');}
 function decideOffer(id,i,verdict){const p=decisionProducts(byId(id))[i];
   openOverlay(`<div class="modal" style="max-width:440px"><div class="mh"><h3>${verdict==='approve'?'Approve':'Reject'} – ${p.name}</h3><div class="x" onclick="closeOverlay()">✕</div></div>
-   <div class="mb"><p class="muted small" style="margin:0 0 8px">Add a short reason – it's saved to the deal history.</p>
+   <div class="mb"><p class="muted small" style="margin:0 0 8px">Add a short reason – saved to the deal history and shown to whoever reviews this next.</p>
    <textarea id="decReason" class="editcell" style="width:100%;min-height:70px;text-align:left" placeholder="${verdict==='approve'?'e.g. Cashflow supports the advance at this size.':'e.g. Undisclosed linked-entity debt changes the risk picture.'}"></textarea>
    <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-outline btn-sm" onclick="closeOverlay()">Cancel</button>
      <button class="btn btn-primary btn-sm" onclick="applyDecide('${id}',${i},'${verdict}')">${verdict==='approve'?'Approve offer':'Reject offer'}</button></div></div></div>`);}
 function applyDecide(id,i,verdict){const r=((document.getElementById('decReason')||{}).value||'').trim();
-  const p=decisionProducts(byId(id))[i];DEC[id]=DEC[id]||{};DEC[id][i]=verdict;closeOverlay();
+  const p=decisionProducts(byId(id))[i],prev=DEC[id]&&DEC[id][i];
+  DEC[id]=DEC[id]||{};DEC[id][i]=verdict;
+  DEC_META[id]=DEC_META[id]||{};DEC_META[id][i]={by:CURRENT_UW.name,initials:CURRENT_UW.initials,at:nowStamp(),note:r};
+  DEC_LOG[id]=DEC_LOG[id]||{};(DEC_LOG[id][i]=DEC_LOG[id][i]||[]).push(
+    {by:CURRENT_UW.name,initials:CURRENT_UW.initials,at:nowStamp(),action:'decide',from:prev||null,to:verdict,note:r});
+  closeOverlay();
   (NOTES[id]=NOTES[id]||[]).push({name:CURRENT_UW.name,initials:CURRENT_UW.initials,time:nowStamp(),stepId:'decision',tag:'Decision',tx:`${verdict==='approve'?'Approved':'Rejected'} ${p.name}${r?' – '+r:''}`});
   tabDecision(byId(id));toast(`${verdict==='approve'?'Approved':'Rejected'} ${p.name}`);}
 // Full offer field set (mirrors the back-office "confirm offer details" – all fields underwriters use to build an offer).
@@ -3751,11 +3773,21 @@ function offerFields(d,p){
       ['Net XIRR',netX]]],
   ];
 }
+function offerHistory(id,i){
+  const log=decLog(id,i); if(!log.length)return '';
+  const V={approve:'Approved',reject:'Rejected'};
+  return `<div class="oe-hist"><div class="oe-imp-h">Decision history</div>
+    ${log.map(e=>`<div class="ck-item">
+      <div class="ck-histwho"><span class="ck-av">${e.initials}</span><span class="nm">${ckEsc(e.by)}</span><span class="when">${ckEsc(e.at)}</span></div>
+      <div class="ck-histtag"><span class="tr-tags">${e.from?actTag(V[e.from],e.from==='approve'?'c-success':'c-error',' strike')+'<span class="tr-arw">→</span>':''}${actTag(V[e.to],e.to==='approve'?'c-success':'c-error')}</span></div>
+      ${e.note?`<div class="ck-txt">${ckEsc(e.note)}</div>`:''}</div>`).join('')}</div>`;
+}
 function reviewOffer(id,i){const d=byId(id),p=decisionProducts(d)[i];
   const rows=offerFields(d,p).map(([grp,flds])=>`<tr class="oe-grp"><td colspan="2">${grp}</td></tr>`+flds.map(f=>`<tr><td class="oe-lbl">${f[0]}</td><td class="oe-val"><input class="editcell offer-term-in" data-orig="${f[1]}" value="${f[1]}" oninput="this.classList.toggle('chg',this.value!==this.dataset.orig)"></td></tr>`).join('')).join('');
   openOverlay(`<div class="modal oe-modal" style="max-width:680px"><div class="mh"><h3>Review offer – ${p.name}</h3><div class="x" onclick="closeOverlay()">✕</div></div>
    <div class="mb">
      <div class="oe-uw"><span class="oe-uw-l">Underwriter</span><span class="oe-uw-v"><span class="oe-av">${CURRENT_UW.initials}</span>${CURRENT_UW.name}</span></div>
+     ${offerHistory(d.id,i)}
      ${offerImpactPanel(d,p)}
      <table class="grid flat oe-tbl">${rows}</table>
    </div>
