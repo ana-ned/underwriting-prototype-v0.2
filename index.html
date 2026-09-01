@@ -333,7 +333,7 @@ tr.clickable:hover .goarrow{background:var(--brand-600);color:#fff;border-color:
 .cklist{margin-top:2px}
 /* Data checks / Background row – 5 columns: name · evidence · SYSTEM (snapshot) · UNDERWRITER (blank unless overridden) · note.
    Ravi Aug-25: "it'd be good to just have two columns, and if the underwriter doesn't change it, then it stays blank." */
-:root,.ckgrid{--ckcols:minmax(168px,1.05fr) minmax(196px,1.45fr) 104px minmax(190px,1.35fr) 152px}
+:root,.ckgrid{--ckcols:minmax(156px,1fr) minmax(180px,1.3fr) 100px minmax(170px,1.2fr) 184px}
 /* the grid bleeds to the card edges so header band and row rules run the full table width */
 .card-b>.ckgrid{margin:-19px}
 .cklist.ckgrid{margin-top:-19px}
@@ -421,7 +421,7 @@ tr.clickable:hover .goarrow{background:var(--brand-600);color:#fff;border-color:
 .acc .adetail{color:var(--text-2);font-size:13px;flex:1}
 /* RAG rows carry the same anatomy as Data checks / Background, but Notes sits BEFORE the selector so
    the solid control anchors the right edge and the caret reads as part of the row, not adrift after it. */
-.acc.ckgrid{--ckcols:minmax(168px,1.05fr) minmax(196px,1.45fr) 104px minmax(170px,1.3fr) 152px}
+.acc.ckgrid{--ckcols:minmax(156px,1fr) minmax(180px,1.3fr) 100px minmax(170px,1.2fr) 184px}
 .acc.ckgrid .ahead{display:grid;grid-template-columns:var(--ckcols) 20px;gap:16px;align-items:center;padding:12px 14px}
 /* rows are separate cards, so the header is plain labels aligned to card content – no full-width band */
 .acc.ckgrid .ckhead{grid-template-columns:var(--ckcols) 20px;padding:0 15px 8px;background:transparent;border-bottom:0}
@@ -609,7 +609,8 @@ table.txgrid tbody tr.rowsel td{background:var(--brand-100)}
 .sheet-f{justify-content:flex-start}
 .sheet-x{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:14px;color:var(--text-2);flex:0 0 auto}
 .sheet-x:hover{background:var(--grey-1)}
-.sheet-b{flex:1;min-height:0;display:grid;grid-template-rows:minmax(0,1fr) auto;overflow:hidden;position:relative}
+.sheet-b{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.sheet-b>.dg-summary{flex:0 0 auto}
 .sheet-scroll{flex:1;min-height:0;overflow:auto}
 .sheet-b>.selbar{position:static;margin-top:auto;flex:0 0 auto}
 .sheet-f{display:flex;align-items:center;gap:8px;padding:12px 22px;border-top:1px solid var(--border);flex:0 0 auto}
@@ -633,8 +634,8 @@ table.txgrid tbody tr.rowsel td{background:var(--brand-100)}
   background:#eceff2;color:var(--text-3);font-size:10.5px;font-weight:700;letter-spacing:.03em}
 .sheetgrid .mdl-lbl,.sheetgrid .dg-info{position:sticky;left:0;z-index:3;background:#fff;
   text-align:left;font-weight:600;white-space:nowrap;box-shadow:1px 0 0 var(--border);width:var(--sg-lbl-w)}
-.sheetgrid thead th.mdl-lbl,.sheetgrid tr:first-child th.mdl-lbl,.sheetgrid thead .dg-info{
-  position:sticky;left:0;top:0;z-index:5;background:#eceff2}
+.sheetgrid thead th.mdl-lbl,.sheetgrid tr:first-child th.mdl-lbl,.sheetgrid thead th.dg-info{
+  position:sticky!important;left:0!important;top:0!important;z-index:9!important;background:#eceff2}
 /* cell states */
 .sheetgrid .act,.sheetgrid .rocell{background:var(--grey-1);color:var(--text-2)}
 .sheetgrid .fc{background:#fff;color:var(--brand-700)}
@@ -1290,7 +1291,21 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .oc-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:11px}
 .oc-t{font-weight:800;font-size:15px}
 .offer-table td.or-prod{white-space:nowrap;min-width:230px}
-.oc-rec,.oc-avail,.oc-addon{white-space:nowrap;display:inline-block}
+.oc-rec,.oc-avail,.offer-table .oc-sysh{white-space:nowrap}
+.or-pending{font-size:12px;color:var(--text-3)}
+.oe-impact{margin:0 0 16px;border:1px solid var(--border);border-radius:8px;padding:13px 15px;background:var(--grey-1)}
+.oe-imp-h{font-size:12px;font-weight:700;margin-bottom:10px}
+.oe-imp-k{display:flex;gap:30px;margin-bottom:12px}
+.oe-imp-k b{display:block;font-size:17px;font-weight:800;font-variant-numeric:tabular-nums}
+.oe-imp-k b.bad{color:var(--red-t)}
+.oe-imp-k span{font-size:11px;color:var(--text-3)}
+.oe-imp-t{width:100%;font-size:11.5px;font-variant-numeric:tabular-nums;border-collapse:collapse}
+.oe-imp-t td{text-align:right;padding:3px 6px;white-space:nowrap}
+.oe-imp-t .oe-imp-l{text-align:left;color:var(--text-3);font-weight:600}
+.oe-imp-t .neg{color:var(--red-t)}
+.oe-imp-t .oe-imp-mo td{color:var(--text-3);font-size:10.5px;padding-top:1px}
+.offer-table .sys-chip{font-size:11px}
+.oc-addon{white-space:nowrap;display:inline-block}
 .oc-rec,.oc-avail{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:2px 7px;border-radius:4px;margin-left:7px;vertical-align:2px}
 .oc-rec{color:var(--brand-700);background:var(--brand-100);border:1px solid var(--brand-300)}
 .oc-avail{color:var(--text-3);background:var(--grey-1);border:1px solid var(--border)}
@@ -3532,7 +3547,7 @@ function offerCard(d,p,i){
   return `<div class="offer-card ${cls}" id="oc${i}">
     <div class="oc-head"><div class="oc-t">${p.name}${p.rec?'<span class="oc-rec">Recommended</span>':'<span class="oc-avail">Not recommended</span>'}</div>${chip}</div>
     <div class="oc-terms">${p.terms.map(t=>`<div class="oc-term"><span class="ot-k">${t[0]}</span><span class="ot-v">${t[1]}</span></div>`).join('')}</div>
-    <div class="oc-actions"><button class="btn btn-outline btn-sm" onclick="editOffer('${d.id}',${i})">Edit terms</button><span style="flex:1"></span>
+    <div class="oc-actions"><button class="btn btn-outline btn-sm" onclick="reviewOffer('${d.id}',${i})">Review</button><span style="flex:1"></span>
       <button class="btn btn-outline btn-sm oc-rejbtn ${state==='reject'?'on':''}" onclick="decideOffer('${d.id}',${i},'reject')">Reject</button>
       <button class="btn ${state==='approve'?'btn-primary':'btn-outline'} btn-sm" onclick="decideOffer('${d.id}',${i},'approve')">Approve</button></div>
   </div>`;
@@ -3543,15 +3558,21 @@ function offerRow(d,p,i){
   const chip=state==='approve'?'<span class="chip c-success"><span class="dot"></span>Approved</span>':state==='reject'?'<span class="chip c-error"><span class="dot"></span>Rejected</span>':'<span class="chip c-neutral">Pending</span>';
   const amt=p.terms[0][1];
   const rest=p.terms.slice(1).map(t=>`<span class="ot-k">${t[0]}</span> ${t[1]}`).join('<span class="ot-sep">·</span>');
+  /* dec1 – Ravi: "there's a tension: is it actually approved or not? The recommendation is to
+     approve; that is not the status." So the engine's call and the underwriter's decision get
+     their own columns, the same System / Conclusion split used on the checks and RAG steps.
+     dec2 – one Review button; the outcome of the review comes back onto the row. */
+  const sysTxt=p.addon?'Add-on':p.rec?'Recommended':'Not recommended';
+  const sysCls=p.addon?'a':p.rec?'g':'r';
+  const decided=state==='approve'||state==='reject';
   return `<tr class="offer-row ${state}${p.addon?' addon':''}" id="or${i}">
-    <td class="or-prod"><span class="or-name">${p.name}</span>${p.addon?'<span class="oc-addon">Add-on</span>':p.rec?'<span class="oc-rec">Recommended</span>':'<span class="oc-avail">Not rec.</span>'}</td>
+    <td class="or-prod"><span class="or-name">${p.name}</span></td>
     <td class="or-amt mono">${amt}</td>
     <td class="or-terms">${rest}</td>
-    <td>${chip}</td>
+    <td><span class="sys-chip ${sysCls}" title="What the engine recommends – it does not change when you decide"><span class="dot"></span>${sysTxt}</span></td>
+    <td>${decided?chip:'<span class="or-pending">Not reviewed</span>'}</td>
     <td class="or-act">
-      <button class="btn btn-outline btn-sm" onclick="editOffer('${d.id}',${i})">Edit</button>
-      <button class="btn btn-outline btn-sm oc-rejbtn ${state==='reject'?'on':''}" onclick="decideOffer('${d.id}',${i},'reject')">Reject</button>
-      <button class="btn ${state==='approve'?'btn-primary':'btn-outline'} btn-sm" onclick="decideOffer('${d.id}',${i},'approve')">Approve</button>
+      <button class="btn ${decided?'btn-outline':'btn-primary'} btn-sm" onclick="reviewOffer('${d.id}',${i})">${decided?'Reviewed':'Review'}</button>
     </td></tr>`;
 }
 // Compact deal recap for the Decision step (Ravi wanted the overview context here – kept short, not merged/duplicated in full).
@@ -3582,9 +3603,9 @@ function tabDecision(d){
   const open=dealIssueCount(d);
   document.getElementById('pane').innerHTML=`
    ${decisionSummaryCard(d)}
-   <div class="card" style="margin-bottom:14px"><div class="card-h"><h3>Offers</h3><span class="sub">one row per product · Edit opens the terms · approve or reject each</span></div>
-     <div style="overflow:auto"><table class="offer-table"><thead><tr><th>Product</th><th>Amount</th><th>Key terms</th><th>Status</th><th></th></tr></thead>
-       <tbody>${prods.map((p,i)=>`${(p.addon&&!(prods[i-1]&&prods[i-1].addon))?`<tr class="offer-sep"><td colspan="5">Add-ons – attach alongside a main facility, not offered standalone</td></tr>`:''}${offerRow(d,p,i)}`).join('')}</tbody></table></div></div>
+   <div class="card" style="margin-bottom:14px"><div class="card-h"><h3>Offers</h3><span class="sub">one row per product · what the engine recommends vs what you decided</span></div>
+     <div style="overflow:auto"><table class="offer-table"><thead><tr><th>Product</th><th>Amount</th><th>Key terms</th><th class="oc-sysh">System</th><th>Decision</th><th></th></tr></thead>
+       <tbody>${prods.map((p,i)=>`${(p.addon&&!(prods[i-1]&&prods[i-1].addon))?`<tr class="offer-sep"><td colspan="6">Add-ons – attach alongside a main facility, not offered standalone</td></tr>`:''}${offerRow(d,p,i)}`).join('')}</tbody></table></div></div>
    <div class="card"><div class="card-h"><h3>Underwriting summary</h3><span class="sub">finalise the note before publishing – saved with the decision for sign-off</span></div>
      <div class="card-b">
        <textarea class="editcell" id="uwNote" style="width:100%;min-height:64px;text-align:left" placeholder="Summarise the rationale and any conditions before publishing…">${dealMetrics(d).rationale}</textarea>
@@ -3640,6 +3661,36 @@ function applyDecide(id,i,verdict){const r=((document.getElementById('decReason'
   (NOTES[id]=NOTES[id]||[]).push({name:CURRENT_UW.name,initials:CURRENT_UW.initials,time:nowStamp(),stepId:'decision',tag:'Decision',tx:`${verdict==='approve'?'Approved':'Rejected'} ${p.name}${r?' – '+r:''}`});
   tabDecision(byId(id));toast(`${verdict==='approve'?'Approved':'Rejected'} ${p.name}`);}
 // Full offer field set (mirrors the back-office "confirm offer details" – all fields underwriters use to build an offer).
+function offerImpact(d,p){
+  const T=Object.fromEntries(p.terms.map(t=>[t[0],t[1]]));
+  const amt=parseInt(String(p.terms[0][1]).replace(/[^0-9]/g,''))||d.maxAmount||0;
+  const termMo=parseInt(String(T['Term']||T['Est. duration']||T['Max term']||'10'))||10;
+  const feePct=(parseFloat(String(T['Cash fee']||T['Fee on drawn']||'0.9'))||0.9)/100;
+  const C=COMPANY_DATA[d.id]||{},M=C.model||{},months=C.months||[];
+  let lastAct=-1;(M.revenueActual||[]).forEach((v,i)=>{if(v!=null)lastAct=i;});
+  const revAt=i=>{const v=(i<=lastAct?(M.revenueActual||[]):(M.revenueForecast||[]))[i];return v==null?null:Math.round(v);};
+  const svc=termMo?Math.round(amt/termMo+amt*feePct):0;
+  const fwd=[];
+  for(let i=lastAct+1;i<months.length&&fwd.length<6;i++){const r=revAt(i);if(r!=null)fwd.push([months[i].slice(2),r]);}
+  const avgRev=fwd.length?Math.round(fwd.reduce((s,x)=>s+x[1],0)/fwd.length):0;
+  return {amt,termMo,svc,fwd,avgRev,pct:avgRev?Math.round(svc/avgRev*100):0,runway:(cRunway(d.id)??d.runway)};
+}
+function offerImpactPanel(d,p){
+  const m=offerImpact(d,p);
+  if(!m.fwd.length)return '';
+  const hot=m.pct>25;
+  return `<div class="oe-impact">
+    <div class="oe-imp-h">Impact <span class="muted small">debt service vs forecast revenue · provisional until Andrew confirms what he needs here</span></div>
+    <div class="oe-imp-k">
+      <div><b>${money0(m.svc)}</b><span>debt service /mo</span></div>
+      <div><b class="${hot?'bad':''}">${m.pct}%</b><span>of forecast revenue</span></div>
+      <div><b>${m.runway} mo</b><span>runway</span></div>
+    </div>
+    <table class="oe-imp-t"><tr><td class="oe-imp-l">Revenue</td>${m.fwd.map(x=>`<td>${fmtK(x[1])}</td>`).join('')}</tr>
+      <tr><td class="oe-imp-l">Debt service</td>${m.fwd.map(()=>`<td class="neg">${fmtK(-m.svc)}</td>`).join('')}</tr>
+      <tr class="oe-imp-mo"><td class="oe-imp-l"></td>${m.fwd.map(x=>`<td>${x[0]}</td>`).join('')}</tr></table>
+  </div>`;
+}
 function offerFields(d,p){
   const T=Object.fromEntries(p.terms.map(t=>[t[0],t[1]]));
   const amtStr=p.terms[0][1], amtNum=parseInt(String(amtStr).replace(/[^0-9]/g,''))||d.maxAmount||0;
@@ -3680,18 +3731,21 @@ function offerFields(d,p){
       ['Net XIRR',netX]]],
   ];
 }
-function editOffer(id,i){const d=byId(id),p=decisionProducts(d)[i];
+function reviewOffer(id,i){const d=byId(id),p=decisionProducts(d)[i];
   const rows=offerFields(d,p).map(([grp,flds])=>`<tr class="oe-grp"><td colspan="2">${grp}</td></tr>`+flds.map(f=>`<tr><td class="oe-lbl">${f[0]}</td><td class="oe-val"><input class="editcell offer-term-in" data-orig="${f[1]}" value="${f[1]}" oninput="this.classList.toggle('chg',this.value!==this.dataset.orig)"></td></tr>`).join('')).join('');
-  openOverlay(`<div class="modal oe-modal" style="max-width:680px"><div class="mh"><h3>Edit offer – ${p.name}</h3><div class="x" onclick="closeOverlay()">✕</div></div>
+  openOverlay(`<div class="modal oe-modal" style="max-width:680px"><div class="mh"><h3>Review offer – ${p.name}</h3><div class="x" onclick="closeOverlay()">✕</div></div>
    <div class="mb">
      <div class="oe-uw"><span class="oe-uw-l">Underwriter</span><span class="oe-uw-v"><span class="oe-av">${CURRENT_UW.initials}</span>${CURRENT_UW.name}</span></div>
+     ${offerImpactPanel(d,p)}
      <table class="grid flat oe-tbl">${rows}</table>
    </div>
    <div class="mf">
      <button class="btn btn-outline btn-sm" onclick="resetOffer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-right:5px;vertical-align:-2px"><path d="M4 12a8 8 0 0 1 14-5m2-2v4h-4"/><path d="M20 12a8 8 0 0 1-14 5m-2 2v-4h4"/></svg>Reset to recommended</button>
      <span style="flex:1"></span>
      <button class="btn btn-outline btn-sm" onclick="closeOverlay()">Cancel</button>
-     <button class="btn btn-primary btn-sm" onclick="closeOverlay();toast('Offer terms updated (demo)')">Save terms</button>
+     <span style="flex:1"></span>
+     <button class="btn btn-outline btn-sm oc-rejbtn" onclick="decideOffer('${id}',${i},'reject');closeOverlay()">Reject</button>
+     <button class="btn btn-primary btn-sm" onclick="decideOffer('${id}',${i},'approve');closeOverlay()">Approve</button>
    </div></div>`);}
 function resetOffer(){document.querySelectorAll('#ovl .offer-term-in').forEach(inp=>{inp.value=inp.dataset.orig;inp.classList.remove('chg');});toast('Reset to recommended terms');}
 
