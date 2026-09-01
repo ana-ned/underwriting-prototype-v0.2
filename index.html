@@ -614,6 +614,8 @@ table.txgrid tbody tr.rowsel td{background:var(--brand-100)}
 .sheet-scroll{flex:1;min-height:0;overflow:auto}
 .sheet-b>.selbar{position:static;margin-top:auto;flex:0 0 auto}
 .sheet-f{display:flex;align-items:center;gap:8px;padding:12px 22px;border-top:1px solid var(--border);flex:0 0 auto}
+.selbar:not([hidden])+.sheet-f{border-top:0;padding-top:6px}
+.selbar{padding-bottom:7px}
 .sheet .dg-host .card{border:0;box-shadow:none;border-radius:0;overflow:visible}
 .sheet .dg-host .card-h{display:none}
 .sheet .dgscroll{overflow:visible}
@@ -1299,6 +1301,10 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .offer-table td.or-prod{white-space:nowrap;min-width:230px}
 .oc-rec,.oc-avail,.offer-table .oc-sysh{white-space:nowrap}
 .or-pending{font-size:12px;color:var(--text-3)}
+.pub-lines{flex:1;min-width:0}
+.pub-line{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:3px 0;font-size:13.5px}
+.pub-line b{font-variant-numeric:tabular-nums;white-space:nowrap}
+.pub-line.pub-tot{border-top:1px solid var(--border);margin-top:4px;padding-top:6px;color:var(--text-2)}
 .oe-impact{margin:0 0 16px;border:1px solid var(--border);border-radius:8px;padding:13px 15px;background:var(--grey-1)}
 .oe-imp-h{font-size:12px;font-weight:700;margin-bottom:10px}
 .oe-imp-k{display:flex;gap:30px;margin-bottom:12px}
@@ -3634,10 +3640,16 @@ function decisionBar(d){const prods=decisionProducts(d);
 function openPublishModal(id){const d=byId(id);
   const cur=((document.getElementById('uwNote')||{}).value||dealMetrics(d).rationale||'').trim();
   const prods=decisionProducts(d), ap=prods.filter((p,i)=>decState(d,i,p)==='approve');
-  const summary=ap.length?`${ap.map(p=>p.name).join(', ')} · ${money0(d.maxAmount)}`:(d.decision==='Reject'?'Decline – no offer':'Request info first');
+  /* Two approved products used to render as both names against one figure – the deal's headline
+     amount – which read as if that single sum covered both. Each carries its own. */
+  const amtOf=p=>parseInt(String((p.terms[0]||[])[1]||'').replace(/[^0-9]/g,''))||0;
+  const summary=ap.length
+    ? `<div class="pub-lines">${ap.map(p=>`<div class="pub-line"><span>${p.name}</span><b>${money0(amtOf(p))}</b></div>`).join('')}`
+      +(ap.length>1?`<div class="pub-line pub-tot"><span>Combined limit</span><b>${money0(ap.reduce((s,p)=>s+amtOf(p),0))}</b></div>`:'')+`</div>`
+    : `<span>${d.decision==='Reject'?'Decline – no offer':'Request info first'}</span>`;
   openOverlay(`<div class="modal" style="max-width:520px"><div class="mh"><h3>Publish decision</h3><div class="x" onclick="closeOverlay()">✕</div></div>
    <div class="mb">
-     <div class="pub-sum"><span class="muted small">You’re about to publish</span><div class="pub-sum-v">${decisionChip(d.decision)} <span>${summary}</span></div></div>
+     <div class="pub-sum"><span class="muted small">You’re about to publish</span><div class="pub-sum-v">${decisionChip(d.decision)}${summary}</div></div>
      <label class="pub-lbl" for="pubNote">Decision note <span class="req">Required</span></label>
      <textarea id="pubNote" class="editcell" style="width:100%;min-height:92px;text-align:left" placeholder="Summarise the rationale and any conditions – saved with the decision for sign-off." oninput="var e=document.getElementById('pubErr');if(e&&this.value.trim())e.hidden=true;">${cur}</textarea>
      <div class="pub-err" id="pubErr" hidden>Add a note explaining your decision before publishing.</div>
