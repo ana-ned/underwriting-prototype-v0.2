@@ -3572,7 +3572,7 @@ function offerRow(d,p,i){
     <td><span class="sys-chip ${sysCls}" title="What the engine recommends – it does not change when you decide"><span class="dot"></span>${sysTxt}</span></td>
     <td>${decided?chip:'<span class="or-pending">Not reviewed</span>'}</td>
     <td class="or-act">
-      <button class="btn ${decided?'btn-outline':'btn-primary'} btn-sm" onclick="reviewOffer('${d.id}',${i})">${decided?'Reviewed':'Review'}</button>
+      <button class="btn ${decided?'btn-outline':'btn-primary'} btn-sm" onclick="reviewOffer('${d.id}',${i})">${decided?'Edit':'Review'}</button>
     </td></tr>`;
 }
 // Compact deal recap for the Decision step (Ravi wanted the overview context here – kept short, not merged/duplicated in full).
