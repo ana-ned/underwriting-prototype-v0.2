@@ -3655,6 +3655,9 @@ function tabDecision(d){
      </div></div>`;
 }
 // Decision step gets the same fixed footer as every other step; its CTA is "Publish decision"
+function refreshDecisionBar(id){
+  const cb=document.getElementById('confirmbar'); if(cb)cb.outerHTML=decisionBar(byId(id));
+}
 function decisionBar(d){const prods=decisionProducts(d);
   const ap=prods.filter((p,i)=>decState(d,i,p)==='approve').length, rj=prods.filter((p,i)=>decState(d,i,p)==='reject').length;
   const open=dealIssueCount(d), done=CONFIRMED[d.id]&&CONFIRMED[d.id].decision;
@@ -3689,7 +3692,7 @@ function confirmPublish(id){const t=document.getElementById('pubNote'),v=((t||{}
   const uw=document.getElementById('uwNote');if(uw)uw.value=v;
   (NOTES[id]=NOTES[id]||[]).push({name:CURRENT_UW.name,initials:CURRENT_UW.initials,time:nowStamp(),stepId:'decision',tag:'Decision',tx:`Published decision – ${v}`});
   closeOverlay();publishDecision(id);
-  const cb=document.getElementById('confirmbar');if(cb)cb.outerHTML=decisionBar(byId(id));}
+  refreshDecisionBar(id);}
 function publishDecision(id){CONFIRMED[id]=CONFIRMED[id]||{};CONFIRMED[id].decision=true;
   const sp=document.getElementById('spine');if(sp)sp.outerHTML=renderSpine(byId(id),CUR.step);
   const pc=document.getElementById('progcell');if(pc)pc.innerHTML=progressCellInner(byId(id));
@@ -3708,7 +3711,7 @@ function applyDecide(id,i,verdict){const r=((document.getElementById('decReason'
     {by:CURRENT_UW.name,initials:CURRENT_UW.initials,at:nowStamp(),action:'decide',from:prev||null,to:verdict,note:r});
   closeOverlay();
   (NOTES[id]=NOTES[id]||[]).push({name:CURRENT_UW.name,initials:CURRENT_UW.initials,time:nowStamp(),stepId:'decision',tag:'Decision',tx:`${verdict==='approve'?'Approved':'Rejected'} ${p.name}${r?' – '+r:''}`});
-  tabDecision(byId(id));toast(`${verdict==='approve'?'Approved':'Rejected'} ${p.name}`);}
+  tabDecision(byId(id));refreshDecisionBar(id);toast(`${verdict==='approve'?'Approved':'Rejected'} ${p.name}`);}
 // Full offer field set (mirrors the back-office "confirm offer details" – all fields underwriters use to build an offer).
 function offerImpact(d,p){
   const T=Object.fromEntries(p.terms.map(t=>[t[0],t[1]]));
@@ -3803,8 +3806,8 @@ function reviewOffer(id,i){const d=byId(id),p=decisionProducts(d)[i];
      <span style="flex:1"></span>
      <button class="btn btn-outline btn-sm" onclick="closeOverlay()">Cancel</button>
      <span style="flex:1"></span>
-     <button class="btn btn-outline btn-sm oc-rejbtn" onclick="decideOffer('${id}',${i},'reject');closeOverlay()">Reject</button>
-     <button class="btn btn-primary btn-sm" onclick="decideOffer('${id}',${i},'approve');closeOverlay()">Approve</button>
+     <button class="btn btn-outline btn-sm oc-rejbtn" onclick="decideOffer('${id}',${i},'reject')">Reject</button>
+     <button class="btn btn-primary btn-sm" onclick="decideOffer('${id}',${i},'approve')">Approve</button>
    </div></div>`);}
 function resetOffer(){document.querySelectorAll('#ovl .offer-term-in').forEach(inp=>{inp.value=inp.dataset.orig;inp.classList.remove('chg');});toast('Reset to recommended terms');}
 
