@@ -325,6 +325,13 @@ tr.clickable:hover .goarrow{background:var(--brand-600);color:#fff;border-color:
 .ck-histtag>.tr-tags,.ck-histtag>.ck-act-tag{margin-left:0}
 .ck-two .ck-item .ck-txt{margin-top:7px}
 .ck-standing{font-size:12.5px;color:var(--text-2);margin:9px 0 14px}
+.rate-seg button{min-width:38px;font-size:13px;font-weight:700;padding:5px 0}
+.rate-seg button.on[data-r="A"]{background:#7ec7c6;color:#06403f}
+.rate-seg button.on[data-r="B"]{background:#d9edec;color:#00696b}
+.rate-seg button.on[data-r="C"]{background:#fdf2cd;color:#8a6a12}
+.rate-seg button.on[data-r="D"]{background:#fbe3cf;color:#a05a26}
+.rate-seg button.on[data-r="E"]{background:#fbdedb;color:#b23b30}
+.rate-seg button.on[data-r="F"]{background:#f2c4bf;color:#96182b}
 @media (max-width:860px){.ck-two{grid-template-columns:1fr}.ck-two>.ck-histcol{border-right:0;border-bottom:1px solid var(--border);max-height:30vh}}
 .ck-in{width:100%;min-height:66px;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font:inherit;font-size:13px;resize:vertical}
 .checkrow .seg.cseg{margin-left:14px}
@@ -4354,7 +4361,8 @@ function openScoreOverride(id){
        </div>
        <div class="ck-band">
          <div class="ck-sec">Your conclusion</div>
-         <select id="ovrRating" class="ck-in" style="min-height:0;padding:7px 10px">${R.map(r=>`<option value="${r}"${r===d.rating?' selected':''}>${r}</option>`).join('')}</select>
+         <span class="seg cseg rate-seg" id="ovrRating" data-v="${d.rating}">${R.map(r=>
+           `<button class="${r===d.rating?'on':''}" data-r="${r}" onclick="pickRating(this)">${r}</button>`).join('')}</span>
          <div class="ck-standing">${standing}</div>
          <div class="ck-lbl">Reason for this change</div>
          <textarea id="ovrNote" class="ck-in" placeholder="Add note"></textarea>
@@ -4364,8 +4372,13 @@ function openScoreOverride(id){
    <div class="mf"><button class="btn btn-outline btn-sm" onclick="closeOverlay()">Cancel</button><span style="flex:1"></span>
      <button class="btn btn-primary btn-sm" onclick="applyScoreOverride('${id}')">Apply override</button></div></div>`);
   setTimeout(()=>{const t=document.getElementById('ovrNote');if(t)t.focus();},60);}
+function pickRating(btn){
+  const seg=btn.closest('.rate-seg'); if(!seg)return;
+  seg.dataset.v=btn.dataset.r;
+  seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===btn));
+}
 function applyScoreOverride(id){const sel=document.getElementById('ovrRating'),t=document.getElementById('ovrNote');
-  const nr=(sel||{}).value, v=((t||{}).value||'').trim();
+  const nr=(sel&&sel.dataset.v)||byId(id).rating, v=((t||{}).value||'').trim();
   const d=byId(id),old=d.rating;
   /* g1/g2 – the override was a bare boolean, so the step could say "overridden" but never who,
      when or why. Same record shape as the checks and RAG steps, and the same optional reason. */
